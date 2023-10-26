@@ -5,7 +5,7 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import { Platform } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 
-import Button from '../../components/Button';
+import ButtonComponent from '../../components/ButtonComponent';
 import Color from '../../utils/Color';
 
 const Container = styled.View`
@@ -48,7 +48,7 @@ const ErrorIcon = styled(MaterialIcons)`
     left: 10px;
 `;
 
-function BirthDate({ route, navigation }) {
+function BirthDateScreen({ route, navigation }) {
     const [date, setDate] = useState(new Date());
     const [show, setShow] = useState(false);
     const [error, setError] = useState('');
@@ -80,7 +80,7 @@ function BirthDate({ route, navigation }) {
         if (age < 18) {
             setError('Có vẻ như bạn đã nhập thông tin sai. Hãy đảm bảo sử dụng ngày sinh nhật của mình.');
         } else {
-            navigation.navigate('Policy', {
+            navigation.navigate('PolicyScreen', {
                 ...route.params,
                 birthDate: date.toISOString().split('T')[0],
             });
@@ -115,9 +115,9 @@ function BirthDate({ route, navigation }) {
                         </Pressable>
                     ))}
             </Body>
-            <Button onPress={checkDate} title={'Tiếp'} />
+            <ButtonComponent onPress={checkDate} title={'Tiếp'} />
         </Container>
     );
 }
 
-export default BirthDate;
+export default BirthDateScreen;

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components/native';
 
 import TextInputComponent from '../../components/TextInputComponent';
-import Button from '../../components/Button';
+import ButtonComponent from '../../components/ButtonComponent';
 import Color from '../../utils/Color';
 
 const Container = styled.View`
@@ -53,53 +53,54 @@ const ViewError = styled.View`
     align-items: center;
 `;
 
-const ButtonPhone = styled(Button)`
+const ButtonEmail = styled(ButtonComponent)`
     margin-top: 10px;
     position: absolute;
     bottom: 0;
 `;
 
-function EmailRegister({ route, navigation }) {
-    const [email, setEmail] = useState('');
+function PhoneRegisterScreen({ route, navigation }) {
+    const [numberPhone, setNumberphone] = useState('');
     const [error, setError] = useState('');
 
-    const regex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
+    const regex = /^[0-9]{10}$/;
 
-    const checkEmail = () => {
-        if (email === '') {
-            setError('Vui lòng nhập email');
-        } else if (!regex.test(email)) {
-            setError('Email không hợp lệ');
+    const checkPhone = () => {
+        if (numberPhone === '') {
+            setError('Vui lòng nhập Số điện thoại');
+        } else if (!regex.test(numberPhone)) {
+            setError('Số điện thoại không hợp lệ');
         } else {
-            navigation.navigate('PasswordRegister', { ...route.params, email });
+            navigation.navigate('PasswordRegisterScreen', { ...route.params, numberPhone });
         }
     };
 
     return (
         <Container>
             <Body>
-                <Title>Nhập địa chỉ email của bạn</Title>
+                <Title>Nhập Số điện thoại của bạn</Title>
                 <ViewError>{error !== '' && <Error>{error}</Error>}</ViewError>
                 <Input>
                     <InputValue
-                        label={'Địa chỉ email'}
-                        placeholder={'Địa chỉ email'}
-                        value={email}
+                        keyboardType={'number-pad'}
+                        label={'Số điện thoại'}
+                        placeholder={'Số điện thoại'}
+                        value={numberPhone}
                         error={error}
                         onChangeText={(text) => {
                             setError('');
-                            setEmail(text);
+                            setNumberphone(text);
                         }}
                     />
                 </Input>
             </Body>
-            <Button onPress={checkEmail} title={'Tiếp'} />
-            <ButtonPhone
+            <ButtonComponent onPress={checkPhone} title={'Tiếp'} />
+            <ButtonEmail
                 onPress={() => {
                     setError('');
-                    navigation.navigate('PhoneRegister', route.params);
+                    navigation.navigate('EmailRegisterScreen', route.params);
                 }}
-                title={'Sử dụng số điện thoại'}
+                title={'Sử dụng Email'}
                 style={{ backgroundColor: Color.mainBackgroundColor }}
                 color={Color.blueButtonColor}
             />
@@ -107,4 +108,4 @@ function EmailRegister({ route, navigation }) {
     );
 }
 
-export default EmailRegister;
+export default PhoneRegisterScreen;

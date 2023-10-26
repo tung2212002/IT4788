@@ -3,15 +3,16 @@ import { createStackNavigator } from '@react-navigation/stack';
 
 import { NavigationContainer } from '@react-navigation/native';
 import Color from '../utils/Color';
-import Home from '../screens/Home';
+// import Home from '../screens/Home';
+import { HomeScreen } from '../screens';
 
 const StackHome = createStackNavigator();
 
 const HomeStack = ({ navigation }) => {
     const screenItemsLogin = [
         {
-            name: 'Home',
-            component: Home,
+            name: 'HomeScreen',
+            component: HomeScreen,
             options: {
                 title: '',
                 headerShown: false,
@@ -22,7 +23,7 @@ const HomeStack = ({ navigation }) => {
     return (
         <NavigationContainer>
             <StackHome.Navigator
-                initialRouteName="Home"
+                initialRouteName="HomeScreen"
                 screenOptions={{
                     headerShown: false,
                     headerStyle: {

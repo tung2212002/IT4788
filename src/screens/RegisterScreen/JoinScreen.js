@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components/native';
 
 import { images } from '../../../assets';
-import Button from '../../components/Button';
+import ButtonComponent from '../../components/ButtonComponent';
 import Color from '../../utils/Color';
 
 const Container = styled.View`
@@ -47,7 +47,7 @@ function JoinScreen({ navigation }) {
                 <Title>Tham gia Facebook</Title>
                 <SubTitle>Chúng tôi sẽ giúp bạn tạo tài khoản mới sau vài bước dễ dàng</SubTitle>
             </Body>
-            <Button onPress={() => navigation.navigate('NameRegister')} title={'Tiếp'} />
+            <ButtonComponent onPress={() => navigation.navigate('NameRegisterScreen')} title={'Tiếp'} />
         </Container>
     );
 }

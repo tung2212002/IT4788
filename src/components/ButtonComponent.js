@@ -20,9 +20,9 @@ const Title = styled.Text`
     color: ${(props) => props.color || Color.white};
 `;
 
-function Button({ title, onPress, style = {}, color, size, loading }) {
+function ButtonComponent({ title, onPress, style = {}, color, size, loading }) {
     return (
-        <Container onPress={onPress} style={style}>
+        <Container onPress={onPress} style={style} disabled={loading}>
             {!loading ? (
                 <Title color={color} size={size}>
                     {title}
@@ -34,4 +34,4 @@ function Button({ title, onPress, style = {}, color, size, loading }) {
     );
 }
 
-export default Button;
+export default ButtonComponent;

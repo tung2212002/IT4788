@@ -3,7 +3,7 @@ import { TextInput } from 'react-native-paper';
 import styled from 'styled-components/native';
 
 import Color from '../utils/Color';
-import Button from './Button';
+import ButtonComponent from './ButtonComponent';
 
 const Container = styled.View`
     width: 100%;
@@ -16,7 +16,7 @@ const InputTextSecure = styled(TextInput)`
     flex: 9;
 `;
 
-const HiddenButton = styled(Button)`
+const HiddenButton = styled(ButtonComponent)`
     flex: 3;
 `;
 

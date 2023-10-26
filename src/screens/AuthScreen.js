@@ -5,7 +5,7 @@ import { TouchableOpacity } from 'react-native';
 import { MenuProvider, Menu, MenuOptions, MenuOption, MenuTrigger } from 'react-native-popup-menu';
 import { Entypo } from '@expo/vector-icons';
 
-import Button from '../components/Button';
+import ButtonComponent from '../components/ButtonComponent';
 import Color from '../utils/Color';
 import { getUserStorage, removeUserStorage } from '../utils/userStorage';
 
@@ -84,7 +84,7 @@ const MenuComponent = styled(Menu)`
     right: 10px;
 `;
 
-const ButtonChoose = styled(Button)``;
+const ButtonChoose = styled(ButtonComponent)``;
 
 function AuthScreen({ navigation }) {
     const [user, setUser] = useState(null);
@@ -112,7 +112,7 @@ function AuthScreen({ navigation }) {
         <Popup>
             <Icon name="facebook" size={80} color={Color.blueButtonColor} />
             {user && (
-                <Info onPress={() => navigation.navigate('Login')}>
+                <Info onPress={() => navigation.navigate('LoginScreen')}>
                     <Avatar source={require('../../assets/images/cloud.jpg')} />
                     <TextInfo>
                         {user.lastName} {user.firstName}
@@ -147,12 +147,12 @@ function AuthScreen({ navigation }) {
                 </Info>
             )}
             <Box>
-                <ButtonBox onPress={() => navigation.navigate('LoginNoSave')}>
+                <ButtonBox onPress={() => navigation.navigate('LoginNotSaveScreen')}>
                     <IconBox name="plus" size={20} color={Color.blueButtonColor} />
                     <TextBox>Thêm tài khoản khác</TextBox>
                 </ButtonBox>
 
-                <ButtonBox onPress={() => navigation.navigate('StackHome', { screen: 'Home' })}>
+                <ButtonBox onPress={() => navigation.navigate('StackHome', { screen: 'HomeScreen' })}>
                     <IconBox name="search" size={20} color={Color.blueButtonColor} />
                     <TextBox>Tìm tài khoản</TextBox>
                 </ButtonBox>

@@ -4,7 +4,7 @@ import styled from 'styled-components/native';
 
 // import SVGIconfb from '../../../assets/images/likefb.svg';
 import { SVGIconfb } from '../../../assets';
-import Button from '../../components/Button';
+import ButtonComponent from '../../components/ButtonComponent';
 import Color from '../../utils/Color';
 
 const Container = styled.View`
@@ -64,8 +64,11 @@ function CompleteRegister({ route, navigation }) {
                 </Animated.View>
             </ViewAnimation>
             <ViewButton>
-                <Button title="Tiếp tục" onPress={() => navigation.reset({ index: 0, routes: [{ name: 'SaveAccount', params: route.params }] })} />
-                <Button
+                <ButtonComponent
+                    title="Tiếp tục"
+                    onPress={() => navigation.reset({ index: 0, routes: [{ name: 'SaveAccountScreen', params: route.params }] })}
+                />
+                <ButtonComponent
                     title="Đăng xuất"
                     onPress={() => navigation.navigate('AuthScreen')}
                     color={Color.gray}

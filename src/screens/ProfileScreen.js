@@ -60,7 +60,7 @@ const FullName = styled.Text`
     margin-top: 10px;
 `;
 
-function ProfileScreen(props) {
+function ProfileScreen({ navigation, props }) {
     const [renderPopUpComponent, setRenderPopUpComponent] = useState(false);
     const { imageFiles, pickImage, clearImages } = useImagePicker();
 
@@ -102,6 +102,7 @@ function ProfileScreen(props) {
 
     useEffect(() => {
         setTimeout(() => {
+            console.log('showpopup');
             setRenderPopUpComponent(true);
         }, 2000);
     }, []);

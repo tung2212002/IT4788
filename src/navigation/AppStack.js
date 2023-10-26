@@ -4,19 +4,21 @@ import { createStackNavigator } from '@react-navigation/stack';
 import JoinScreen from '../screens/RegisterScreen/JoinScreen';
 import { NavigationContainer } from '@react-navigation/native';
 import Color from '../utils/Color';
-import NameRegister from '../screens/RegisterScreen/NameRegister';
-import BirthDate from '../screens/RegisterScreen/BirthDate';
-import Policy from '../screens/RegisterScreen/Policy';
-import WebViewScreen from '../screens/RegisterScreen/WebViewScreen';
-import EmailRegister from '../screens/RegisterScreen/EmailRegister';
-import PhoneRegister from '../screens/RegisterScreen/PhoneRegister';
-import PasswordRegister from '../screens/RegisterScreen/PasswordRegister';
-import AccountAuthen from '../screens/RegisterScreen/AccountAuthen';
-import CompleteRegister from '../screens/RegisterScreen/CompleteRegister';
-import SaveAccount from '../screens/RegisterScreen/SaveAccount';
-import AuthScreen from '../screens/AuthScreen';
-import Login from '../screens/Login';
-import LoginNoSave from '../screens/LoginNotSave';
+import {
+    NameRegisterScreen,
+    BirthDateScreen,
+    PolicyScreen,
+    WebViewScreen,
+    EmailRegisterScreen,
+    PhoneRegisterScreen,
+    PasswordRegisterScreen,
+    AccountAuthenScreen,
+    CompleteRegister,
+    SaveAccountScreen,
+    AuthScreen,
+    LoginScreen,
+    LoginNotSaveScreen,
+} from '../screens';
 
 const StackAuth = createStackNavigator();
 
@@ -39,24 +41,24 @@ const LoginStack = ({ navigation }) => {
             },
         },
         {
-            name: 'NameRegister',
-            component: NameRegister,
+            name: 'NameRegisterScreen',
+            component: NameRegisterScreen,
             options: {
                 title: 'Tên',
                 headerBackTitle: '',
             },
         },
         {
-            name: 'BirthDate',
-            component: BirthDate,
+            name: 'BirthDateScreen',
+            component: BirthDateScreen,
             options: {
                 title: 'Ngày sinh',
                 headerBackTitle: '',
             },
         },
         {
-            name: 'Policy',
-            component: Policy,
+            name: 'PolicyScreen',
+            component: PolicyScreen,
             options: {
                 title: 'Điều khoản và quyền riêng tư',
                 headerBackTitle: '',
@@ -71,32 +73,32 @@ const LoginStack = ({ navigation }) => {
             },
         },
         {
-            name: 'EmailRegister',
-            component: EmailRegister,
+            name: 'EmailRegisterScreen',
+            component: EmailRegisterScreen,
             options: {
                 title: 'Địa chỉ Email',
                 headerBackTitle: '',
             },
         },
         {
-            name: 'PhoneRegister',
-            component: PhoneRegister,
+            name: 'PhoneRegisterScreen',
+            component: PhoneRegisterScreen,
             options: {
                 title: 'Số điện thoại',
                 headerBackTitle: '',
             },
         },
         {
-            name: 'PasswordRegister',
-            component: PasswordRegister,
+            name: 'PasswordRegisterScreen',
+            component: PasswordRegisterScreen,
             options: {
                 title: 'Mật khẩu',
                 headerBackTitle: '',
             },
         },
         {
-            name: 'AccountAuthen',
-            component: AccountAuthen,
+            name: 'AccountAuthenScreen',
+            component: AccountAuthenScreen,
             options: {
                 title: 'Xác nhận tài khoản',
                 headerBackTitle: '',
@@ -111,24 +113,24 @@ const LoginStack = ({ navigation }) => {
             },
         },
         {
-            name: 'SaveAccount',
-            component: SaveAccount,
+            name: 'SaveAccountScreen',
+            component: SaveAccountScreen,
             options: {
                 title: '',
                 headerShown: false,
             },
         },
         {
-            name: 'Login',
-            component: Login,
+            name: 'LoginScreen',
+            component: LoginScreen,
             options: {
                 title: 'Đăng nhập',
                 headerBackTitle: '',
             },
         },
         {
-            name: 'LoginNoSave',
-            component: LoginNoSave,
+            name: 'LoginNotSaveScreen',
+            component: LoginNotSaveScreen,
             options: {
                 title: 'Đăng nhập',
                 headerBackTitle: '',

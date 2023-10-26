@@ -3,7 +3,7 @@ import { Provider } from 'react-redux';
 import 'react-native-gesture-handler';
 
 import store from './src/redux/store';
-import ProviderScreen from './src/screens/ProviderScreen';
+import ProviderScreen from './src/app/ProviderScreen';
 
 export default function App() {
     return (

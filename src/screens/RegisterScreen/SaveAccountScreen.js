@@ -3,7 +3,7 @@ import { Animated, Dimensions } from 'react-native';
 import styled from 'styled-components/native';
 import { FontAwesome5 } from '@expo/vector-icons';
 
-import Button from '../../components/Button';
+import ButtonComponent from '../../components/ButtonComponent';
 import Color from '../../utils/Color';
 import { setUserStorage } from '../../utils/userStorage';
 
@@ -69,7 +69,7 @@ const ViewButton = styled.View`
     bottom: 50px;
 `;
 
-const ButtonChoose = styled(Button)`
+const ButtonChoose = styled(ButtonComponent)`
     width: 45%;
     border: 1px solid ${Color.black};
 `;
@@ -78,7 +78,7 @@ const AnimatedView = styled(Animated.View)`
     flex: 1;
 `;
 
-function SaveAccount({ route, navigation }) {
+function SaveAccountScreen({ route, navigation }) {
     const translateY = useRef(new Animated.Value(Dimensions.get('window').height)).current;
     const { firstName, lastName, email, password, numberPhone } = route.params;
 
@@ -135,4 +135,4 @@ function SaveAccount({ route, navigation }) {
     );
 }
 
-export default SaveAccount;
+export default SaveAccountScreen;

@@ -2,8 +2,7 @@ import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 import { NavigationContainer } from '@react-navigation/native';
 
-import AuthScreen from '../screens/AuthScreen';
-import Home from '../screens/ProfileScreen';
+import { AuthScreen, HomeScreen } from '../screens';
 import Color from '../utils/Color';
 
 const Stack = createStackNavigator();
@@ -21,7 +20,7 @@ function AppContainer() {
                 }}
             >
                 <Stack.Screen name="AuthScreen" component={AuthScreen} />
-                <Stack.Screen name="Home" component={Home} />
+                <Stack.Screen name="HomeScreen" component={HomeScreen} />
             </Stack.Navigator>
         </NavigationContainer>
     );

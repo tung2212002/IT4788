@@ -5,7 +5,8 @@ import * as Device from 'expo-device';
 import { useDispatch } from 'react-redux';
 
 import { login } from '../redux/features/auth/authSlice';
-import Button from '../components/Button';
+import { setLoading as setModalLoading } from '../redux/features/loading/loadingSlice';
+import ButtonComponent from '../components/ButtonComponent';
 import Color from '../utils/Color';
 import InputSecure from '../components/InputSecure';
 import TextInputComponent from '../components/TextInputComponent';
@@ -33,7 +34,7 @@ const Input = styled(InputSecure)`
     border-radius: 5px;
 `;
 
-const Forgot = styled(Button)`
+const Forgot = styled(ButtonComponent)`
     position: absolute;
     bottom: 0px;
     width: 110%;
@@ -47,7 +48,7 @@ const Error = styled.Text`
     margin-bottom: 8px;
 `;
 
-function LoginNoSave({ navigation }) {
+function LoginNotSaveScreen({ navigation }) {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
@@ -60,6 +61,7 @@ function LoginNoSave({ navigation }) {
             setError('Bạn chưa nhập tài khoản hoặc mật khẩu');
         } else {
             setLoading(true);
+            dispatch(setModalLoading(true));
             const params = {
                 email,
                 password,
@@ -85,6 +87,7 @@ function LoginNoSave({ navigation }) {
             } finally {
                 setLoading(false);
                 dispatch(login());
+                dispatch(setModalLoading(false));
             }
         }
     };
@@ -114,10 +117,16 @@ function LoginNoSave({ navigation }) {
                 />
                 <Error>{error}</Error>
             </Enter>
-            <Button title={'Đăng nhập'} color={Color.white} style={{ backgroundColor: Color.blueButtonColor }} onPress={handleLogin} loading={loading} />
+            <ButtonComponent
+                title={'Đăng nhập'}
+                color={Color.white}
+                style={{ backgroundColor: Color.blueButtonColor }}
+                onPress={handleLogin}
+                loading={loading}
+            />
             <Forgot title={'Quên mật khẩu ?'} color={Color.blueButtonColor} style={{ backgroundColor: Color.mainBackgroundColor }} onPress={handleForgot} />
         </Container>
     );
 }
 
-export default LoginNoSave;
+export default LoginNotSaveScreen;

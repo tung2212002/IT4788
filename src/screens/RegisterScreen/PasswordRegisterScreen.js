@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components/native';
 
 import InputSecure from '../../components/InputSecure';
-import Button from '../../components/Button';
+import ButtonComponent from '../../components/ButtonComponent';
 import Color from '../../utils/Color';
 
 const Container = styled.View`
@@ -60,7 +60,7 @@ const ViewError = styled.View`
     align-items: center;
 `;
 
-function PasswordRegister({ route, navigation }) {
+function PasswordRegisterScreen({ route, navigation }) {
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
 
@@ -72,7 +72,7 @@ function PasswordRegister({ route, navigation }) {
         } else if (!regex.test(password)) {
             setError('Password không hợp lệ');
         } else {
-            navigation.navigate('AccountAuthen', { ...route.params, password });
+            navigation.navigate('AccountAuthenScreen', { ...route.params, password });
         }
     };
 
@@ -95,9 +95,9 @@ function PasswordRegister({ route, navigation }) {
                     />
                 </Input>
             </Body>
-            <Button onPress={checkPassword} title={'Tiếp'} />
+            <ButtonComponent onPress={checkPassword} title={'Tiếp'} />
         </Container>
     );
 }
 
-export default PasswordRegister;
+export default PasswordRegisterScreen;

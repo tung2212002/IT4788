@@ -3,7 +3,7 @@ import React from 'react';
 import styled from 'styled-components/native';
 import Color from '../../utils/Color';
 
-import Button from '../../components/Button';
+import ButtonComponent from '../../components/ButtonComponent';
 
 const Container = styled.View`
     flex: 1;
@@ -55,7 +55,7 @@ const LinkBottom = styled.Text`
     line-height: 20px;
 `;
 
-const Policy = ({ route, navigation }) => {
+const PolicyScreen = ({ route, navigation }) => {
     return (
         <Container>
             <Title>Hoàn tất đăng ký</Title>
@@ -72,10 +72,10 @@ const Policy = ({ route, navigation }) => {
                     Facebook liên tục để chúng tôi gợi ý bạn bè bạn, cung cấp cải thiện quảng cáo cho bạn và người khác, cũng như mang đến dịch vụ tốt hơn.
                 </Content>
             </Body>
-            <Button title="Đăng ký" onPress={() => navigation.navigate('EmailRegister', route.params)} />
-            <Button
+            <ButtonComponent title="Đăng ký" onPress={() => navigation.navigate('EmailRegisterScreen', route.params)} />
+            <ButtonComponent
                 title="Đăng ký mà không tải danh bạ của tôi lên"
-                onPress={() => navigation.navigate('Login')}
+                onPress={() => navigation.navigate('LoginScreen')}
                 style={{ backgroundColor: Color.mainBackgroundColor, marginTop: 20 }}
                 color={Color.blueButtonColor}
             />
@@ -91,4 +91,4 @@ const Policy = ({ route, navigation }) => {
     );
 };
 
-export default Policy;
+export default PolicyScreen;

@@ -1,23 +1,19 @@
 /* eslint-disable react/no-unstable-nested-components */
 import React from 'react';
-import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
+import { createMaterialBottomTabNavigator } from '@react-navigation/material-bottom-tabs';
 import { NavigationContainer } from '@react-navigation/native';
 import styled from 'styled-components/native';
 
-import FriendsScreen from '../screens/FriendsScreen';
-import GroupScreen from '../screens/GroupScreen';
-import HomeScreen from '../screens/HomeScreen';
-import NotificationScreen from '../screens/NotificationScreen';
-import PersionalScreen from '../screens/PersionalScreen';
-import SettingScreen from '../screens/SettingScreen';
 import Color from '../utils/Color';
 import VectorIcon from '../utils/VectorIcon';
+import SettingStack from './SettingStack';
+import { FriendsScreen, GroupScreen, HomeScreen, NotificationScreen, PersionalScreen } from '../screens';
 
 const VectorIconStyled = styled(VectorIcon)``;
 
-const TabStack = createMaterialTopTabNavigator();
+const TabStack = createMaterialBottomTabNavigator();
 
-const MainTabStack = ({ navigation }) => {
+const MainTabStack = ({ navigation, avatar }) => {
     const screenItemsLogin = [
         {
             name: 'HomeScreen',
@@ -61,33 +57,37 @@ const MainTabStack = ({ navigation }) => {
             typeIconFocused: 'Ionicons',
         },
         {
-            name: 'SettingScreen',
-            component: SettingScreen,
+            name: 'SettingStack',
+            component: SettingStack,
             icon: 'reorder-three',
             iconFocused: 'reorder-three',
             typeIcon: 'Ionicons',
             typeIconFocused: 'Ionicons',
+            tabBarLabel: undefined,
         },
     ];
 
     return (
         <NavigationContainer>
             <TabStack.Navigator
-                initialRouteName="HomeScreen"
+                initialRouteName={avatar === '-1' ? 'SettingStack' : 'HomeScreen'}
                 screenOptions={{
                     headerShown: false,
                     headerStyle: {
                         backgroundColor: Color.white,
                     },
                 }}
+                labeled={false}
+                barStyle={{ backgroundColor: Color.mainBackgroundColor, height: 60 }}
             >
                 {screenItemsLogin.map((item, index) => (
                     <TabStack.Screen
                         key={index}
                         name={item.name}
                         component={item.component}
+                        initialParams={{ avatar }}
                         options={{
-                            tabBarLabel: ({ focused }) => (
+                            tabBarIcon: ({ focused }) => (
                                 <VectorIconStyled
                                     nameIcon={focused ? item.iconFocused : item.icon}
                                     typeIcon={focused ? item.typeIconFocused : item.typeIcon}

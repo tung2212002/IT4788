@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components/native';
 
-import Button from '../../components/Button';
+import ButtonComponent from '../../components/ButtonComponent';
 import Color from '../../utils/Color';
 
 const Container = styled.View`
@@ -68,7 +68,7 @@ const ViewError = styled.View`
     align-items: center;
 `;
 
-const ButtonClick = styled(Button)`
+const ButtonClick = styled(ButtonComponent)`
     margin-vertical: 10px;
 `;
 
@@ -76,7 +76,7 @@ const ViewButton = styled.View`
     width: 100%;
 `;
 
-function AccountAuthen({ route, navigation }) {
+function AccountAuthenScreen({ route, navigation }) {
     const [SMS, setSMS] = useState('');
     const [error, setError] = useState('');
 
@@ -131,4 +131,4 @@ function AccountAuthen({ route, navigation }) {
     );
 }
 
-export default AccountAuthen;
+export default AccountAuthenScreen;

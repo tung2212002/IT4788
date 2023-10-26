@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components/native';
 import { Alert } from 'react-native';
 
-import Button from '../components/Button';
+import ButtonComponent from '../components/ButtonComponent';
 import Color from '../utils/Color';
 import InputSecure from '../components/InputSecure';
 import { setUserStorage } from '../utils/userStorage';
@@ -44,7 +44,7 @@ const Input = styled(InputSecure)`
     border-radius: 5px;
 `;
 
-const Forgot = styled(Button)`
+const Forgot = styled(ButtonComponent)`
     position: absolute;
     bottom: 0px;
     width: 110%;
@@ -63,7 +63,7 @@ const AlertComponent = styled(Alert)`
     transform: scale(0.8);
 `;
 
-function Login({ navigation }) {
+function LoginScreen({ navigation }) {
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
 
@@ -100,11 +100,11 @@ function Login({ navigation }) {
                     placeholder={'Mật khẩu'}
                 />
                 <Error>{error}</Error>
-                <Button title={'Đăng nhập'} color={Color.white} style={{ backgroundColor: Color.blueButtonColor }} onPress={handleLogin} />
+                <ButtonComponent title={'Đăng nhập'} color={Color.white} style={{ backgroundColor: Color.blueButtonColor }} onPress={handleLogin} />
             </Enter>
             <Forgot title={'Quên mật khẩu ?'} color={Color.blueButtonColor} style={{ backgroundColor: Color.mainBackgroundColor }} onPress={handleForgot} />
         </Container>
     );
 }
 
-export default Login;
+export default LoginScreen;

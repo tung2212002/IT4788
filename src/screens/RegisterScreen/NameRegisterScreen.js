@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components/native';
 
 import TextInputComponent from '../../components/TextInputComponent';
-import Button from '../../components/Button';
+import ButtonComponent from '../../components/ButtonComponent';
 import Color from '../../utils/Color';
 
 const Container = styled.View`
@@ -47,7 +47,7 @@ const Error = styled.Text`
     font-size: 16px;
 `;
 
-function NameRegister({ navigation }) {
+function NameRegisterScreen({ navigation }) {
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
     const [error1, setError1] = useState('');
@@ -70,7 +70,7 @@ function NameRegister({ navigation }) {
                 setError2('Tên không hợp lệ');
             }
             if (regex.test(firstName) && regex.test(lastName)) {
-                navigation.navigate('BirthDate', {
+                navigation.navigate('BirthDateScreen', {
                     firstName: firstName,
                     lastName: lastName,
                 });
@@ -107,9 +107,9 @@ function NameRegister({ navigation }) {
                 {error1 !== '' && <Error>{error1}</Error>}
                 {error2 !== '' && <Error>{error2}</Error>}
             </Body>
-            <Button onPress={checkName} title={'Tiếp'} />
+            <ButtonComponent onPress={checkName} title={'Tiếp'} />
         </Container>
     );
 }
 
-export default NameRegister;
+export default NameRegisterScreen;

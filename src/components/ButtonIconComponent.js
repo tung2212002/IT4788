@@ -47,7 +47,7 @@ const Loading = styled.ActivityIndicator`
 
 function ButtonIconComponent({ title, message, onPress, nameIcon, typeIcon, propsButton, propsTitle, propsMessage, propsIcon, SVGIcon, imgIcon, loading }) {
     return (
-        <Container onPress={onPress} {...propsButton}>
+        <Container onPress={onPress} {...propsButton} disabled={loading}>
             {loading ? (
                 <Loading size="small" color={Color.blueButtonColor} />
             ) : (

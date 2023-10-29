@@ -61,3 +61,38 @@ export {
     // LoadingScreen
     LoadingScreen,
 };
+
+const routes = {
+    // RegisterScreens
+    AccountAuthenScreen: 'AccountAuthenScreen',
+    BirthDateScreen: 'BirthDateScreen',
+    CompleteRegister: 'CompleteRegister',
+    EmailRegisterScreen: 'EmailRegisterScreen',
+    JoinScreen: 'JoinScreen',
+    NameRegisterScreen: 'NameRegisterScreen',
+    PasswordRegisterScreen: 'PasswordRegisterScreen',
+    PhoneRegisterScreen: 'PhoneRegisterScreen',
+    PolicyScreen: 'PolicyScreen',
+    SaveAccountScreen: 'SaveAccountScreen',
+    WebViewScreen: 'WebViewScreen',
+
+    // LoginScreens
+    AuthScreen: 'AuthScreen',
+    LoginNotSaveScreen: 'LoginNotSaveScreen',
+    LoginScreen: 'LoginScreen',
+
+    // HomeScreens
+    HomeScreen: 'HomeScreen',
+    GroupScreen: 'GroupScreen',
+    FriendsScreen: 'FriendsScreen',
+    PersionalScreen: 'PersionalScreen',
+    NotificationScreen: 'NotificationScreen',
+    SettingScreen: 'SettingScreen',
+    //// StackSetting
+    ProfileScreen: 'ProfileScreen',
+
+    // LoadingScreen
+    LoadingScreen: 'LoadingScreen',
+};
+
+export default routes;

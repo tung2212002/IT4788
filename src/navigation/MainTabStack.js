@@ -1,6 +1,7 @@
 /* eslint-disable react/no-unstable-nested-components */
 import React from 'react';
-import { createMaterialBottomTabNavigator } from '@react-navigation/material-bottom-tabs';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+// import { createMaterialBottomTabNavigator } from '@react-navigation/material-bottom-tabs';
 import { NavigationContainer } from '@react-navigation/native';
 import styled from 'styled-components/native';
 
@@ -11,7 +12,8 @@ import { FriendsScreen, GroupScreen, HomeScreen, NotificationScreen, PersionalSc
 
 const VectorIconStyled = styled(VectorIcon)``;
 
-const TabStack = createMaterialBottomTabNavigator();
+const TabStack = createBottomTabNavigator();
+// const TabStack = createMaterialBottomTabNavigator();
 
 const MainTabStack = ({ navigation, avatar }) => {
     const screenItemsLogin = [
@@ -63,7 +65,6 @@ const MainTabStack = ({ navigation, avatar }) => {
             iconFocused: 'reorder-three',
             typeIcon: 'Ionicons',
             typeIconFocused: 'Ionicons',
-            tabBarLabel: undefined,
         },
     ];
 
@@ -73,12 +74,10 @@ const MainTabStack = ({ navigation, avatar }) => {
                 initialRouteName={avatar === '-1' ? 'SettingStack' : 'HomeScreen'}
                 screenOptions={{
                     headerShown: false,
-                    headerStyle: {
+                    tabBarStyle: {
                         backgroundColor: Color.white,
                     },
                 }}
-                labeled={false}
-                barStyle={{ backgroundColor: Color.mainBackgroundColor, height: 60 }}
             >
                 {screenItemsLogin.map((item, index) => (
                     <TabStack.Screen
@@ -95,6 +94,7 @@ const MainTabStack = ({ navigation, avatar }) => {
                                     color={focused ? Color.blueButtonColor : Color.gray}
                                 />
                             ),
+                            tabBarShowLabel: false,
                         }}
                     />
                 ))}

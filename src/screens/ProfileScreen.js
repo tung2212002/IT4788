@@ -102,7 +102,6 @@ function ProfileScreen({ navigation, props }) {
 
     useEffect(() => {
         setTimeout(() => {
-            console.log('showpopup');
             setRenderPopUpComponent(true);
         }, 2000);
     }, []);

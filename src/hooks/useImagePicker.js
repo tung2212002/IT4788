@@ -33,7 +33,7 @@ export const useImagePicker = () => {
     const clearImages = () => {
         setImageFiles([]);
     };
-    useEffect(() => {}, []);
+    // useEffect(() => {}, []);
 
     return { imageFiles, pickImage, clearImages };
 };

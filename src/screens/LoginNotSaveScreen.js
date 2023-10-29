@@ -52,7 +52,6 @@ function LoginNotSaveScreen({ navigation }) {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
-    const [loading, setLoading] = useState(false);
 
     const dispatch = useDispatch();
 
@@ -60,7 +59,6 @@ function LoginNotSaveScreen({ navigation }) {
         if (!password || !email) {
             setError('Bạn chưa nhập tài khoản hoặc mật khẩu');
         } else {
-            setLoading(true);
             dispatch(setModalLoading(true));
             const params = {
                 email,
@@ -85,7 +83,6 @@ function LoginNotSaveScreen({ navigation }) {
             } catch (e) {
                 setError(e.message);
             } finally {
-                setLoading(false);
                 dispatch(login());
                 dispatch(setModalLoading(false));
             }
@@ -117,13 +114,7 @@ function LoginNotSaveScreen({ navigation }) {
                 />
                 <Error>{error}</Error>
             </Enter>
-            <ButtonComponent
-                title={'Đăng nhập'}
-                color={Color.white}
-                style={{ backgroundColor: Color.blueButtonColor }}
-                onPress={handleLogin}
-                loading={loading}
-            />
+            <ButtonComponent title={'Đăng nhập'} color={Color.white} style={{ backgroundColor: Color.blueButtonColor }} onPress={handleLogin} />
             <Forgot title={'Quên mật khẩu ?'} color={Color.blueButtonColor} style={{ backgroundColor: Color.mainBackgroundColor }} onPress={handleForgot} />
         </Container>
     );

@@ -1,21 +1,169 @@
-import React, { useEffect, useState } from 'react';
+/* eslint-disable react-hooks/exhaustive-deps */
+import React, { useEffect } from 'react';
 import styled from 'styled-components/native';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
 import ButtonIconComponent from '../components/ButtonIconComponent';
-import { SVGQuestionMark } from '../../assets';
-import { logout } from '../redux/features/auth/authSlice';
+import {
+    images,
+    SVGQuestionMark,
+    SVGSetting,
+    SVGGroups,
+    SVGFeed,
+    SVGFriends,
+    SVGMarket,
+    SVGVideo,
+    SVGPast,
+    SVGBookmark,
+    SVGPage,
+    SVGReel,
+    SVGDating,
+    SVGEvent,
+    SVGGame,
+    SVGMore,
+    SVGExit,
+} from '../../assets';
+import { logout, selectUser } from '../redux/features/auth/authSlice';
 import { setLoading } from '../redux/features/loading/loadingSlice';
+import Color from '../utils/Color';
+import { useState } from 'react';
+import ShowMoreComponent from '../components/ShowMoreComponent';
+
+const ContainerScrollView = styled.ScrollView`
+    flex: 1;
+    background-color: ${Color.mainBackgroundColor};
+`;
 
 const ContainerView = styled.View`
     flex: 1;
-    justify-content: center;
     align-items: center;
 `;
+
+const Title = styled.Text`
+    font-size: 30px;
+    font-weight: bold;
+    color: ${Color.black};
+    margin: 10px;
+`;
+
+const ContainerItem = styled.View`
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-horizontal: 10px;
+`;
+
+const ButtonProfile = styled(ButtonIconComponent)``;
 
 function SettingScreen({ route, navigation }) {
     const avatar = route.params?.avatar;
     const dispatch = useDispatch();
+    const user = useSelector(selectUser);
+
+    const itemsSetting = [
+        {
+            title: 'Bạn bè',
+            navigate: 'FriendsScreen',
+            SVGIcon: SVGFriends,
+        },
+        {
+            title: 'Bảng feed',
+            navigate: 'SettingScreen',
+            SVGIcon: SVGFeed,
+        },
+        {
+            title: 'Nhóm',
+            navigate: 'SettingScreen',
+            SVGIcon: SVGGroups,
+        },
+        {
+            title: 'Marketplace',
+            navigate: 'SettingScreen',
+            SVGIcon: SVGMarket,
+        },
+        {
+            title: 'Video',
+            navigate: 'SettingScreen',
+            SVGIcon: SVGVideo,
+        },
+        {
+            title: 'Kỷ niệm',
+            navigate: 'SettingScreen',
+            SVGIcon: SVGPast,
+        },
+        {
+            title: 'Đã lưu',
+            navigate: 'SettingScreen',
+            SVGIcon: SVGBookmark,
+        },
+        {
+            title: 'Trang',
+            navigate: 'SettingScreen',
+            SVGIcon: SVGPage,
+        },
+        {
+            title: 'Reels',
+            navigate: 'SettingScreen',
+            SVGIcon: SVGReel,
+        },
+        {
+            title: 'Hẹn hò',
+            navigate: 'SettingScreen',
+            SVGIcon: SVGDating,
+        },
+        {
+            title: 'Sự kiện',
+            navigate: 'SettingScreen',
+            SVGIcon: SVGEvent,
+        },
+        {
+            title: 'Trò chơi',
+            navigate: 'SettingScreen',
+            SVGIcon: SVGGame,
+        },
+    ];
+
+    const moreItems = [
+        {
+            title: 'Trang',
+            // navigate: 'SettingScreen',
+            SVGIcon: SVGPage,
+        },
+        {
+            title: 'Reels',
+            // navigate: 'SettingScreen',
+            SVGIcon: SVGReel,
+        },
+        {
+            title: 'Hẹn hò',
+            // navigate: 'SettingScreen',
+            SVGIcon: SVGDating,
+        },
+        {
+            title: 'Sự kiện',
+            // navigate: 'SettingScreen',
+            SVGIcon: SVGEvent,
+        },
+        {
+            title: 'Trò chơi',
+            // navigate: 'SettingScreen',
+            SVGIcon: SVGGame,
+        },
+    ];
+
+    const [showMore, setShowMore] = useState(false);
+    const [showMoreHelp, setShowMoreHelp] = useState(false);
+    const [showMoreNotification, setShowMoreNotification] = useState(false);
+
+    // const handleShowMore = () => {
+    //     setShowMore(!showMore);
+    // };
+
+    // const handleSetNotification = () => {
+    //     console.log('Set notification');
+    // };
 
     const handleLogout = async () => {
         dispatch(setLoading(true));
@@ -28,23 +176,79 @@ function SettingScreen({ route, navigation }) {
     };
 
     useEffect(() => {
-        if (avatar === '-1') {
+        if (avatar === '1') {
             redirectProfile();
         }
     }, []);
 
     return (
-        <ContainerView>
-            <ButtonIconComponent
-                title={'Trang cá nhân'}
-                onPress={redirectProfile}
-                SVGIcon={SVGQuestionMark}
-                propsIcon={{ width: 30, height: 30, fill: 'red' }}
-                // onPress={() => navigation.navigate('ProfileScreen')}
-            />
+        <ContainerScrollView>
+            <ContainerView>
+                <Title>Menu</Title>
+                <ButtonProfile
+                    title={user?.username || 'Đăng nhập/Đăng ký'}
+                    onPress={redirectProfile}
+                    imgIcon={user?.avatar !== '-1' ? { uri: user?.avatar } : images.defaultAvatar}
+                    propsButton={{
+                        height: 'auto',
+                        width: '90 ',
+                        marginBottom: '10',
+                    }}
+                    propsIcon={{ width: 60, height: 60, padding: 10, borderRadius: 50 }}
+                    downIcon={true}
+                    propsDownIcon={{ size: 20, padding: 5, borderRadius: 50 }}
+                    isShadow={true}
+                />
+                <ContainerItem>
+                    {itemsSetting.map((item, index) => (
+                        <ButtonIconComponent
+                            key={index}
+                            title={item.title}
+                            onPress={() => navigation.navigate(item.navigate)}
+                            SVGIcon={item.SVGIcon}
+                            propsIcon={{ width: 30, height: 30, marginBottom: 5, marginLeft: 10, marginRight: 10 }}
+                            propsButton={{ width: 48, height: 75, marginBottom: 10, direction: 'column', alignItems: 'flex-start' }}
+                            isShadow={true}
+                        />
+                    ))}
+                </ContainerItem>
+                <ButtonIconComponent
+                    title={'Xem thêm'}
+                    SVGIcon={SVGMore}
+                    propsButton={{ backgroundColor: Color.mainBackgroundColor, padding: 10 }}
+                    propsIcon={{ width: 30, height: 30 }}
+                    downIcon={true}
+                    onPress={() => setShowMore(!showMore)}
+                />
+                <ShowMoreComponent items={moreItems} showMore={showMore} />
 
-            <ButtonIconComponent title={'Đăng xuất'} onPress={handleLogout} SVGIcon={SVGQuestionMark} propsIcon={{ width: 30, height: 30, fill: 'red' }} />
-        </ContainerView>
+                <ButtonIconComponent
+                    title={'Trợ giúp & hỗ trợ'}
+                    onPress={() => setShowMoreHelp(!showMoreHelp)}
+                    SVGIcon={SVGQuestionMark}
+                    propsButton={{ backgroundColor: Color.lightGray, width: '100', borderTopWidth: 1, borderRadius: 1, padding: 10, marginTop: 10 }}
+                    propsIcon={{ width: 30, height: 30 }}
+                    downIcon={true}
+                />
+                <ShowMoreComponent items={moreItems} showMore={showMoreHelp} />
+                <ButtonIconComponent
+                    title={'Cài đặt thông báo đẩy'}
+                    onPress={() => setShowMoreNotification(!showMoreNotification)}
+                    SVGIcon={SVGSetting}
+                    propsButton={{ backgroundColor: Color.lightGray, width: '100', borderTopWidth: 1, borderRadius: 1, padding: 10 }}
+                    propsIcon={{ width: 30, height: 30 }}
+                    downIcon={true}
+                />
+                <ShowMoreComponent items={moreItems} showMore={showMoreNotification} />
+                <ButtonIconComponent
+                    title={'Đăng xuất'}
+                    onPress={handleLogout}
+                    SVGIcon={SVGExit}
+                    propsButton={{ backgroundColor: Color.lightGray, width: '100', borderTopWidth: 1, borderRadius: 1, padding: 10 }}
+                    propsIcon={{ width: 30, height: 30 }}
+                />
+            </ContainerView>
+        </ContainerScrollView>
     );
 }
 

@@ -10,6 +10,9 @@ const Color = {
     black: '#000',
     lightBlue: '#99FFFF',
 
+    green: '#00FF00',
+    greenLight: '#00FFFF',
+
     // Background Loading
     backGroundLoading: 'rgba(0,0,0,0.4)',
 };

@@ -15,8 +15,8 @@ const Container = styled.TouchableOpacity`
     background-color: ${(props) => props.backgroundColor || Color.white};
     width: ${(props) => props.width || 100}%;
     height: ${(props) => (props.height === 'auto' ? 'auto' : (props.height || 50) + 'px')};
-    margin-right: ${(props) => (props.marginRight === 'auto' ? 'auto' : props.marginRight || 0) + 'px'};
-    margin-left: ${(props) => (props.marginLeft === 'auto' ? 'auto' : props.marginLeft || 0) + 'px'};
+    margin-right: ${(props) => (props.marginRight === 'auto' ? 'auto' : props.marginRight ? props.marginRight + 'px' : 0)};
+    margin-left: ${(props) => (props.marginLeft === 'auto' ? 'auto' : props.marginLeft ? props.marginLeft + 'px' : 0)};
     margin-top: ${(props) => props.marginTop || 0}px;
     margin-bottom: ${(props) => props.marginBottom || 0}px;
     border-top-width: ${(props) => props.borderTopWidth || 0}px;
@@ -24,6 +24,11 @@ const Container = styled.TouchableOpacity`
     border-left-width: ${(props) => props.borderLeftWidth || 0}px;
     border-right-width: ${(props) => props.borderRightWidth || 0}px;
     border: ${(props) => props.border || 'none'};
+    position: ${(props) => props.position || 'relative'};
+    left: ${(props) => (props.left === 'auto' ? 'auto' : props.left ? props.left + 'px' : 0)};
+    right: ${(props) => (props.right === 'auto' ? 'auto' : props.right ? props.right + 'px' : 0)};
+    bottom: ${(props) => props.bottom || 0}px;
+    z-index: ${(props) => props.zIndex || 0};
 `;
 
 const Title = styled.Text`

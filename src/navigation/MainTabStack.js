@@ -13,7 +13,6 @@ import { FriendsScreen, GroupScreen, HomeScreen, NotificationScreen, PersionalSc
 const VectorIconStyled = styled(VectorIcon)``;
 
 const TabStack = createBottomTabNavigator();
-// const TabStack = createMaterialBottomTabNavigator();
 
 const MainTabStack = ({ navigation, avatar }) => {
     const screenItemsLogin = [

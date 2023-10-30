@@ -29,7 +29,7 @@ const Icon = styled(FontAwesome5)`
 const IconBox = styled(FontAwesome5)`
     padding: 15px;
     background-color: ${Color.lightBlue};
-    border-radius: 5px;
+    border-radius: 10px;
     width: 50px;
 `;
 

@@ -13,7 +13,8 @@ import LoginStack from '../navigation/AppStack';
 import MainTabStack from '../navigation/MainTabStack';
 import { login, selectIsAuth, selectUser } from '../redux/features/auth/authSlice';
 import { selectLoading } from '../redux/features/loading/loadingSlice';
-import { LoadingScreen, ProfileScreen, SettingScreen } from '../screens';
+import { LoadingScreen } from '../screens';
+import ButtonIconComponent from '../components/ButtonIconComponent';
 
 const Container = styled.KeyboardAvoidingView`
     flex: 1;
@@ -24,36 +25,63 @@ const SafeAreaViewContainer = styled.SafeAreaView`
     flex: 1;
 `;
 
+const ButtonIconComponentStyled = styled(ButtonIconComponent)``;
+
 function ProviderScreen() {
+    const dispatch = useDispatch();
     const isAuth = useSelector(selectIsAuth);
     const user = useSelector(selectUser);
-    const dispatch = useDispatch();
     const loading = useSelector(selectLoading);
     const [isConnected, setIsConnected] = useState(true);
+    const [showPopup, setShowPopup] = useState(false);
 
     useEffect(() => {
         const unsubscribe = NetInfo.addEventListener((state) => {
+            if (!state.isConnected && !showPopup) {
+                setShowPopup(true);
+            }
             setIsConnected(state.isConnected);
-            console.log('Connection type', state.type);
         });
+
+        dispatch(login());
 
         return () => {
             unsubscribe();
         };
     }, []);
 
-    useEffect(() => {
-        dispatch(login());
-    }, []);
-
     return (
         <Container enabled={true} behavior={Platform.OS === 'ios' ? 'padding' : 'height'} keyboardVerticalOffset={Platform.OS === 'ios' ? 1 : 0}>
             <SafeAreaViewContainer>
                 <StatusBar barStyle="light-content" />
-                {isAuth ? <MainTabStack avatar={user.avatar} /> : <LoginStack />}
                 <Modal visible={loading} transparent={true}>
                     <LoadingScreen />
                 </Modal>
+                {isAuth ? <MainTabStack avatar={user.avatar} /> : <LoginStack />}
+
+                {showPopup ? (
+                    isConnected ? (
+                        <ButtonIconComponentStyled
+                            title="Đã khôi phục lại kết nối Internet"
+                            nameIcon="wifi"
+                            typeIcon="MaterialCommunityIcons"
+                            propsIcon={{ color: Color.white, size: 12, backgroundColor: Color.gray }}
+                            propsTitle={{ color: Color.white, size: 16 }}
+                            onPress={() => setShowPopup(false)}
+                            propsButton={{ backgroundColor: Color.gray, width: 95, marginRight: 10, marginLeft: 10, position: 'absolute', bottom: 50 }}
+                        />
+                    ) : (
+                        <ButtonIconComponentStyled
+                            title="Bạn đang offline"
+                            nameIcon="wifi-off"
+                            typeIcon="MaterialCommunityIcons"
+                            propsIcon={{ color: Color.white, size: 12, backgroundColor: Color.gray }}
+                            propsTitle={{ color: Color.white, size: 16 }}
+                            onPress={() => setShowPopup(false)}
+                            propsButton={{ backgroundColor: Color.gray, width: 95, marginRight: 10, marginLeft: 10, position: 'absolute', bottom: 50 }}
+                        />
+                    )
+                ) : null}
             </SafeAreaViewContainer>
         </Container>
     );

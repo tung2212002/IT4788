@@ -3,11 +3,12 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { useSelector } from 'react-redux';
 
 import Color from '../utils/Color';
-import { HomeScreen, ProfileScreen } from '../screens';
+import { PersionalScreen, ProfileScreen } from '../screens';
 import { selectUser } from '../redux/features/auth/authSlice';
 import ItemRightComponent from '../components/ItemRightComponent';
-import CreatePostScreen from '../screens/CreatePostComponent';
 import ButtonComponent from '../components/ButtonComponent';
+import CreatePostScreen from '../screens/CreatePostComponent';
+import { useState } from 'react';
 
 const StackHome = createStackNavigator();
 
@@ -26,22 +27,29 @@ const headerRightProfile = () => {
     return <ItemRightComponent items={itemsHeaderProfileRight} />;
 };
 
-const headerRightCreatePost = () => {
-    return <ButtonComponent title="ĐĂNG" />;
-};
-
-const HomeStack = () => {
+const PersionalStack = () => {
     const user = useSelector(selectUser);
     const username = user.username;
+    const [isCreatePost, setIsCreatePost] = useState(false);
+
+    const headerRightCreatePost = () => {
+        return (
+            <ButtonComponent
+                title="ĐĂNG"
+                style={{ backgroundColor: isCreatePost ? Color.blueButtonColor : Color.white, color: isCreatePost ? Color.gray : Color.blueButtonColor }}
+            />
+        );
+    };
 
     const screenItemsLogin = [
         {
-            name: 'HomeScreen',
-            component: HomeScreen,
+            name: 'PersionalScreen',
+            component: PersionalScreen,
             options: {
                 title: '',
                 headerShown: false,
             },
+            initialParams: { user, isCreatePost, setIsCreatePost },
         },
         {
             name: 'ProfileScreen',
@@ -52,6 +60,7 @@ const HomeStack = () => {
                 headerRight: headerRightProfile,
                 headerTitleAlign: 'center',
             },
+            initialParams: { user },
         },
         {
             name: 'CreatePostScreen',
@@ -62,12 +71,13 @@ const HomeStack = () => {
                 headerRight: headerRightCreatePost,
                 headerTitleAlign: 'center',
             },
+            initialParams: { isCreatePost },
         },
     ];
 
     return (
         <StackHome.Navigator
-            initialRouteName="HomeScreen"
+            initialRouteName="PersionalScreen"
             screenOptions={{
                 headerStyle: {
                     backgroundColor: Color.white,
@@ -79,10 +89,10 @@ const HomeStack = () => {
             }}
         >
             {screenItemsLogin.map((item, index) => (
-                <StackHome.Screen key={index} name={item.name} component={item.component} options={item.options} initialParams={{ user }} />
+                <StackHome.Screen key={index} name={item.name} component={item.component} options={item.options} initialParams={item.initialParams} />
             ))}
         </StackHome.Navigator>
     );
 };
 
-export default HomeStack;
+export default PersionalStack;

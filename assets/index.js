@@ -25,11 +25,16 @@ import SVGVideo from './icons/video.svg';
 import SVGWow from './icons/wow.svg';
 import SVGMore from './icons/more.svg';
 import SVGExit from './icons/exit.svg';
+import SVGLogo from './icons/logo.svg';
+import SVGFilter from './icons/filter.svg';
+import SVGEdit from './icons/edit.svg';
+import SVGCheckIn from './icons/check-in.svg';
 
 const images = {
     defaultBackground: require('./images/cloud.jpg'),
     logoRegister: require('./images/logo-register.jpg'),
     defaultAvatar: require('./images/default-avatar.png'),
+    logoFacebook: require('./images/logo.png'),
 };
 
 const icons = {
@@ -64,5 +69,9 @@ export {
     SVGWow,
     SVGMore,
     SVGExit,
+    SVGLogo,
+    SVGFilter,
+    SVGEdit,
+    SVGCheckIn,
 };
 export { icons, images };

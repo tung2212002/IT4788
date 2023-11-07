@@ -1,13 +1,33 @@
 import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
+import { useSelector } from 'react-redux';
 
 import Color from '../utils/Color';
 import { SettingScreen, ProfileScreen } from '../screens';
+import ItemRightComponent from '../components/ItemRightComponent';
+import { selectUser } from '../redux/features/auth/authSlice';
 
 const StackSetting = createStackNavigator();
 
+const itemsHeaderProfileRight = [
+    {
+        nameIcon: 'pencil',
+        typeIcon: 'FontAwesome',
+    },
+    {
+        nameIcon: 'search',
+        typeIcon: 'FontAwesome',
+    },
+];
+
+const headerRight = () => {
+    return <ItemRightComponent items={itemsHeaderProfileRight} />;
+};
+
 const SettingStack = ({ route, navigation }) => {
-    const avatar = route.params?.avatar;
+    const user = useSelector(selectUser);
+    const username = user.username;
+
     const screenItemsSetting = [
         {
             name: 'SettingScreen',
@@ -21,16 +41,17 @@ const SettingStack = ({ route, navigation }) => {
             name: 'ProfileScreen',
             component: ProfileScreen,
             options: {
-                title: 'Trang cá nhân',
+                title: username,
                 headerBackTitle: '',
-                // headerShown: false,
+                headerRight: headerRight,
+                headerTitleAlign: 'center',
             },
         },
     ];
+
     return (
         <StackSetting.Navigator
             initialRouteName="SettingScreen"
-            initialParams={{ avatar }}
             screenOptions={{
                 headerStyle: {
                     backgroundColor: Color.mainBackgroundColor,
@@ -43,7 +64,7 @@ const SettingStack = ({ route, navigation }) => {
             }}
         >
             {screenItemsSetting.map((item, index) => (
-                <StackSetting.Screen initialParams={{ avatar }} key={index} name={item.name} component={item.component} options={item.options} />
+                <StackSetting.Screen initialParams={{ user }} key={index} name={item.name} component={item.component} options={item.options} />
             ))}
         </StackSetting.Navigator>
     );

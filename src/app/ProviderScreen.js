@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect } from 'react';
-import { Platform, StatusBar } from 'react-native';
+import { Platform } from 'react-native';
 import { useSelector, useDispatch } from 'react-redux';
 import NetInfo from '@react-native-community/netinfo';
 import 'react-native-gesture-handler';
@@ -9,7 +9,7 @@ import { Modal } from 'react-native';
 import { useState } from 'react';
 
 import Color from '../utils/Color';
-import LoginStack from '../navigation/AppStack';
+import LoginStack from '../navigation/LoginStack';
 import MainTabStack from '../navigation/MainTabStack';
 import { login, selectIsAuth, selectUser } from '../redux/features/auth/authSlice';
 import { selectLoading } from '../redux/features/loading/loadingSlice';
@@ -19,10 +19,6 @@ import ButtonIconComponent from '../components/ButtonIconComponent';
 const Container = styled.KeyboardAvoidingView`
     flex: 1;
     background-color: ${Color.mainBackgroundColor};
-`;
-
-const SafeAreaViewContainer = styled.SafeAreaView`
-    flex: 1;
 `;
 
 const ButtonIconComponentStyled = styled(ButtonIconComponent)``;
@@ -52,37 +48,34 @@ function ProviderScreen() {
 
     return (
         <Container enabled={true} behavior={Platform.OS === 'ios' ? 'padding' : 'height'} keyboardVerticalOffset={Platform.OS === 'ios' ? 1 : 0}>
-            <SafeAreaViewContainer>
-                <StatusBar barStyle="light-content" />
-                <Modal visible={loading} transparent={true}>
-                    <LoadingScreen />
-                </Modal>
-                {isAuth ? <MainTabStack avatar={user.avatar} /> : <LoginStack />}
+            <Modal visible={loading} transparent={true}>
+                <LoadingScreen />
+            </Modal>
+            {isAuth ? <MainTabStack user /> : <LoginStack />}
 
-                {showPopup ? (
-                    isConnected ? (
-                        <ButtonIconComponentStyled
-                            title="Đã khôi phục lại kết nối Internet"
-                            nameIcon="wifi"
-                            typeIcon="MaterialCommunityIcons"
-                            propsIcon={{ color: Color.white, size: 12, backgroundColor: Color.gray }}
-                            propsTitle={{ color: Color.white, size: 16 }}
-                            onPress={() => setShowPopup(false)}
-                            propsButton={{ backgroundColor: Color.gray, width: 95, marginRight: 10, marginLeft: 10, position: 'absolute', bottom: 50 }}
-                        />
-                    ) : (
-                        <ButtonIconComponentStyled
-                            title="Bạn đang offline"
-                            nameIcon="wifi-off"
-                            typeIcon="MaterialCommunityIcons"
-                            propsIcon={{ color: Color.white, size: 12, backgroundColor: Color.gray }}
-                            propsTitle={{ color: Color.white, size: 16 }}
-                            onPress={() => setShowPopup(false)}
-                            propsButton={{ backgroundColor: Color.gray, width: 95, marginRight: 10, marginLeft: 10, position: 'absolute', bottom: 50 }}
-                        />
-                    )
-                ) : null}
-            </SafeAreaViewContainer>
+            {showPopup ? (
+                isConnected ? (
+                    <ButtonIconComponentStyled
+                        title="Đã khôi phục lại kết nối Internet"
+                        nameIcon="wifi"
+                        typeIcon="MaterialCommunityIcons"
+                        propsIcon={{ color: Color.white, size: 12, backgroundColor: Color.gray }}
+                        propsTitle={{ color: Color.white, size: 16 }}
+                        onPress={() => setShowPopup(false)}
+                        propsButton={{ backgroundColor: Color.gray, width: 95, marginRight: 10, marginLeft: 10, position: 'absolute', bottom: 50 }}
+                    />
+                ) : (
+                    <ButtonIconComponentStyled
+                        title="Bạn đang offline"
+                        nameIcon="wifi-off"
+                        typeIcon="MaterialCommunityIcons"
+                        propsIcon={{ color: Color.white, size: 12, backgroundColor: Color.gray }}
+                        propsTitle={{ color: Color.white, size: 16 }}
+                        onPress={() => setShowPopup(false)}
+                        propsButton={{ backgroundColor: Color.gray, width: 95, marginRight: 10, marginLeft: 10, position: 'absolute', bottom: 50 }}
+                    />
+                )
+            ) : null}
         </Container>
     );
 }

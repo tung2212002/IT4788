@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect } from 'react';
 import styled from 'styled-components/native';
-import { useDispatch, useSelector } from 'react-redux';
+import { useState } from 'react';
 
 import ButtonIconComponent from '../components/ButtonIconComponent';
 import {
@@ -23,11 +23,11 @@ import {
     SVGMore,
     SVGExit,
 } from '../../assets';
-import { logout, selectUser } from '../redux/features/auth/authSlice';
+import { logout } from '../redux/features/auth/authSlice';
 import { setLoading } from '../redux/features/loading/loadingSlice';
 import Color from '../utils/Color';
-import { useState } from 'react';
 import ShowMoreComponent from '../components/ShowMoreComponent';
+import { useDispatch } from 'react-redux';
 
 const ContainerScrollView = styled.ScrollView`
     flex: 1;
@@ -58,9 +58,9 @@ const ContainerItem = styled.View`
 const ButtonProfile = styled(ButtonIconComponent)``;
 
 function SettingScreen({ route, navigation }) {
-    const avatar = route.params?.avatar;
+    const user = route.params?.user;
+
     const dispatch = useDispatch();
-    const user = useSelector(selectUser);
 
     const itemsSetting = [
         {
@@ -176,7 +176,7 @@ function SettingScreen({ route, navigation }) {
     };
 
     useEffect(() => {
-        if (avatar === '1') {
+        if (user?.avatar !== '-1') {
             redirectProfile();
         }
     }, []);
@@ -191,7 +191,7 @@ function SettingScreen({ route, navigation }) {
                     imgIcon={user?.avatar !== '-1' ? { uri: user?.avatar } : images.defaultAvatar}
                     propsButton={{
                         height: 'auto',
-                        width: '90 ',
+                        width: '95',
                         marginBottom: '10',
                     }}
                     propsIcon={{ width: 60, height: 60, padding: 10, borderRadius: 50 }}
@@ -226,7 +226,7 @@ function SettingScreen({ route, navigation }) {
                     title={'Trợ giúp & hỗ trợ'}
                     onPress={() => setShowMoreHelp(!showMoreHelp)}
                     SVGIcon={SVGQuestionMark}
-                    propsButton={{ backgroundColor: Color.lightGray, width: '100', borderTopWidth: 1, borderRadius: 1, padding: 10, marginTop: 10 }}
+                    propsButton={{ backgroundColor: Color.mainBackgroundColor, width: '100', borderTopWidth: 1, borderRadius: 1, padding: 10, marginTop: 10 }}
                     propsIcon={{ width: 30, height: 30 }}
                     downIcon={true}
                 />
@@ -235,7 +235,7 @@ function SettingScreen({ route, navigation }) {
                     title={'Cài đặt thông báo đẩy'}
                     onPress={() => setShowMoreNotification(!showMoreNotification)}
                     SVGIcon={SVGSetting}
-                    propsButton={{ backgroundColor: Color.lightGray, width: '100', borderTopWidth: 1, borderRadius: 1, padding: 10 }}
+                    propsButton={{ backgroundColor: Color.mainBackgroundColor, width: '100', borderTopWidth: 1, borderRadius: 1, padding: 10 }}
                     propsIcon={{ width: 30, height: 30 }}
                     downIcon={true}
                 />
@@ -244,7 +244,7 @@ function SettingScreen({ route, navigation }) {
                     title={'Đăng xuất'}
                     onPress={handleLogout}
                     SVGIcon={SVGExit}
-                    propsButton={{ backgroundColor: Color.lightGray, width: '100', borderTopWidth: 1, borderRadius: 1, padding: 10 }}
+                    propsButton={{ backgroundColor: Color.mainBackgroundColor, width: '100', borderTopWidth: 1, borderRadius: 1, padding: 10 }}
                     propsIcon={{ width: 30, height: 30 }}
                 />
             </ContainerView>

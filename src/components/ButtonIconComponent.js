@@ -10,6 +10,7 @@ const Container = styled.TouchableOpacity`
     display: flex;
     flex-direction: ${(props) => props.direction || 'row'};
     align-items: ${(props) => props.alignItems || 'center'};
+    justify-content: ${(props) => props.justifyContent || 'start'};
     padding: ${(props) => props.padding || 10}px;
     border-radius: ${(props) => props.borderRadius || 10}px;
     background-color: ${(props) => props.backgroundColor || Color.white};
@@ -33,7 +34,7 @@ const Container = styled.TouchableOpacity`
 
 const Title = styled.Text`
     font-size: ${(props) => props.size || 18}px;
-    font-weight: bold;
+    font-weight: ${(props) => (props.fontWeight ? props.fontWeight || 'normal' : 'bold')};
     color: ${(props) => props.color || Color.black};
 `;
 

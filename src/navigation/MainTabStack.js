@@ -9,16 +9,18 @@ import Color from '../utils/Color';
 import VectorIcon from '../utils/VectorIcon';
 import SettingStack from './SettingStack';
 import { FriendsScreen, GroupScreen, HomeScreen, NotificationScreen, PersionalScreen } from '../screens';
+import HomeStack from './HomeStack';
+import PersionalStack from './PersionalStack';
 
 const VectorIconStyled = styled(VectorIcon)``;
 
 const TabStack = createBottomTabNavigator();
 
-const MainTabStack = ({ navigation, avatar }) => {
+const MainTabStack = ({ user }) => {
     const screenItemsLogin = [
         {
-            name: 'HomeScreen',
-            component: HomeScreen,
+            name: 'HomeStack',
+            component: HomeStack,
             icon: 'home-outline',
             iconFocused: 'home',
             typeIcon: 'Ionicons',
@@ -50,8 +52,8 @@ const MainTabStack = ({ navigation, avatar }) => {
             typeIconFocused: 'FontAwesome',
         },
         {
-            name: 'PersionalScreen',
-            component: PersionalScreen,
+            name: 'PersionalStack',
+            component: PersionalStack,
             icon: 'person-circle-outline',
             iconFocused: 'person-circle',
             typeIcon: 'Ionicons',
@@ -70,7 +72,8 @@ const MainTabStack = ({ navigation, avatar }) => {
     return (
         <NavigationContainer>
             <TabStack.Navigator
-                initialRouteName={avatar === '-1' ? 'SettingStack' : 'HomeScreen'}
+                // 1 ==> -1 to check dont have avatar
+                initialRouteName={user.avatar === '1' ? 'SettingStack' : 'HomeStack'}
                 screenOptions={{
                     headerShown: false,
                     tabBarStyle: {
@@ -83,7 +86,7 @@ const MainTabStack = ({ navigation, avatar }) => {
                         key={index}
                         name={item.name}
                         component={item.component}
-                        initialParams={{ avatar }}
+                        initialParams={{ user }}
                         options={{
                             tabBarIcon: ({ focused }) => (
                                 <VectorIconStyled

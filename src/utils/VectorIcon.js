@@ -7,6 +7,7 @@ import { FontAwesome } from '@expo/vector-icons';
 import { Entypo } from '@expo/vector-icons';
 import { MaterialIcons } from '@expo/vector-icons';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { AntDesign } from '@expo/vector-icons';
 
 function VectorIcon({ nameIcon, typeIcon, ...props }) {
     const { size, color, onPress, style } = props;
@@ -26,6 +27,8 @@ function VectorIcon({ nameIcon, typeIcon, ...props }) {
                 <MaterialIcons name={nameIcon} size={size} color={color} onPress={onPress} />
             ) : typeIcon === 'MaterialCommunityIcons' ? (
                 <MaterialCommunityIcons name={nameIcon} size={size} color={color} onPress={onPress} />
+            ) : typeIcon === 'AntDesign' ? (
+                <AntDesign name={nameIcon} size={size} color={color} onPress={onPress} />
             ) : null}
         </View>
     );

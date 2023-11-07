@@ -2,10 +2,10 @@ import { useState } from 'react';
 import { Alert } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 
-export const useImagePicker = () => {
-    const [imageFiles, setImageFiles] = useState([]);
+export const useVideoPicker = () => {
+    const [videoFiles, setVideoFiles] = useState([]);
 
-    const pickImage = async () => {
+    const pickVideo = async () => {
         const requestPermission = async () => {
             const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
 
@@ -15,24 +15,25 @@ export const useImagePicker = () => {
             }
 
             let result = await ImagePicker.launchImageLibraryAsync({
-                mediaTypes: ImagePicker.MediaTypeOptions.Images,
+                mediaTypes: ImagePicker.MediaTypeOptions.Videos,
                 allowsEditing: true,
-                aspect: [4, 3],
+                aspect: [3, 3],
                 quality: 1,
                 multiple: true,
             });
 
             if (!result.canceled) {
-                setImageFiles([result.assets[0], ...imageFiles]);
+                setVideoFiles([result.assets[0], ...videoFiles]);
             }
         };
 
         requestPermission();
     };
 
-    const clearImages = () => {
-        setImageFiles([]);
+    const clearVideos = () => {
+        setVideoFiles([]);
     };
+    // useEffect(() => {}, []);
 
-    return { imageFiles, pickImage, clearImages };
+    return { videoFiles, pickVideo, clearVideos };
 };

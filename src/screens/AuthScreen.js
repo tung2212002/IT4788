@@ -26,11 +26,14 @@ const Icon = styled(FontAwesome5)`
     margin-vertical: 50px;
 `;
 
-const IconBox = styled(FontAwesome5)`
-    padding: 15px;
+const ViewIconBox = styled.View`
+    padding: 15px 20px;
     background-color: ${Color.lightBlue};
     border-radius: 10px;
-    width: 50px;
+`;
+
+const IconBox = styled(FontAwesome5)`
+    border-radius: 10px;
 `;
 
 const ButtonBox = styled(TouchableOpacity)`
@@ -148,12 +151,16 @@ function AuthScreen({ navigation }) {
             )}
             <Box>
                 <ButtonBox onPress={() => navigation.navigate('LoginNotSaveScreen')}>
-                    <IconBox name="plus" size={20} color={Color.blueButtonColor} />
+                    <ViewIconBox>
+                        <IconBox name="plus" size={20} color={Color.blueButtonColor} />
+                    </ViewIconBox>
                     <TextBox>Thêm tài khoản khác</TextBox>
                 </ButtonBox>
 
                 <ButtonBox onPress={() => navigation.navigate('StackHome', { screen: 'HomeScreen' })}>
-                    <IconBox name="search" size={20} color={Color.blueButtonColor} />
+                    <ViewIconBox>
+                        <IconBox name="search" size={20} color={Color.blueButtonColor} />
+                    </ViewIconBox>
                     <TextBox>Tìm tài khoản</TextBox>
                 </ButtonBox>
             </Box>

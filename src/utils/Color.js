@@ -15,6 +15,10 @@ const Color = {
 
     // Background Loading
     backGroundLoading: 'rgba(0,0,0,0.4)',
+
+    // Home Screen
+    mainBackgroundHome: '#c9ccd1',
+
 };
 
 export default Color;

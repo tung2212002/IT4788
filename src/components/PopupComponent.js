@@ -68,6 +68,7 @@ function PopupComponent({ renderPopUpComponent, setRenderPopUpComponent, childre
             propagateSwipe={true}
             onBackdropPress={() => setIsVisible(false)}
             onSwipeMove={(percentageShown) => handleSwipeMove(percentageShown)}
+            onModalHide={() => setRenderPopUpComponent(false)}
         >
             <ScrollAbleModal scrollEventThrottle={16}>
                 <ScrollAbleModalTop />

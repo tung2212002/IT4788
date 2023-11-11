@@ -52,7 +52,7 @@ const Content = styled.View`
 const Icon = styled(VectorIcon)`
     border-radius: 50px;
     background-color: ${(props) => props.backgroundColor || Color.white};
-    padding: 10px;
+    padding: ${(props) => props.padding || 10}px;
     margin-left: ${(props) => props.marginLeft || 0}px;
     margin-right: ${(props) => props.marginRight || 0}px;
     margin-top: ${(props) => props.marginTop || 0}px;

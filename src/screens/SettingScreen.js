@@ -28,6 +28,8 @@ import { setLoading } from '../redux/features/loading/loadingSlice';
 import Color from '../utils/Color';
 import ShowMoreComponent from '../components/ShowMoreComponent';
 import { useDispatch } from 'react-redux';
+import ButtonComponent from '../components/ButtonComponent';
+import { Alert } from 'react-native';
 
 const ContainerScrollView = styled.ScrollView`
     flex: 1;
@@ -53,6 +55,11 @@ const ContainerItem = styled.View`
     align-items: center;
     margin-bottom: 20px;
     padding-horizontal: 10px;
+`;
+
+const AlertComponent = styled(Alert)`
+    background-color: ${Color.gray};
+    transform: scale(0.8);
 `;
 
 const ButtonProfile = styled(ButtonIconComponent)``;
@@ -166,9 +173,22 @@ function SettingScreen({ route, navigation }) {
     // };
 
     const handleLogout = async () => {
-        dispatch(setLoading(true));
-        dispatch(logout());
-        dispatch(setLoading(false));
+
+        const title = 'Bạn có chắc chắn muốn đăng xuất?';
+        const body = '';
+        const options = [
+            { text: 'Hủy' },
+            {
+                text: 'Đăng xuất',
+                onPress: () => {
+                    dispatch(setLoading(true));
+                    dispatch(logout());
+                    dispatch(setLoading(false));
+                },
+            },
+        ];
+
+        AlertComponent.alert(title, body, options, { cancelable: false });
     };
 
     const redirectProfile = () => {
@@ -195,7 +215,7 @@ function SettingScreen({ route, navigation }) {
                         marginBottom: '10',
                     }}
                     propsIcon={{ width: 60, height: 60, padding: 10, borderRadius: 50 }}
-                    downIcon={true}
+                    downIcon={false}
                     propsDownIcon={{ size: 20, padding: 5, borderRadius: 50 }}
                     isShadow={true}
                 />
@@ -240,12 +260,16 @@ function SettingScreen({ route, navigation }) {
                     downIcon={true}
                 />
                 <ShowMoreComponent items={moreItems} showMore={showMoreNotification} />
-                <ButtonIconComponent
+                <ButtonComponent
                     title={'Đăng xuất'}
                     onPress={handleLogout}
-                    SVGIcon={SVGExit}
-                    propsButton={{ backgroundColor: Color.mainBackgroundColor, width: '100', borderTopWidth: 1, borderRadius: 1, padding: 10 }}
-                    propsIcon={{ width: 30, height: 30 }}
+                    color={Color.black}
+                    style={{
+                        backgroundColor: Color.lightGray,
+                        width: '90%',
+                        borderRadius: 1,
+                        marginVertical: 20,
+                    }}
                 />
             </ContainerView>
         </ContainerScrollView>

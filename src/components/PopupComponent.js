@@ -32,7 +32,7 @@ const ScrollAbleModalTop = styled.View`
     margin-vertical: 10px;
 `;
 
-function PopupComponent({ renderPopUpComponent, setRenderPopUpComponent, children }) {
+function PopupComponent({ renderPopUpComponent, setRenderPopUpComponent, onBackdropPress, children }) {
     const [scrollViewRef, setScrollViewRef] = useState(null);
     const [state, setState] = useState({
         scrollOffset: null,
@@ -66,13 +66,12 @@ function PopupComponent({ renderPopUpComponent, setRenderPopUpComponent, childre
             scrollOffset={state.scrollOffset}
             scrollOffsetMax={400 - 300}
             propagateSwipe={true}
-            onBackdropPress={() => setIsVisible(false)}
+            onBackdropPress={onBackdropPress ? onBackdropPress : () => setIsVisible(false)}
             onSwipeMove={(percentageShown) => handleSwipeMove(percentageShown)}
             onModalHide={() => setRenderPopUpComponent(false)}
         >
             <ScrollAbleModal scrollEventThrottle={16}>
                 <ScrollAbleModalTop />
-
                 <ScrollViewContainer ref={setScrollViewRef}>{children}</ScrollViewContainer>
             </ScrollAbleModal>
         </ModalContainer>

@@ -49,7 +49,7 @@ const PersionalStack = () => {
                 title: '',
                 headerShown: false,
             },
-            initialParams: { user, isCreatePost, setIsCreatePost },
+            initialParams: { user, isCreatePost },
         },
         {
             name: 'ProfileScreen',

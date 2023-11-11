@@ -29,6 +29,14 @@ import SVGLogo from './icons/logo.svg';
 import SVGFilter from './icons/filter.svg';
 import SVGEdit from './icons/edit.svg';
 import SVGCheckIn from './icons/check-in.svg';
+import SVGTagUser from './icons/tag-user.svg';
+import SVGCalendar from './icons/calendar.svg';
+import SVGCamera from './icons/camera.svg';
+import SVGFeeling from './icons/feeling.svg';
+import SVGGifSymbol from './icons/gif-symbol.svg';
+import SVGLiveStreaming from './icons/live-streaming.svg';
+import SVGMusic from './icons/music.svg';
+import SVGTextFormat from './icons/text-format.svg';
 
 const images = {
     defaultBackground: require('./images/cloud.jpg'),
@@ -73,5 +81,13 @@ export {
     SVGFilter,
     SVGEdit,
     SVGCheckIn,
+    SVGTagUser,
+    SVGCalendar,
+    SVGCamera,
+    SVGFeeling,
+    SVGGifSymbol,
+    SVGLiveStreaming,
+    SVGMusic,
+    SVGTextFormat,
 };
 export { icons, images };

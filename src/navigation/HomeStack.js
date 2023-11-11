@@ -53,16 +53,6 @@ const HomeStack = () => {
                 headerTitleAlign: 'center',
             },
         },
-        {
-            name: 'CreatePostScreen',
-            component: CreatePostScreen,
-            options: {
-                title: 'Tạo bài viết',
-                headerBackTitle: '',
-                headerRight: headerRightCreatePost,
-                headerTitleAlign: 'center',
-            },
-        },
     ];
 
     return (
@@ -79,7 +69,7 @@ const HomeStack = () => {
             }}
         >
             {screenItemsLogin.map((item, index) => (
-                <StackHome.Screen key={index} name={item.name} component={item.component} options={item.options} initialParams={{ user }} />
+                <StackHome.Screen key={index} name={item.name} component={item.component} initialParams={{ user }} options={item.options} />
             ))}
         </StackHome.Navigator>
     );

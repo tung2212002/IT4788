@@ -8,7 +8,7 @@ import { images } from '../../assets';
 import VectorIcon from '../utils/VectorIcon';
 import { SVGFilter, SVGCheckIn, SVGPhotos, SVGEdit } from '../../assets';
 import ButtonIconComponent from './ButtonIconComponent';
-import { TouchableOpacity, View } from 'react-native';
+import { TouchableOpacity } from 'react-native';
 import ButtonComponent from './ButtonComponent';
 
 const Container = styled.View`
@@ -86,17 +86,9 @@ const ButtonInput = styled(ButtonComponent)`
     flex: 1;
     height: 50px;
     margin-horizontal: 10px;
-    background-color: ${Color.white};
-`;
-
-const Input = styled.TextInput`
-    width: 100%;
-    height: 100%;
-    padding: 0 20px;
     border-radius: 50px;
-    font-size: 16px;
-    font-weight: bold;
-    background-color: ${Color.mainBackgroundHome};
+    align-items: flex-start;
+    padding-left: 20px;
 `;
 
 const Bottom = styled.View`
@@ -107,7 +99,7 @@ const Bottom = styled.View`
     align-items: center;
 `;
 
-const PostComposerComponent = ({ navigation, stylesInput, isHeader = false }) => {
+const PostComposerComponent = ({ navigation, stylesInput, isHeader = false, setShowCreatePost }) => {
     const user = useSelector(selectUser);
     const avatar = user.avatar === '-1' ? images.defaultAvatar : { uri: user.avatar };
     const { placeholderTextColor, ...styles } = stylesInput;
@@ -150,9 +142,12 @@ const PostComposerComponent = ({ navigation, stylesInput, isHeader = false }) =>
                 <TouchableOpacity onPress={() => navigation.navigate('ProfileScreen')}>
                     <Avatar source={avatar} />
                 </TouchableOpacity>
-                <ButtonInput onPress={() => navigation.navigate('CreatePostScreen')}>
-                    <Input placeholder="Bạn đang nghĩ gì?" placeholderTextColor={placeholderTextColor} style={styles} editable={false} />
-                </ButtonInput>
+                <ButtonInput
+                    onPress={() => setShowCreatePost(true)}
+                    title="Bạn đang nghĩ gì?"
+                    color={Color.gray}
+                    style={[styles, { backgroundColor: Color.white }]}
+                />
             </Content>
 
             <Bottom>

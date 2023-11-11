@@ -6,6 +6,7 @@ import { SafeAreaView as SafeAreaViewAndroid } from 'react-native-safe-area-cont
 import { SafeAreaView as SafeAreaViewIOS, Platform, StyleSheet } from 'react-native';
 import store from './src/redux/store';
 import ProviderScreen from './src/app/ProviderScreen';
+import Color from './src/utils/Color';
 
 const SafeAreaView = Platform.OS === 'ios' ? SafeAreaViewIOS : SafeAreaViewAndroid;
 
@@ -13,7 +14,7 @@ export default function App() {
     return (
         <Provider store={store}>
             <SafeAreaView style={styles.container}>
-                <StatusBar style="auto" />
+                <StatusBar StatusBarStyle="dark-content" backgroundColor={Color.mainBackgroundColor} />
                 <ProviderScreen />
             </SafeAreaView>
         </Provider>

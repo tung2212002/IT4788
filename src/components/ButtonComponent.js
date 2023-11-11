@@ -7,11 +7,10 @@ import Color from '../utils/Color';
 const Container = styled.TouchableOpacity`
     width: 100%;
     height: 50px;
-    background-color: #fff;
+    background-color: ${(props) => props.backgroundColor || Color.blueButtonColor};
     border-radius: 10px;
     justify-content: center;
     align-items: center;
-    background-color: ${Color.blueButtonColor};
 `;
 
 const Title = styled.Text`
@@ -20,7 +19,7 @@ const Title = styled.Text`
     color: ${(props) => props.color || Color.white};
 `;
 
-function ButtonComponent({ title, onPress, style = {}, color, size, loading, isShadow }) {
+function ButtonComponent({ title, onPress, style = {}, color, size, loading, isShadow, ...props }) {
     const generateBoxShadowStyle = () => {
         if (Platform.OS === 'ios') {
             return {
@@ -40,7 +39,7 @@ function ButtonComponent({ title, onPress, style = {}, color, size, loading, isS
     };
 
     return (
-        <Container onPress={onPress} style={[style, isShadow ? generateBoxShadowStyle() : {}]} disabled={loading}>
+        <Container onPress={onPress} style={[style, isShadow ? generateBoxShadowStyle() : {}]} disabled={loading} {...props}>
             {!loading ? (
                 <Title color={color} size={size}>
                     {title}

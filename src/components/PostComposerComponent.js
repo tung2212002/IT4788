@@ -1,14 +1,15 @@
 import React from 'react';
 import styled from 'styled-components/native';
+import { TouchableOpacity } from 'react-native';
+import { useSelector } from 'react-redux';
 
 import Color from '../utils/Color';
-import { useSelector } from 'react-redux';
+// import { selectUser } from '../redux/features/user/userSlice';
 import { selectUser } from '../redux/features/auth/authSlice';
 import { images } from '../../assets';
 import VectorIcon from '../utils/VectorIcon';
 import { SVGFilter, SVGCheckIn, SVGPhotos, SVGEdit } from '../../assets';
 import ButtonIconComponent from './ButtonIconComponent';
-import { TouchableOpacity } from 'react-native';
 import ButtonComponent from './ButtonComponent';
 
 const Container = styled.View`
@@ -101,7 +102,6 @@ const Bottom = styled.View`
 
 const PostComposerComponent = ({ navigation, stylesInput, isHeader = false, setShowCreatePost }) => {
     const user = useSelector(selectUser);
-    const avatar = user.avatar === '-1' ? images.defaultAvatar : { uri: user.avatar };
     const { placeholderTextColor, ...styles } = stylesInput;
 
     const listItemsBottom = [
@@ -109,19 +109,19 @@ const PostComposerComponent = ({ navigation, stylesInput, isHeader = false, setS
             title: 'Trạng thái',
             onPress: () => {},
             SVGIcon: SVGEdit,
-            styleIcon: { width: 16, height: 16 },
+            styleIcon: { width: 22, height: 22 },
         },
         {
             title: 'Ảnh',
             onPress: () => {},
             SVGIcon: SVGPhotos,
-            styleIcon: { width: 30, height: 30 },
+            styleIcon: { width: 26, height: 26 },
         },
         {
             title: 'Check in',
             onPress: () => {},
             SVGIcon: SVGCheckIn,
-            styleIcon: { width: 25, height: 25 },
+            styleIcon: { width: 26, height: 26 },
         },
     ];
 
@@ -140,7 +140,7 @@ const PostComposerComponent = ({ navigation, stylesInput, isHeader = false, setS
             ) : null}
             <Content>
                 <TouchableOpacity onPress={() => navigation.navigate('ProfileScreen')}>
-                    <Avatar source={avatar} />
+                    <Avatar source={user?.avatar === '-1' || user?.avatar === '' ? images.defaultAvatar : { uri: user?.avatar }} />
                 </TouchableOpacity>
                 <ButtonInput
                     onPress={() => setShowCreatePost(true)}

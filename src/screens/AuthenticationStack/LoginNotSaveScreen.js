@@ -1,18 +1,18 @@
 import React, { useState } from 'react';
 import styled from 'styled-components/native';
 import { FontAwesome5 } from '@expo/vector-icons';
-import * as Device from 'expo-device';
 import { useDispatch } from 'react-redux';
 
-import { login } from '../redux/features/auth/authSlice';
-import { setLoading as setModalLoading } from '../redux/features/loading/loadingSlice';
-import ButtonComponent from '../components/ButtonComponent';
-import Color from '../utils/Color';
-import InputSecure from '../components/InputSecure';
-import TextInputComponent from '../components/TextInputComponent';
+import { login } from '../../redux/features/auth/authSlice';
+import { setLoading as setModalLoading } from '../../redux/features/loading/loadingSlice';
+import ButtonComponent from '../../components/ButtonComponent';
+import Color from '../../utils/Color';
+import InputSecure from '../../components/InputSecure';
+import TextInputComponent from '../../components/TextInputComponent';
 // import { loginService } from '../services/userService';
-import { testPostService } from '../services/userService';
-import { setUserStorage } from '../utils/userStorage';
+import { loginService } from '../../services/userService';
+import { mergeUserStorage } from '../../utils/userStorage';
+import getUUID from '../../utils/getUUID';
 
 const Container = styled.View`
     flex: 1;
@@ -60,32 +60,38 @@ function LoginNotSaveScreen({ navigation }) {
             setError('Bạn chưa nhập tài khoản hoặc mật khẩu');
         } else {
             dispatch(setModalLoading(true));
-            const params = {
+            const uuid = getUUID();
+
+            const body = {
                 email,
                 password,
-                deviceId: Device.osBuildId.replace(/\s/g, ''),
+                uuid,
             };
-            try {
-                const response = await testPostService(params);
-                if (response.status === 201) {
-                    const data = {
-                        id: '1',
-                        username: 'admin',
-                        token: '1222222222',
-                        avatar: '-1',
-                        active: '1',
-                        coins: '0',
-                    };
-                    await setUserStorage(data);
-                } else {
-                    setError(response.data.message);
-                }
-            } catch (e) {
-                setError(e.message);
-            } finally {
-                dispatch(login());
-                dispatch(setModalLoading(false));
-            }
+
+            loginService(body)
+                .then((response) => {
+                    if (response.data.code === '1000') {
+                        mergeUserStorage(response.data.data)
+                            .then(() => {
+                                dispatch(login());
+                                dispatch(setModalLoading(false));
+                            })
+                            .catch((e) => {
+                                dispatch(setModalLoading(false));
+                                setError('Có lỗi xảy ra, vui lòng thử lại sau');
+                            });
+                    } else if (response.data.code === '9991') {
+                        dispatch(setModalLoading(false));
+                        setError('Tài khoản hoặc mật khẩu không đúng');
+                    } else {
+                        dispatch(setModalLoading(false));
+                        setError('Thông tin đăng nhập không đúng định dạng');
+                    }
+                })
+                .catch((e) => {
+                    dispatch(setModalLoading(false));
+                    setError('Có lỗi xảy ra, vui lòng thử lại sau');
+                });
         }
     };
 

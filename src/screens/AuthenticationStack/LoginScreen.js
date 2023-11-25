@@ -1,11 +1,12 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components/native';
 import { Alert } from 'react-native';
 
-import ButtonComponent from '../components/ButtonComponent';
-import Color from '../utils/Color';
-import InputSecure from '../components/InputSecure';
-import { setUserStorage } from '../utils/userStorage';
+import ButtonComponent from '../../components/ButtonComponent';
+import Color from '../../utils/Color';
+import InputSecure from '../../components/InputSecure';
+import { getUserStorage, setUserStorage } from '../../utils/userStorage';
+import { images } from '../../../assets';
 
 const Container = styled.View`
     flex: 1;
@@ -66,6 +67,7 @@ const AlertComponent = styled(Alert)`
 function LoginScreen({ navigation }) {
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
+    const [user, setUser] = useState({});
 
     const handleLogin = () => {
         if (!password) {
@@ -84,11 +86,19 @@ function LoginScreen({ navigation }) {
         AlertComponent.alert(title, body, options, { cancelable: false });
     };
 
+    useEffect(() => {
+        getUserStorage()
+            .then((data) => {
+                setUser(data);
+            })
+            .catch((err) => console.log(err));
+    }, []);
+
     return (
         <Container>
             <Info>
-                <Avatar source={require('../../assets/images/cloud.jpg')} />
-                <Name>Nguyễn Văn A</Name>
+                <Avatar source={user?.avatar === '' || user?.avatar === '-1' ? images.avatar : { uri: user.avatar }} />
+                <Name>{user?.name}</Name>
             </Info>
             <Enter>
                 <Input

@@ -1,14 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components/native';
+import { useSelector } from 'react-redux';
 
-import Color from '../utils/Color';
-import PopupComponent from '../components/PopupComponent';
-import ButtonIconComponent from '../components/ButtonIconComponent';
-import { images } from '../../assets';
-import VectorIcon from '../utils/VectorIcon';
-import { useImagePicker } from '../hooks/useImagePicker';
-import { useVideoPicker } from '../hooks/useVideoPicker';
-import { useCameraPicker } from '../hooks/useCameraPicker';
+import Color from '../../utils/Color';
+import PopupComponent from '../../components/PopupComponent';
+import ButtonIconComponent from '../../components/ButtonIconComponent';
+import { images } from '../../../assets';
+import VectorIcon from '../../utils/VectorIcon';
+import { useImagePicker } from '../../hooks/useImagePicker';
+import { useVideoPicker } from '../../hooks/useVideoPicker';
+import { useCameraPicker } from '../../hooks/useCameraPicker';
+import { selectUser } from '../../redux/features/auth/authSlice';
+import PopupScreenComponent from '../../components/PopupScreenCompopnent';
+import ChangeAvatarScreen from './ChangeAvatarScreen';
 
 const Container = styled.View`
     flex: 1;
@@ -63,12 +67,13 @@ const FullName = styled.Text`
 `;
 
 function ProfileScreen({ route, navigation, props }) {
-    const user = route.params?.user;
     const [renderPopUpComponent, setRenderPopUpComponent] = useState(false);
+    const [renderPopUpComponent2, setRenderPopUpComponent2] = useState(false);
     const { imageFiles, pickImage, clearImages } = useImagePicker();
     const { videoFiles, pickVideo, clearVideos } = useVideoPicker();
     const { pickedImagePath, pickCamera } = useCameraPicker();
     const [lastAvatar, setLastAvatar] = useState(null);
+    const user = useSelector(selectUser);
 
     const listItems = [
         {
@@ -114,8 +119,16 @@ function ProfileScreen({ route, navigation, props }) {
         }
     }, [pickedImagePath]);
 
+    const handlePressAvatarIcon = () => {
+        pickImage();
+    };
+
     useEffect(() => {
+        if (imageFiles.length === 0) {
+            return;
+        }
         setLastAvatar(imageFiles[0]);
+        setRenderPopUpComponent2(true);
     }, [imageFiles]);
 
     useEffect(() => {
@@ -123,9 +136,9 @@ function ProfileScreen({ route, navigation, props }) {
     }, [videoFiles]);
 
     useEffect(() => {
-        setTimeout(() => {
+        if (user.avatar === '-1' || user.avatar === '') {
             setRenderPopUpComponent(true);
-        }, 2000);
+        }
     }, []);
 
     return (
@@ -133,13 +146,13 @@ function ProfileScreen({ route, navigation, props }) {
             <ProfileContainer>
                 <BackGround source={images.defaultBackground}>
                     <AvatarContainer>
-                        <Avatar source={lastAvatar ? { uri: lastAvatar.uri } : user.avatar !== '-1' ? { uri: user.avatar } : images.defaultAvatar} />
-                        <AvatarIcon onPress={pickImage}>
+                        <Avatar source={user.avatar === '-1' || user.avatar === '' ? images.defaultAvatar : { uri: user.avatar }} />
+                        <AvatarIcon onPress={handlePressAvatarIcon}>
                             <VectorIcon nameIcon="camera" typeIcon="FontAwesome5" size={30} color={Color.black} />
                         </AvatarIcon>
                     </AvatarContainer>
 
-                    <FullName>{user.username}</FullName>
+                    <FullName>{user?.username || 'Người dùng'}</FullName>
                 </BackGround>
             </ProfileContainer>
 
@@ -158,6 +171,23 @@ function ProfileScreen({ route, navigation, props }) {
                         />
                     ))}
                 </PopupComponent>
+            )}
+            {renderPopUpComponent2 && (
+                <PopupScreenComponent
+                    renderPopUpComponent={renderPopUpComponent2}
+                    setRenderPopUpComponent={setRenderPopUpComponent2}
+                    onBackdropPress={() => true}
+                    coverScreen={false}
+                    hasBackdrop={false}
+                >
+                    <ChangeAvatarScreen
+                        navigation={navigation}
+                        setRenderPopUpComponent={setRenderPopUpComponent2}
+                        renderPopUpComponent={renderPopUpComponent2}
+                        user={user}
+                        lastAvatar={lastAvatar}
+                    />
+                </PopupScreenComponent>
             )}
         </Container>
     );

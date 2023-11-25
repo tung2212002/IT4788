@@ -4,10 +4,13 @@ import { FontAwesome5 } from '@expo/vector-icons';
 import { TouchableOpacity } from 'react-native';
 import { MenuProvider, Menu, MenuOptions, MenuOption, MenuTrigger } from 'react-native-popup-menu';
 import { Entypo } from '@expo/vector-icons';
+import { useDispatch } from 'react-redux';
 
-import ButtonComponent from '../components/ButtonComponent';
-import Color from '../utils/Color';
-import { getUserStorage, removeUserStorage } from '../utils/userStorage';
+import ButtonComponent from '../../components/ButtonComponent';
+import Color from '../../utils/Color';
+import { getUserStorage, removeUserStorage } from '../../utils/userStorage';
+import { images } from '../../../assets';
+import { setUserInfo } from '../../redux/features/user/userSlice';
 
 const Box = styled.View`
     width: 100%;
@@ -89,12 +92,17 @@ const MenuComponent = styled(Menu)`
 
 const ButtonChoose = styled(ButtonComponent)``;
 
-function AuthScreen({ navigation }) {
+function AuthenticationScreen({ navigation }) {
     const [user, setUser] = useState(null);
+    const dispatch = useDispatch();
 
     const handleRemoveAccount = () => {
-        removeUserStorage();
-        setUser(null);
+        removeUserStorage()
+            .then(() => {
+                setUser(null);
+                dispatch(setUserInfo(null));
+            })
+            .catch((err) => console.log(err));
     };
 
     const handleTurnOffNotification = () => {
@@ -102,13 +110,11 @@ function AuthScreen({ navigation }) {
     };
 
     useEffect(() => {
-        const getUser = async () => {
-            const testUser = await getUserStorage();
-            if (testUser) {
-                setUser(testUser);
-            }
-        };
-        getUser();
+        getUserStorage()
+            .then((data) => {
+                setUser(data);
+            })
+            .catch((err) => console.log(err));
     }, []);
 
     return (
@@ -116,10 +122,8 @@ function AuthScreen({ navigation }) {
             <Icon name="facebook" size={80} color={Color.blueButtonColor} />
             {user && (
                 <Info onPress={() => navigation.navigate('LoginScreen')}>
-                    <Avatar source={require('../../assets/images/cloud.jpg')} />
-                    <TextInfo>
-                        {user.lastName} {user.firstName}
-                    </TextInfo>
+                    <Avatar source={user.avatar === '' || user.avatar === '-1' ? images.defaultAvatar : { uri: user.avatar }} />
+                    <TextInfo>{user.username}</TextInfo>
                     <MenuComponent>
                         <MenuTrigger
                             customStyles={{
@@ -176,4 +180,4 @@ function AuthScreen({ navigation }) {
     );
 }
 
-export default AuthScreen;
+export default AuthenticationScreen;

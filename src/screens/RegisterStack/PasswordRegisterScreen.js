@@ -4,6 +4,8 @@ import styled from 'styled-components/native';
 import InputSecure from '../../components/InputSecure';
 import ButtonComponent from '../../components/ButtonComponent';
 import Color from '../../utils/Color';
+import { registerService } from '../../services/userService';
+import getUUID from '../../utils/getUUID';
 
 const Container = styled.View`
     flex: 1;
@@ -63,6 +65,8 @@ const ViewError = styled.View`
 function PasswordRegisterScreen({ route, navigation }) {
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false);
+    const params = route.params;
 
     const regex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,}$/;
 
@@ -72,7 +76,31 @@ function PasswordRegisterScreen({ route, navigation }) {
         } else if (!regex.test(password)) {
             setError('Password không hợp lệ');
         } else {
-            navigation.navigate('AccountAuthenScreen', { ...route.params, password });
+            const body = {
+                email: params.numberPhone ? '' : params.email,
+                password: password,
+                uuid: getUUID(),
+            };
+            setLoading(true);
+            registerService(body)
+                .then((res) => {
+                    if (res.data.code === '1000') {
+                        const verify_code = res.data.data.verify_code;
+                        setLoading(false);
+                        navigation.navigate('AccountAuthenScreen', { ...route.params, password, verify_code });
+                    } else if (res.data.code === '9996') {
+                        setLoading(false);
+                        setError('Tài khoản đã tồn tại');
+                    } else {
+                        console.log(res);
+                        setLoading(false);
+                        setError('Có lỗi xảy ra');
+                    }
+                })
+                .catch((err) => {
+                    setLoading(false);
+                    console.log('err', err);
+                });
         }
     };
 
@@ -95,7 +123,7 @@ function PasswordRegisterScreen({ route, navigation }) {
                     />
                 </Input>
             </Body>
-            <ButtonComponent onPress={checkPassword} title={'Tiếp'} />
+            <ButtonComponent onPress={checkPassword} title={'Tiếp'} loading={loading} />
         </Container>
     );
 }

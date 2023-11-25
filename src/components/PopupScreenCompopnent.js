@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { Dimensions } from 'react-native';
 import Modal from 'react-native-modal';
 import styled from 'styled-components/native';
+import { Platform } from 'react-native';
 
 import Color from '../utils/Color';
 import VectorIcon from '../utils/VectorIcon';
@@ -11,6 +11,7 @@ const ModalContainer = styled(Modal)`
     margin: 0;
     background-color: ${Color.white};
     justify-content: flex-start;
+    margin-top: ${Platform.OS === 'ios' ? 0 : -15}px;
 `;
 
 const CloseButton = styled.TouchableOpacity`
@@ -20,7 +21,7 @@ const CloseButton = styled.TouchableOpacity`
     z-index: 1;
 `;
 
-function PopupScreenComponent({ renderPopUpComponent, setRenderPopUpComponent, onBackdropPress, children }) {
+function PopupScreenComponent({ renderPopUpComponent, setRenderPopUpComponent, onBackdropPress, children, handleClose }) {
     const [state, setState] = useState({
         scrollOffset: null,
         scrollViewRef: null,
@@ -48,7 +49,7 @@ function PopupScreenComponent({ renderPopUpComponent, setRenderPopUpComponent, o
             // onSwipeMove={(percentageShown) => handleSwipeMove(percentageShown)}
             onModalHide={() => setRenderPopUpComponent(false)}
         >
-            <CloseButton onPress={() => setIsVisible(false)}>
+            <CloseButton onPress={() => (handleClose ? handleClose() : setIsVisible(false))}>
                 <VectorIcon nameIcon="close" size={32} color={Color.black} typeIcon={'MaterialCommunityIcons'} />
             </CloseButton>
             {children}

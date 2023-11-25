@@ -5,7 +5,8 @@ import { FontAwesome5 } from '@expo/vector-icons';
 
 import ButtonComponent from '../../components/ButtonComponent';
 import Color from '../../utils/Color';
-import { setUserStorage } from '../../utils/userStorage';
+import { removeUserStorage, setUserStorage } from '../../utils/userStorage';
+import { images } from '../../../assets';
 
 const Container = styled.View`
     flex: 1;
@@ -80,7 +81,8 @@ const AnimatedView = styled(Animated.View)`
 
 function SaveAccountScreen({ route, navigation }) {
     const translateY = useRef(new Animated.Value(Dimensions.get('window').height)).current;
-    const { firstName, lastName, email, password, numberPhone } = route.params;
+    const params = route.params;
+    const username = params.user.username;
 
     useEffect(() => {
         Animated.timing(translateY, {
@@ -91,15 +93,24 @@ function SaveAccountScreen({ route, navigation }) {
     }, [translateY]);
 
     const handleSaveAccount = async () => {
-        const user = {
-            firstName,
-            lastName,
-            email,
-            password,
-            numberPhone,
-        };
-        await setUserStorage(user);
-        navigation.reset({ index: 0, routes: [{ name: 'AuthScreen' }] });
+        const user = params.user;
+        setUserStorage(user)
+            .then((res) => {
+                navigation.reset({ index: 0, routes: [{ name: 'AuthenticationScreen' }] });
+            })
+            .catch((err) => {
+                console.log(err);
+            });
+    };
+
+    const handleLogout = () => {
+        removeUserStorage()
+            .then((res) => {
+                navigation.reset({ index: 0, routes: [{ name: 'AuthenticationScreen' }] });
+            })
+            .catch((err) => {
+                console.log(err);
+            });
     };
 
     return (
@@ -111,18 +122,11 @@ function SaveAccountScreen({ route, navigation }) {
                     <Description>Lần tới khi đăng nhập vào điện thoại này, bạn chỉ cần nhấn vào ảnh đại diện thay vì nhập mật khẩu.</Description>
                 </Box>
                 <Info>
-                    <Avatar source={require('../../../assets/images/cloud.jpg')} />
-                    <TextInfo>
-                        {lastName} {firstName}
-                    </TextInfo>
+                    <Avatar source={images.defaultAvatar} />
+                    <TextInfo>{username}</TextInfo>
                 </Info>
                 <ViewButton>
-                    <ButtonChoose
-                        title="Đăng xuất"
-                        onPress={() => navigation.navigate('AuthScreen')}
-                        color={Color.black}
-                        style={{ backgroundColor: Color.mainBackgroundColor }}
-                    />
+                    <ButtonChoose title="Đăng xuất" onPress={handleLogout} color={Color.black} style={{ backgroundColor: Color.mainBackgroundColor }} />
                     <ButtonChoose
                         title="Tiếp tục"
                         onPress={handleSaveAccount}

@@ -26,7 +26,7 @@ const headerRight = () => {
 
 const SettingStack = ({ route, navigation }) => {
     const user = useSelector(selectUser);
-    const username = user.username;
+    const username = user?.username || 'Người dùng';
 
     const screenItemsSetting = [
         {

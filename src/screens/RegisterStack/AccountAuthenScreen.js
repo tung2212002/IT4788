@@ -3,6 +3,8 @@ import styled from 'styled-components/native';
 
 import ButtonComponent from '../../components/ButtonComponent';
 import Color from '../../utils/Color';
+import { checkVerifyCodeService } from '../../services/userService';
+import getUUID from '../../utils/getUUID';
 
 const Container = styled.View`
     flex: 1;
@@ -79,8 +81,11 @@ const ViewButton = styled.View`
 function AccountAuthenScreen({ route, navigation }) {
     const [SMS, setSMS] = useState('');
     const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false);
 
-    const { email, numberPhone } = route.params;
+    const params = route?.params;
+    const numberPhone = params?.numberPhone;
+    const email = params?.email;
 
     const regex = /^[0-9]{5}$/;
 
@@ -90,10 +95,37 @@ function AccountAuthenScreen({ route, navigation }) {
         } else if (!regex.test(SMS)) {
             setError('Mã không hợp lệ');
         } else {
-            navigation.reset({
-                index: 0,
-                routes: [{ name: 'JoinScreen' }, { name: 'CompleteRegister', params: route.params }],
-            });
+            const code_verify = params.verify_code;
+            const body = {
+                email,
+                code_verify,
+            };
+            setLoading(true);
+            checkVerifyCodeService(body)
+                .then((res) => {
+                    if (res.data.code === '1000') {
+                        const user = {
+                            email,
+                            password: params.password,
+                            uuid: getUUID(),
+                            id: res.data.data.id,
+                            active: res.data.data.active,
+                            username: params.firstName + ' ' + params.lastName,
+                        };
+                        setLoading(false);
+                        navigation.reset({
+                            index: 0,
+                            routes: [{ name: 'JoinScreen' }, { name: 'CompleteRegister', params: { user } }],
+                        });
+                    } else {
+                        setLoading(false);
+                        setError('Có lỗi xảy ra');
+                    }
+                })
+                .catch((err) => {
+                    setLoading(false);
+                    console.log('err', err);
+                });
         }
     };
 
@@ -118,10 +150,10 @@ function AccountAuthenScreen({ route, navigation }) {
                 </Input>
             </Body>
             <ViewButton>
-                <ButtonClick onPress={checkCode} title={'Xác nhận'} />
+                <ButtonClick onPress={checkCode} title={'Xác nhận'} loading={loading} />
                 <ButtonClick title={'Tôi không nhận được mã'} color={Color.black} style={{ backgroundColor: Color.lightGray }} />
                 <ButtonClick
-                    onPress={() => navigation.navigate('AuthScreen')}
+                    onPress={() => navigation.navigate('AuthenticationScreen')}
                     title={'Đăng xuất'}
                     color={Color.gray}
                     style={{ backgroundColor: Color.mainBackgroundColor }}

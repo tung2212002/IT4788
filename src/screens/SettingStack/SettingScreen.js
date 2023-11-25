@@ -1,9 +1,9 @@
-/* eslint-disable react-hooks/exhaustive-deps */
-import React, { useEffect } from 'react';
+/* eslint-disable react-native/no-inline-styles */
+import React from 'react';
 import styled from 'styled-components/native';
 import { useState } from 'react';
 
-import ButtonIconComponent from '../components/ButtonIconComponent';
+import ButtonIconComponent from '../../components/ButtonIconComponent';
 import {
     images,
     SVGQuestionMark,
@@ -21,14 +21,13 @@ import {
     SVGEvent,
     SVGGame,
     SVGMore,
-    SVGExit,
-} from '../../assets';
-import { logout } from '../redux/features/auth/authSlice';
-import { setLoading } from '../redux/features/loading/loadingSlice';
-import Color from '../utils/Color';
-import ShowMoreComponent from '../components/ShowMoreComponent';
-import { useDispatch } from 'react-redux';
-import ButtonComponent from '../components/ButtonComponent';
+} from '../../../assets';
+import { logout, selectUser } from '../../redux/features/auth/authSlice';
+import { setLoading } from '../../redux/features/loading/loadingSlice';
+import Color from '../../utils/Color';
+import ShowMoreComponent from '../../components/ShowMoreComponent';
+import { useDispatch, useSelector } from 'react-redux';
+import ButtonComponent from '../../components/ButtonComponent';
 import { Alert } from 'react-native';
 
 const ContainerScrollView = styled.ScrollView`
@@ -65,7 +64,7 @@ const AlertComponent = styled(Alert)`
 const ButtonProfile = styled(ButtonIconComponent)``;
 
 function SettingScreen({ route, navigation }) {
-    const user = route.params?.user;
+    const user = useSelector(selectUser);
 
     const dispatch = useDispatch();
 
@@ -164,23 +163,14 @@ function SettingScreen({ route, navigation }) {
     const [showMoreHelp, setShowMoreHelp] = useState(false);
     const [showMoreNotification, setShowMoreNotification] = useState(false);
 
-    // const handleShowMore = () => {
-    //     setShowMore(!showMore);
-    // };
-
-    // const handleSetNotification = () => {
-    //     console.log('Set notification');
-    // };
-
     const handleLogout = async () => {
-
         const title = 'Bạn có chắc chắn muốn đăng xuất?';
         const body = '';
         const options = [
             { text: 'Hủy' },
             {
                 text: 'Đăng xuất',
-                onPress: () => {
+                onPress: async () => {
                     dispatch(setLoading(true));
                     dispatch(logout());
                     dispatch(setLoading(false));
@@ -195,20 +185,14 @@ function SettingScreen({ route, navigation }) {
         navigation.navigate('ProfileScreen');
     };
 
-    useEffect(() => {
-        if (user?.avatar !== '-1') {
-            redirectProfile();
-        }
-    }, []);
-
     return (
         <ContainerScrollView>
             <ContainerView>
                 <Title>Menu</Title>
                 <ButtonProfile
-                    title={user?.username || 'Đăng nhập/Đăng ký'}
+                    title={user?.username || 'Người dùng'}
                     onPress={redirectProfile}
-                    imgIcon={user?.avatar !== '-1' ? { uri: user?.avatar } : images.defaultAvatar}
+                    imgIcon={user?.avatar !== '-1' || user?.avatar !== '' ? { uri: user?.avatar } : images.defaultAvatar}
                     propsButton={{
                         height: 'auto',
                         width: '95',

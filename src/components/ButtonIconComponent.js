@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState } from 'react';
 import { Platform } from 'react-native';
 import styled from 'styled-components/native';
@@ -14,7 +13,7 @@ const Container = styled.TouchableOpacity`
     padding: ${(props) => props.padding || 10}px;
     border-radius: ${(props) => props.borderRadius || 10}px;
     background-color: ${(props) => props.backgroundColor || Color.white};
-    width: ${(props) => props.width || 100}%;
+    width: ${(props) => (props.width === 'auto' ? 'auto' : (props.width || 100) + '%')};
     height: ${(props) => (props.height === 'auto' ? 'auto' : (props.height || 50) + 'px')};
     margin-right: ${(props) => (props.marginRight === 'auto' ? 'auto' : props.marginRight ? props.marginRight + 'px' : 0)};
     margin-left: ${(props) => (props.marginLeft === 'auto' ? 'auto' : props.marginLeft ? props.marginLeft + 'px' : 0)};
@@ -44,8 +43,7 @@ const Message = styled.Text`
 `;
 
 const Content = styled.View`
-    flex-direction: row;
-    align-items: center;
+    flex-direction: column;
     margin-left: 10px;
 `;
 

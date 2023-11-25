@@ -11,6 +11,7 @@ import { AntDesign } from '@expo/vector-icons';
 
 function VectorIcon({ nameIcon, typeIcon, ...props }) {
     const { size, color, onPress, style } = props;
+
     return (
         <View style={style}>
             {typeIcon === 'Feather' ? (

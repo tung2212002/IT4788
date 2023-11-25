@@ -1,7 +1,8 @@
 import * as Storage from './asyncStorageUtils';
 
 const getUserStorage = async () => {
-    return await Storage.getObjectItem('user');
+    const user = await Storage.getObjectItem('user');
+    return user;
 };
 
 const getTokenStorage = async () => {
@@ -10,7 +11,8 @@ const getTokenStorage = async () => {
 };
 
 const setUserStorage = async (data) => {
-    await Storage.storeObjectItem('user', data);
+    const result = await Storage.storeObjectItem('user', data);
+    return result;
 };
 
 const setTokenStorage = async (token) => {
@@ -34,4 +36,19 @@ const removeTokenStorage = async () => {
     }
 };
 
-export { getUserStorage, setUserStorage, removeUserStorage, getTokenStorage, setTokenStorage, removeTokenStorage };
+const mergeUserStorage = async (data) => {
+    try {
+        const user = await getUserStorage();
+        if (!user) {
+            setUserStorage(data);
+        }
+        await Storage.mergeObjectItem('user', data);
+        const newUser = await getUserStorage();
+        return newUser;
+    } catch (error) {
+        console.log(error);
+        return null;
+    }
+};
+
+export { getUserStorage, setUserStorage, removeUserStorage, getTokenStorage, setTokenStorage, removeTokenStorage, mergeUserStorage };

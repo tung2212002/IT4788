@@ -1,30 +1,30 @@
 // RegisterScreens
-import AccountAuthenScreen from './RegisterScreen/AccountAuthenScreen';
-import BirthDateScreen from './RegisterScreen/BirthDateScreen';
-import CompleteRegister from './RegisterScreen/CompleteRegister';
-import EmailRegisterScreen from './RegisterScreen/EmailRegisterScreen';
-import JoinScreen from './RegisterScreen/JoinScreen';
-import NameRegisterScreen from './RegisterScreen/NameRegisterScreen';
-import PasswordRegisterScreen from './RegisterScreen/PasswordRegisterScreen';
-import PhoneRegisterScreen from './RegisterScreen/PhoneRegisterScreen';
-import PolicyScreen from './RegisterScreen/PolicyScreen';
-import SaveAccountScreen from './RegisterScreen/SaveAccountScreen';
-import WebViewScreen from './RegisterScreen/WebViewScreen';
+import AccountAuthenScreen from './RegisterStack/AccountAuthenScreen';
+import BirthDateScreen from './RegisterStack/BirthDateScreen';
+import CompleteRegister from './RegisterStack/CompleteRegister';
+import EmailRegisterScreen from './RegisterStack/EmailRegisterScreen';
+import JoinScreen from './RegisterStack/JoinScreen';
+import NameRegisterScreen from './RegisterStack/NameRegisterScreen';
+import PasswordRegisterScreen from './RegisterStack/PasswordRegisterScreen';
+import PhoneRegisterScreen from './RegisterStack/PhoneRegisterScreen';
+import PolicyScreen from './RegisterStack/PolicyScreen';
+import SaveAccountScreen from './RegisterStack/SaveAccountScreen';
+import WebViewScreen from './RegisterStack/WebViewScreen';
 
 // LoginScreens
-import AuthScreen from './AuthScreen';
-import LoginNotSaveScreen from './LoginNotSaveScreen';
-import LoginScreen from './LoginScreen';
+import AuthenticationScreen from './AuthenticationStack/AuthenticationScreen';
+import LoginNotSaveScreen from './AuthenticationStack/LoginNotSaveScreen';
+import LoginScreen from './AuthenticationStack/LoginScreen';
 
 // HomeScreens
-import HomeScreen from './HomeScreen';
-import GroupScreen from './GroupScreen';
-import FriendsScreen from './FriendsScreen';
-import PersionalScreen from './PersionalScreen';
-import NotificationScreen from './NotificationScreen';
-import SettingScreen from './SettingScreen';
+import HomeScreen from './HomeStack/HomeScreen';
+import GroupScreen from './GroupStack/GroupScreen';
+import FriendsScreen from './FriendsStack/FriendsScreen';
+import PersionalScreen from './PersionalStack/PersionalScreen';
+import NotificationScreen from './NotificationStack/NotificationScreen';
+import SettingScreen from './SettingStack/SettingScreen';
 //// StackSetting
-import ProfileScreen from './ProfileScreen';
+import ProfileScreen from './SettingStack/ProfileScreen';
 
 // LoadingScreen
 import LoadingScreen from './LoadingScreen';
@@ -44,7 +44,7 @@ export {
     WebViewScreen,
 
     // LoginScreens
-    AuthScreen,
+    AuthenticationScreen,
     LoginNotSaveScreen,
     LoginScreen,
 
@@ -77,7 +77,7 @@ const routes = {
     WebViewScreen: 'WebViewScreen',
 
     // LoginScreens
-    AuthScreen: 'AuthScreen',
+    AuthenticationScreen: 'AuthenticationScreen',
     LoginNotSaveScreen: 'LoginNotSaveScreen',
     LoginScreen: 'LoginScreen',
 

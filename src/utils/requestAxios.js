@@ -5,6 +5,7 @@ import { BASE_URL } from '@env';
 
 const instance = (config = {}, auth = false) => {
     const request = axios.create(config);
+    console.log('BASE_URL', BASE_URL);
     request.interceptors.request.use(
         async (requestConfig) => {
             if (auth) {

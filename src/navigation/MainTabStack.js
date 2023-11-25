@@ -1,22 +1,28 @@
+/* eslint-disable react-native/no-inline-styles */
 /* eslint-disable react/no-unstable-nested-components */
-import React from 'react';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-// import { createMaterialBottomTabNavigator } from '@react-navigation/material-bottom-tabs';
+import React, { useEffect } from 'react';
+// import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import { NavigationContainer } from '@react-navigation/native';
 import styled from 'styled-components/native';
+import { useSelector } from 'react-redux';
 
 import Color from '../utils/Color';
 import VectorIcon from '../utils/VectorIcon';
 import SettingStack from './SettingStack';
-import { FriendsScreen, GroupScreen, HomeScreen, NotificationScreen, PersionalScreen } from '../screens';
+import { FriendsScreen, GroupScreen, NotificationScreen } from '../screens';
 import HomeStack from './HomeStack';
 import PersionalStack from './PersionalStack';
+import { selectUser } from '../redux/features/auth/authSlice';
 
 const VectorIconStyled = styled(VectorIcon)``;
 
-const TabStack = createBottomTabNavigator();
+// const TabStack = createBottomTabNavigator();
+const TabStack = createMaterialTopTabNavigator();
 
 const MainTabStack = ({ user }) => {
+    let userNew = useSelector(selectUser);
+
     const screenItemsLogin = [
         {
             name: 'HomeStack',
@@ -32,6 +38,7 @@ const MainTabStack = ({ user }) => {
             component: FriendsScreen,
             icon: 'users',
             iconFocused: 'user-friends',
+            sizeIcon: 26,
             typeIcon: 'Feather',
             typeIconFocused: 'FontAwesome5',
         },
@@ -40,6 +47,8 @@ const MainTabStack = ({ user }) => {
             component: GroupScreen,
             icon: 'account-group-outline',
             iconFocused: 'account-group',
+            sizeIconFocused: 30,
+            sizeIcon: 30,
             typeIcon: 'MaterialCommunityIcons',
             typeIconFocused: 'MaterialCommunityIcons',
         },
@@ -56,6 +65,8 @@ const MainTabStack = ({ user }) => {
             component: PersionalStack,
             icon: 'person-circle-outline',
             iconFocused: 'person-circle',
+            sizeIcon: 28,
+            sizeIconFocused: 28,
             typeIcon: 'Ionicons',
             typeIconFocused: 'Ionicons',
         },
@@ -64,20 +75,31 @@ const MainTabStack = ({ user }) => {
             component: SettingStack,
             icon: 'reorder-three',
             iconFocused: 'reorder-three',
+            sizeIcon: 30,
+            sizeIconFocused: 30,
             typeIcon: 'Ionicons',
             typeIconFocused: 'Ionicons',
         },
     ];
 
+    useEffect(() => {}, [userNew]);
+
     return (
         <NavigationContainer>
             <TabStack.Navigator
                 // 1 ==> -1 to check dont have avatar
-                initialRouteName={user.avatar === '1' ? 'SettingStack' : 'HomeStack'}
+                // initialRouteName={user.avatar === '-1' || user.avatar === '' ? 'SettingStack' : 'HomeStack'}
+                initialRouteName={'HomeStack'}
+                tabBarPosition="bottom"
                 screenOptions={{
-                    headerShown: false,
-                    tabBarStyle: {
-                        backgroundColor: Color.white,
+                    // swipeEnabled: false,
+                    tabBarShowLabel: false,
+                    tabBarIndicatorStyle: {
+                        position: 'absolute',
+                        top: 0,
+                        height: 3,
+                        backgroundColor: Color.blueButtonColor,
+                        borderRadius: 10,
                     },
                 }}
             >
@@ -92,8 +114,9 @@ const MainTabStack = ({ user }) => {
                                 <VectorIconStyled
                                     nameIcon={focused ? item.iconFocused : item.icon}
                                     typeIcon={focused ? item.typeIconFocused : item.typeIcon}
-                                    size={24}
+                                    size={focused ? (item.sizeIconFocused ? item.sizeIconFocused : 24) : item.sizeIcon ? item.sizeIcon : 24}
                                     color={focused ? Color.blueButtonColor : Color.gray}
+                                    style={{ width: 30, height: 30, justifyContent: 'center', alignItems: 'center' }}
                                 />
                             ),
                             tabBarShowLabel: false,

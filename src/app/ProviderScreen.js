@@ -11,7 +11,8 @@ import { useState } from 'react';
 import Color from '../utils/Color';
 import LoginStack from '../navigation/LoginStack';
 import MainTabStack from '../navigation/MainTabStack';
-import { login, selectIsAuth, selectUser } from '../redux/features/auth/authSlice';
+import { login, selectIsAuth } from '../redux/features/auth/authSlice';
+import { selectUser } from '../redux/features/auth/authSlice';
 import { selectLoading } from '../redux/features/loading/loadingSlice';
 import { LoadingScreen } from '../screens';
 import ButtonIconComponent from '../components/ButtonIconComponent';
@@ -26,7 +27,7 @@ const ButtonIconComponentStyled = styled(ButtonIconComponent)``;
 function ProviderScreen() {
     const dispatch = useDispatch();
     const isAuth = useSelector(selectIsAuth);
-    const user = useSelector(selectUser);
+    const userSelector = useSelector(selectUser);
     const loading = useSelector(selectLoading);
     const [isConnected, setIsConnected] = useState(true);
     const [showPopup, setShowPopup] = useState(false);
@@ -38,13 +39,16 @@ function ProviderScreen() {
             }
             setIsConnected(state.isConnected);
         });
-
         dispatch(login());
 
         return () => {
             unsubscribe();
         };
     }, []);
+
+    useEffect(() => {}, [isAuth]);
+
+    useEffect(() => {}, [userSelector]);
 
     return (
         <Container enabled={true} behavior={Platform.OS === 'ios' ? 'padding' : 'height'} keyboardVerticalOffset={Platform.OS === 'ios' ? 1 : 0}>

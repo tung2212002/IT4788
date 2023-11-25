@@ -1,14 +1,14 @@
 import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 import { useSelector } from 'react-redux';
+import { useState } from 'react';
 
 import Color from '../utils/Color';
 import { PersionalScreen, ProfileScreen } from '../screens';
 import { selectUser } from '../redux/features/auth/authSlice';
 import ItemRightComponent from '../components/ItemRightComponent';
 import ButtonComponent from '../components/ButtonComponent';
-import CreatePostScreen from '../screens/CreatePostComponent';
-import { useState } from 'react';
+import CreatePostScreen from '../screens/CreatePostScreen';
 
 const StackHome = createStackNavigator();
 
@@ -29,7 +29,7 @@ const headerRightProfile = () => {
 
 const PersionalStack = () => {
     const user = useSelector(selectUser);
-    const username = user.username;
+    const username = user?.username;
     const [isCreatePost, setIsCreatePost] = useState(false);
 
     const headerRightCreatePost = () => {

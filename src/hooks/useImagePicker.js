@@ -17,13 +17,22 @@ export const useImagePicker = () => {
             let result = await ImagePicker.launchImageLibraryAsync({
                 mediaTypes: ImagePicker.MediaTypeOptions.Images,
                 allowsEditing: true,
-                aspect: [4, 3],
+                aspect: [4, 4],
                 quality: 1,
                 multiple: true,
+                selectionLimit: 4,
+                base64: true,
             });
 
             if (!result.canceled) {
-                setImageFiles([result.assets[0], ...imageFiles]);
+                const file = {
+                    uri: result.assets[0].uri,
+                    type: 'image/png',
+                    name: 'image.png',
+                    data: result.assets[0].base64,
+                };
+
+                setImageFiles([{ ...result.assets[0], base64: file }, ...imageFiles]);
             }
         };
 

@@ -1,7 +1,7 @@
 import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 
-import JoinScreen from '../screens/RegisterScreen/JoinScreen';
+import JoinScreen from '../screens/RegisterStack/JoinScreen';
 import { NavigationContainer } from '@react-navigation/native';
 import Color from '../utils/Color';
 import {
@@ -15,7 +15,7 @@ import {
     AccountAuthenScreen,
     CompleteRegister,
     SaveAccountScreen,
-    AuthScreen,
+    AuthenticationScreen,
     LoginScreen,
     LoginNotSaveScreen,
 } from '../screens';
@@ -25,10 +25,10 @@ const StackAuth = createStackNavigator();
 const LoginStack = ({ navigation }) => {
     const screenItemsLogin = [
         {
-            name: 'AuthScreen',
-            component: AuthScreen,
+            name: 'AuthenticationScreen',
+            component: AuthenticationScreen,
             options: {
-                title: 'AuthScreen',
+                title: 'AuthenticationScreen',
                 headerShown: false,
             },
         },
@@ -141,7 +141,7 @@ const LoginStack = ({ navigation }) => {
     return (
         <NavigationContainer>
             <StackAuth.Navigator
-                initialRouteName="AuthScreen"
+                initialRouteName="AuthenticationScreen"
                 screenOptions={{
                     headerStyle: {
                         backgroundColor: Color.mainBackgroundColor,

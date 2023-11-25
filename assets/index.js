@@ -37,6 +37,34 @@ import SVGGifSymbol from './icons/gif-symbol.svg';
 import SVGLiveStreaming from './icons/live-streaming.svg';
 import SVGMusic from './icons/music.svg';
 import SVGTextFormat from './icons/text-format.svg';
+import SVGAngry from './icons/angry.svg';
+import SVGBook from './icons/book.svg';
+import SVGCloud from './icons/cloud.svg';
+import SVGConfused from './icons/confused.svg';
+import SVGDonate from './icons/donate.svg';
+import SVGDonut from './icons/donut.svg';
+import SVGFirework from './icons/firework.svg';
+import SVGHappiness from './icons/happiness.svg';
+import SVGHeadphones from './icons/headphones.svg';
+import SVGLovely from './icons/lovely.svg';
+import SVGMagnifyingGlass from './icons/magnifying-glass.svg';
+import SVGOrangeJuice from './icons/orange-juice.svg';
+import SVGPlane from './icons/plane.svg';
+import SVGPlaystation from './icons/playstation.svg';
+import SVGSunglasses from './icons/sunglasses.svg';
+import SVGAngel from './icons/angel.svg';
+import SVGComfortable from './icons/comfortable.svg';
+import SVGCry from './icons/cry.svg';
+import SVGEmbarrassed from './icons/embarrassed.svg';
+import SVGRollingEyes from './icons/rolling-eyes.svg';
+import SVGThinking from './icons/thinking.svg';
+import SVGParty from './icons/party.svg';
+import SVGCool from './icons/cool.svg';
+import SVGSilly from './icons/silly.svg';
+import SVGSleepy from './icons/sleepy.svg';
+import SVGCute from './icons/cute.svg';
+import SVGDetermination from './icons/determination.svg';
+import SVGLoveLove from './icons/love-love.svg';
 
 const images = {
     defaultBackground: require('./images/cloud.jpg'),
@@ -89,5 +117,33 @@ export {
     SVGLiveStreaming,
     SVGMusic,
     SVGTextFormat,
+    SVGAngry,
+    SVGBook,
+    SVGCloud,
+    SVGConfused,
+    SVGDonate,
+    SVGDonut,
+    SVGFirework,
+    SVGHappiness,
+    SVGHeadphones,
+    SVGLovely,
+    SVGMagnifyingGlass,
+    SVGOrangeJuice,
+    SVGPlane,
+    SVGPlaystation,
+    SVGSunglasses,
+    SVGAngel,
+    SVGComfortable,
+    SVGCry,
+    SVGEmbarrassed,
+    SVGRollingEyes,
+    SVGThinking,
+    SVGParty,
+    SVGCool,
+    SVGSilly,
+    SVGSleepy,
+    SVGCute,
+    SVGDetermination,
+    SVGLoveLove,
 };
 export { icons, images };

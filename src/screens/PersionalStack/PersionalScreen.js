@@ -1,14 +1,14 @@
 /* eslint-disable react-native/no-inline-styles */
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useRef, useState } from 'react';
-import { RefreshControl, Animated, View, Platform } from 'react-native';
+import { RefreshControl, Animated, Platform } from 'react-native';
 import styled from 'styled-components/native';
 
-import HeaderApp from '../components/HeaderApp';
-import PostComponent from '../components/PostComponent';
-import PostComposerComponent from '../components/PostComposerComponent';
-import Color from '../utils/Color';
-import CreatePostScreen from './CreatePostComponent';
+import HeaderApp from '../../components/HeaderApp';
+import PostComponent from '../../components/PostComponent';
+import PostComposerComponent from '../../components/PostComposerComponent';
+import Color from '../../utils/Color';
+import CreatePostScreen from '../CreatePostScreen';
 
 const Container = styled.View`
     flex: 1;
@@ -28,7 +28,7 @@ const AnimatedHeader = styled(Animated.View)`
 
 const CONTAINER_HEIGHT = 60;
 
-function HomeScreen({ route, navigation }) {
+function PersionalScreen({ route, navigation }) {
     const user = route.params?.user;
     const [isRefreshing, setIsRefreshing] = useState(false);
     const [isLoadMore, setIsLoadMore] = useState(false);
@@ -272,6 +272,7 @@ function HomeScreen({ route, navigation }) {
         z-index: 100;
         margin-top: ${platform ? 0 : -60}px;
     `;
+
     const clampedScroll = Animated.diffClamp(
         Animated.add(
             scrollY.interpolate({
@@ -357,45 +358,43 @@ function HomeScreen({ route, navigation }) {
 
     return (
         <Container>
-            <>
-                <AnimatedHeader style={[{ transform: [{ translateY: headerTranslate }] }]}>
-                    <HeaderApp style={{ opacity }} />
-                </AnimatedHeader>
-                <Animated.FlatList
-                    onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: scrollY } } }], { useNativeDriver: true })}
-                    data={fakeItems}
-                    ListHeaderComponent={
-                        <>
-                            {refreshing && (
-                                <Refresh>
-                                    <ActivityIndicatorIcon size="large" color={Color.blueButtonColor} />
-                                </Refresh>
-                            )}
-                            <PostComposerComponent
-                                navigation={navigation}
-                                stylesInput={{ borderWidth: 2, borderColor: Color.lightGray, placeholderTextColor: Color.black }}
-                                isHeader={false}
-                                setShowCreatePost={setShowCreatePost}
-                            />
-                        </>
-                    }
-                    keyExtractor={(item, index) => item.title + index.toString()}
-                    renderItem={({ item }) => <PostComponent item={item} user={user} />}
-                    onEndReached={handleLoadMore}
-                    onEndReachedThreshold={0.1}
-                    initialNumToRender={4}
-                    refreshControl={refreshControl}
-                    contentContainerStyle={{ paddingTop: CONTAINER_HEIGHT }}
-                    onMomentumScrollBegin={onMomentumScrollBegin}
-                    onMomentumScrollEnd={onMomentumScrollEnd}
-                    onScrollEndDrag={onScrollEndDrag}
-                    scrollEventThrottle={1}
-                    ListFooterComponent={isLoadMore && <ActivityIndicatorIcon size="large" color={Color.blueButtonColor} />}
-                />
-            </>
-            {showCreatePost && <CreatePostScreen navigation={navigation} setShowCreatePost={setShowCreatePost} isCreatePost={showCreatePost} />}
+            <AnimatedHeader style={[{ transform: [{ translateY: headerTranslate }] }]}>
+                <HeaderApp style={{ opacity }} />
+            </AnimatedHeader>
+            <Animated.FlatList
+                onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: scrollY } } }], { useNativeDriver: true })}
+                data={fakeItems}
+                ListHeaderComponent={
+                    <>
+                        {refreshing && (
+                            <Refresh>
+                                <ActivityIndicatorIcon size="large" color={Color.blueButtonColor} />
+                            </Refresh>
+                        )}
+                        <PostComposerComponent
+                            navigation={navigation}
+                            stylesInput={{ borderWidth: 2, borderColor: Color.lightGray, placeholderTextColor: Color.black }}
+                            isHeader={true}
+                            setShowCreatePost={setShowCreatePost}
+                        />
+                    </>
+                }
+                keyExtractor={(item, index) => item.title + index.toString()}
+                renderItem={({ item }) => <PostComponent item={item} user={route.params?.user} />}
+                onEndReached={handleLoadMore}
+                onEndReachedThreshold={0.1}
+                initialNumToRender={4}
+                refreshControl={refreshControl}
+                contentContainerStyle={{ paddingTop: CONTAINER_HEIGHT }}
+                onMomentumScrollBegin={onMomentumScrollBegin}
+                onMomentumScrollEnd={onMomentumScrollEnd}
+                onScrollEndDrag={onScrollEndDrag}
+                scrollEventThrottle={1}
+                ListFooterComponent={isLoadMore && <ActivityIndicatorIcon size="large" color={Color.blueButtonColor} />}
+            />
+            {showCreatePost && <CreatePostScreen navigation={navigation} setShowCreatePost={setShowCreatePost} showCreatePost={showCreatePost} user={user} />}
         </Container>
     );
 }
 
-export default HomeScreen;
+export default PersionalScreen;

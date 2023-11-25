@@ -70,7 +70,7 @@ function CompleteRegister({ route, navigation }) {
                 />
                 <ButtonComponent
                     title="Đăng xuất"
-                    onPress={() => navigation.navigate('AuthScreen')}
+                    onPress={() => navigation.navigate('AuthenticationScreen')}
                     color={Color.gray}
                     style={{ backgroundColor: Color.mainBackgroundColor }}
                 />

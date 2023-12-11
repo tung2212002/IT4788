@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import styled from 'styled-components/native';
-import { FontAwesome5 } from '@expo/vector-icons';
 import { useDispatch } from 'react-redux';
 
 import { login } from '../../redux/features/auth/authSlice';
@@ -9,10 +8,10 @@ import ButtonComponent from '../../components/ButtonComponent';
 import Color from '../../utils/Color';
 import InputSecure from '../../components/InputSecure';
 import TextInputComponent from '../../components/TextInputComponent';
-// import { loginService } from '../services/userService';
 import { loginService } from '../../services/userService';
-import { mergeUserStorage } from '../../utils/userStorage';
+import { getUserStorage, mergeUserStorage } from '../../utils/userStorage';
 import getUUID from '../../utils/getUUID';
+import VectorIcon from '../../utils/VectorIcon';
 
 const Container = styled.View`
     flex: 1;
@@ -21,8 +20,6 @@ const Container = styled.View`
     padding-horizontal: 20px;
     background-color: ${Color.mainBackgroundColor};
 `;
-
-const Icon = styled(FontAwesome5)``;
 
 const Enter = styled.View`
     display: flex;
@@ -73,7 +70,9 @@ function LoginNotSaveScreen({ navigation }) {
                     if (response.data.code === '1000') {
                         mergeUserStorage(response.data.data)
                             .then(() => {
-                                dispatch(login());
+                                getUserStorage().then((user) => {
+                                    dispatch(login(user));
+                                });
                                 dispatch(setModalLoading(false));
                             })
                             .catch((e) => {
@@ -90,6 +89,7 @@ function LoginNotSaveScreen({ navigation }) {
                 })
                 .catch((e) => {
                     dispatch(setModalLoading(false));
+                    console.log('ab', e);
                     setError('Có lỗi xảy ra, vui lòng thử lại sau');
                 });
         }
@@ -101,7 +101,7 @@ function LoginNotSaveScreen({ navigation }) {
 
     return (
         <Container>
-            <Icon name="facebook" size={60} color={Color.blueButtonColor} />
+            <VectorIcon nameIcon={'facebook'} typeIcon={'FontAwesome5'} size={60} color={Color.blueButtonColor} style={{ marginBottom: 20, marginTop: 20 }} />
             <Enter>
                 <TextInputComponent
                     onChangeText={(text) => {

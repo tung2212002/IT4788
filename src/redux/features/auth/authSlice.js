@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 
-import { getUserStorage, mergeUserStorage, removeUserStorage } from '../../../utils/userStorage';
+import { mergeUserStorage, removeUserStorage } from '../../../utils/userStorage';
 import { logoutService } from '../../../services/userService';
 
 const initialState = {
@@ -10,23 +10,26 @@ const initialState = {
     error: null,
 };
 
-export const login = createAsyncThunk('auth/login', async () => {
-    const user = await getUserStorage();
+export const login = createAsyncThunk('auth/login', async (user) => {
     if (!user) {
-        return null;
+        throw new Error('User not found');
     }
     return user;
 });
 
-export const logout = createAsyncThunk('auth/logout', async () => {
+export const logout = createAsyncThunk('auth/logout', async (requestLogout = true) => {
     try {
-        const response = await logoutService();
-        await removeUserStorage();
-        return null;
+        logoutService()
+            .then((res) => {
+                removeUserStorage();
+            })
+            .catch((e) => {
+                removeUserStorage();
+            });
     } catch (error) {
-        console.log('Error:', error);
-        return null;
+        removeUserStorage();
     }
+    return null;
 });
 
 export const mergeUser = createAsyncThunk('auth/mergeUser', async (user) => {

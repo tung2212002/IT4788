@@ -6,12 +6,12 @@ export const addPostService = async (body) => {
 };
 
 export const getPostService = async (body) => {
-    const response = await request.apiAuth.get('/get_post', body);
+    const response = await request.apiAuth.post('/get_post', body);
     return response;
 };
 
 export const getListPostsService = async (body) => {
-    const response = await request.apiAuth.get('/get_list_posts', body);
+    const response = await request.apiAuth.post('/get_list_posts', body);
     return response;
 };
 
@@ -21,7 +21,7 @@ export const editPostService = async (body) => {
 };
 
 export const getListVideosService = async (body) => {
-    const response = await request.apiAuth.get('/get_list_videos', body);
+    const response = await request.apiAuth.post('/get_list_videos', body);
     return response;
 };
 
@@ -32,5 +32,15 @@ export const deletePostService = async (body) => {
 
 export const reportPostService = async (body) => {
     const response = await request.apiAuth.post('/report_post', body);
+    return response;
+};
+
+export const getNewPostsService = async (body) => {
+    const response = await request.apiAuth.post('/get_new_posts', body);
+    return response;
+};
+
+export const setViewedPost = async (body) => {
+    const response = await request.apiAuth.post('/set_viewed_post', body);
     return response;
 };

@@ -1,6 +1,6 @@
 import React from 'react';
 import { View } from 'react-native';
-import { Feather } from '@expo/vector-icons';
+import { Feather, Octicons } from '@expo/vector-icons';
 import { Ionicons } from '@expo/vector-icons';
 import { FontAwesome5 } from '@expo/vector-icons';
 import { FontAwesome } from '@expo/vector-icons';
@@ -30,6 +30,8 @@ function VectorIcon({ nameIcon, typeIcon, ...props }) {
                 <MaterialCommunityIcons name={nameIcon} size={size} color={color} onPress={onPress} />
             ) : typeIcon === 'AntDesign' ? (
                 <AntDesign name={nameIcon} size={size} color={color} onPress={onPress} />
+            ) : typeIcon === 'Octicons' ? (
+                <Octicons name={nameIcon} size={size} color={color} onPress={onPress} />
             ) : null}
         </View>
     );

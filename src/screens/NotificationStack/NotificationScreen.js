@@ -1,93 +1,107 @@
-import React from 'react';
-import { useState, useEffect } from 'react';
 import styled from 'styled-components/native';
-import Color from '../../utils/Color';
-import { Animated } from 'react-native';
-import HeaderScreen from '../../components/HeaderScreen';
-import { get_notification } from '../../services/userService';
-import NotificationComponent from '../../components/NotificationComponent';
+import { useState } from 'react';
+import { Alert } from 'react-native';
+import { useEffect } from 'react';
+import { RefreshControl } from 'react-native';
 
+import { getRequestedFriendsService, getSuggestedFriends } from '../../services/friendService';
+import VectorIcon from '../../utils/VectorIcon';
+import Color from '../../utils/Color';
+import ButtonComponent from '../../components/ButtonComponent';
+import RequestFriendComponent from '../../components/RequestFriendComponent';
+import { navigate } from '../../navigation/RootNavigator';
+import routes from '../../constants/route';
+import SuggestFriendComponent from '../../components/SuggestFriendComponent';
+import { ActivityIndicator } from 'react-native-paper';
 
 const Container = styled.View`
     flex: 1;
-    width: 100%;
-    background-color: ${Color.mainBackgroundHome};
-`;
-const AnimatedHeader = styled(Animated.View)`
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    z-index: 100;
-`;
-const Error = styled.Text`
-    color: ${Color.red};
-    margin-vertical: 10px;
-    font-size: 16px;
+    padding: 10px;
+    background-color: ${Color.white};
 `;
 
-const ViewError = styled.View`
+const Body = styled.View`
+    flex: 1;
+    flex-direction: column;
+    background-color: ${Color.white};
+`;
+
+const ContainerBody = styled.FlatList`
+    flex: 1;
+`;
+
+const Header = styled.View`
+    flex-direction: row;
     width: 100%;
-    height: 50px;
+    height: 40px;
+`;
+
+const Title = styled.Text`
+    font-size: 30px;
+    font-family: 'Roboto-Bold';
+    flex: 1;
     align-items: center;
 `;
 
-const listItems = [
-    {
-        nameIcon: 'search',
-        typeIcon: 'FontAwesome',
-    },
-];
+const Icon = styled(VectorIcon)`
+    align-items: center;
+    justify-content: center;
+    width: 35px;
+    height: 35px;
+    padding: 6px;
+    border-radius: 20px;
+    background-color: ${Color.lightGray};
+    margin-left: 10px;
+`;
 
-function NotificationScreen({ navigation }) {
-    const [error, setError] = useState('');
-    const [loading, setLoading] = useState(false);
-    const [data, setData] = useState([]);
-    const getData = async () =>{
-        const index = 0;
-        const count = 10;
-        const params = {
-            index,
-            count,
-        };
-        setLoading(true);
-        get_notification(params)
-            .then((response) =>{
-                if(response.data.code == 1000){
-                    console.log('Ok');
-                    setLoading(false);
-                    setData(response.data.data);
-                }
-                else{
-                    setLoading(false);
-                    setError('Có lỗi xảy ra');
-                }
-            })
-            .catch((err) => {
-                setLoading(false);
-                console.log('NotificationScreen: ', err);
-            });
-    }
-    useEffect(() => {
-        getData();
-      }, []);
+const ItemButton = styled.View`
+    flex-direction: row;
+    border-bottom-width: 1px;
+    border-bottom-color: ${Color.lightGray};
+    padding-bottom: 10px;
+`;
+
+const HeaderBody = styled.View`
+    width: 100%;
+    height: 50px;
+    flex-direction: row;
+    align-items: center;
+`;
+
+const TitleHeaderBody = styled.Text`
+    font-size: 20px;
+    font-family: 'Roboto-Bold';
+    color: ${Color.black};
+`;
+
+const NumberRequest = styled.Text`
+    font-size: 20px;
+    font-family: 'Roboto-Bold';
+    color: ${Color.gray};
+`;
+
+const TextMore = styled.Text`
+    font-size: 16px;
+    font-family: 'Roboto-Regular';
+    color: ${Color.blueButtonColor};
+    position: absolute;
+    right: 0;
+`;
+
+const ButtonItem = styled(ButtonComponent)`
+    border-radius: 20px;
+    background-color: ${Color.lightGray};
+    padding: 0 15px;
+`;
+
+function NotificationScreen() {
     return (
         <Container>
-            <>
-                <AnimatedHeader>
-                    <HeaderScreen
-                        title={'Thông báo'}
-                        listItems={listItems}
-                    ></HeaderScreen> 
-                </AnimatedHeader>
-                <ViewError>{error !== '' && <Error>{error}</Error>}</ViewError>
-                {/* <Animated.FlatList
-                data={data}
-                keyExtractor={(item) => item.notification_id}
-                renderItem={({ item }) => <NotificationComponent item={item} />}/> */}
-
-                <NotificationComponent data = {data}></NotificationComponent>
-            </>
+            <Header>
+                <Title>Thông báo</Title>
+                <Icon nameIcon={'settings-sharp'} typeIcon={'Ionicons'} size={20} color={Color.black} />
+                <Icon nameIcon={'search'} typeIcon={'FontAwesome5'} size={20} color={Color.black} />
+            </Header>
         </Container>
     );
 }

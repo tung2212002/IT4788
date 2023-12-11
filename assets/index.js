@@ -65,6 +65,12 @@ import SVGSleepy from './icons/sleepy.svg';
 import SVGCute from './icons/cute.svg';
 import SVGDetermination from './icons/determination.svg';
 import SVGLoveLove from './icons/love-love.svg';
+import SVGDisappointed from './icons/disappointed.svg';
+import SVGHaha2 from './icons/haha2.svg';
+import SVGSad2 from './icons/sad2.svg';
+import SVGWave from './icons/wave.svg';
+import SVGProfile from './icons/profile.svg';
+import SVGPrivateAccount from './icons/private-account.svg';
 
 const images = {
     defaultBackground: require('./images/cloud.jpg'),
@@ -145,5 +151,11 @@ export {
     SVGCute,
     SVGDetermination,
     SVGLoveLove,
+    SVGDisappointed,
+    SVGHaha2,
+    SVGSad2,
+    SVGWave,
+    SVGProfile,
+    SVGPrivateAccount,
 };
 export { icons, images };

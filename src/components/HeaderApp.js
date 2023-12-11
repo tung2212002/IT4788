@@ -52,7 +52,7 @@ function HeaderApp({ navigation, opacity }) {
             <SVGLogo width={170} height={60} onPress={handleClickIcon} />
             <ListIcon>
                 {listItems.map((item, index) => (
-                    <ButtonIcon key={index} nameIcon={item.nameIcon} typeIcon={item.typeIcon} size={25} color={Color.black} />
+                    <ButtonIcon key={index} nameIcon={item.nameIcon} typeIcon={item.typeIcon} size={22} color={Color.black} />
                 ))}
             </ListIcon>
         </Container>

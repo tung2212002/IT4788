@@ -27,14 +27,26 @@ export const useMediaPicker = () => {
             if (!result.canceled) {
                 try {
                     const fileUri = result.assets[0].uri;
-                    const file = {
-                        uri: fileUri,
-                        type: 'image/png/jpg/mp4',
-                        name: 'image.png/jpg/mp4',
-                        data: result.assets[0].base64,
-                    };
-
-                    setMediaFiles([{ ...result.assets[0], base64: file }, ...mediaFiles]);
+                    // check file type
+                    const fileType = fileUri.substring(fileUri.lastIndexOf('.') + 1);
+                    console.log('fileType', fileType);
+                    if (fileType === 'png' || fileType === 'jpg' || fileType === 'jpeg') {
+                        const file = {
+                            uri: fileUri,
+                            type: 'image/png/jpg',
+                            name: 'image.png/jpg',
+                            data: result.assets[0].base64,
+                        };
+                        setMediaFiles([{ ...result.assets[0], base64: file }, ...mediaFiles]);
+                    } else if (fileType === 'mp4') {
+                        const file = {
+                            uri: fileUri,
+                            type: 'mp4',
+                            name: 'video.mp4',
+                            data: result.assets[0].base64,
+                        };
+                        setMediaFiles([{ ...result.assets[0], base64: file }, ...mediaFiles]);
+                    }
                 } catch (error) {
                     console.error(error);
                 }

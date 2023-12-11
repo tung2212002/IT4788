@@ -24,6 +24,7 @@ const Container = styled.TouchableOpacity`
     border-left-width: ${(props) => props.borderLeftWidth || 0}px;
     border-right-width: ${(props) => props.borderRightWidth || 0}px;
     border: ${(props) => props.border || 'none'};
+    border-color: ${(props) => props.borderColor || Color.black};
     position: ${(props) => props.position || 'relative'};
     left: ${(props) => (props.left === 'auto' ? 'auto' : props.left ? props.left + 'px' : 0)};
     right: ${(props) => (props.right === 'auto' ? 'auto' : props.right ? props.right + 'px' : 0)};
@@ -40,6 +41,7 @@ const Title = styled.Text`
 const Message = styled.Text`
     font-size: ${(props) => props.size || 16}px;
     color: ${(props) => props.color || Color.black};
+    font-weight: ${(props) => (props.fontWeight ? props.fontWeight || 'normal' : 'normal')};
 `;
 
 const Content = styled.View`
@@ -107,12 +109,12 @@ function ButtonIconComponent({
                     width: 0,
                     height: 3,
                 },
-                shadowOpacity: 0.27,
-                shadowRadius: 4.65,
+                shadowOpacity: 0.15,
+                shadowRadius: 1.5,
             };
         } else {
             return {
-                elevation: 6,
+                elevation: 5,
             };
         }
     };

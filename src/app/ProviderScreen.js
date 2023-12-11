@@ -11,11 +11,17 @@ import { useState } from 'react';
 import Color from '../utils/Color';
 import LoginStack from '../navigation/LoginStack';
 import MainTabStack from '../navigation/MainTabStack';
-import { login, selectIsAuth } from '../redux/features/auth/authSlice';
+import { login, selectIsAuth, selectAuth } from '../redux/features/auth/authSlice';
 import { selectUser } from '../redux/features/auth/authSlice';
-import { selectLoading } from '../redux/features/loading/loadingSlice';
-import { LoadingScreen } from '../screens';
+import { selectLoading, setLoading } from '../redux/features/loading/loadingSlice';
+import { LoadingScreen, Logout } from '../screens';
 import ButtonIconComponent from '../components/ButtonIconComponent';
+import getLocation from '../utils/getLocation';
+import { Alert } from 'react-native';
+import { setLocationStorage } from '../utils/locationStorage';
+import { NavigationContainer } from '@react-navigation/native';
+import { navigationRef } from '../navigation/RootNavigator';
+import { getUserStorage } from '../utils/userStorage';
 
 const Container = styled.KeyboardAvoidingView`
     flex: 1;
@@ -27,10 +33,10 @@ const ButtonIconComponentStyled = styled(ButtonIconComponent)``;
 function ProviderScreen() {
     const dispatch = useDispatch();
     const isAuth = useSelector(selectIsAuth);
-    const userSelector = useSelector(selectUser);
     const loading = useSelector(selectLoading);
     const [isConnected, setIsConnected] = useState(true);
     const [showPopup, setShowPopup] = useState(false);
+    const [loadingAuth, setLoadingAuth] = useState(false);
 
     useEffect(() => {
         const unsubscribe = NetInfo.addEventListener((state) => {
@@ -39,23 +45,44 @@ function ProviderScreen() {
             }
             setIsConnected(state.isConnected);
         });
-        dispatch(login());
+
+        getLocation()
+            .then((location) => {
+                if (location) {
+                    setLocationStorage(location).then(() => {
+                        getUserStorage().then((user) => {
+                            dispatch(login(user));
+                        });
+                        setLoadingAuth(true);
+                    });
+                } else {
+                    setLoadingAuth(true);
+                    Alert.alert('Please turn on location');
+                }
+            })
+            .catch((e) => {
+                setLoadingAuth(true);
+                Alert.alert('Please turn on location');
+            });
 
         return () => {
             unsubscribe();
         };
     }, []);
 
-    useEffect(() => {}, [isAuth]);
-
-    useEffect(() => {}, [userSelector]);
-
     return (
         <Container enabled={true} behavior={Platform.OS === 'ios' ? 'padding' : 'height'} keyboardVerticalOffset={Platform.OS === 'ios' ? 1 : 0}>
-            <Modal visible={loading} transparent={true}>
-                <LoadingScreen />
+            <Modal visible={loading} transparent={true} animationType="slide">
+                <LoadingScreen alpha={1} backgroundColor={'rgba(255, 255, 255, 1)'} />
             </Modal>
-            {isAuth ? <MainTabStack user /> : <LoginStack />}
+            {loadingAuth ? (
+                <NavigationContainer ref={navigationRef}>{isAuth ? <MainTabStack user /> : <LoginStack />}</NavigationContainer>
+            ) : (
+                <Modal visible={true} transparent={true}>
+                    <LoadingScreen alpha={1} backgroundColor={'rgba(255, 255, 255, 1)'} />
+                </Modal>
+            )}
+            {/* <NavigationContainer ref={navigationRef}>{isAuth ? <MainTabStack user /> : <LoginStack />}</NavigationContainer> */}
 
             {showPopup ? (
                 isConnected ? (

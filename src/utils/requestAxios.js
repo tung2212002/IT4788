@@ -1,19 +1,20 @@
 import axios from 'axios';
 
 import { getTokenStorage } from './userStorage';
-import {BASE_URL} from '@env';
-
+import { BASE_URL } from '@env';
+import { navigate } from '../navigation/RootNavigator';
+import routes from '../constants/route';
+import { Alert } from 'react-native';
 
 const instance = (config = {}, auth = false) => {
     const request = axios.create(config);
-   // BASE_URL = 'https://it4788.catan.io.vn';
-    console.log('BASE_URL', BASE_URL);
     request.interceptors.request.use(
         async (requestConfig) => {
             if (auth) {
-               // const token = await getTokenStorage();
-                const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZGV2aWNlX2lkIjoic3RyaW5nIiwiaWF0IjoxNzAyMjY3ODg1fQ.FfCK26T8nQKS7vT0cA85C-bx6rjAdXD0gX9PO9-0dqs';
-                requestConfig.headers.Authorization = `Bearer ${token}`;
+                const token = await getTokenStorage();
+                if (token) {
+                    requestConfig.headers.Authorization = `Bearer ${token}`;
+                }
             }
             return requestConfig;
         },
@@ -21,19 +22,37 @@ const instance = (config = {}, auth = false) => {
             return Promise.reject(error);
         },
     );
-
     request.interceptors.response.use(
         (response) => {
             return response;
         },
         (error) => {
-            if (error.response.status) {
-                return Promise.resolve({
-                    status: error.response.status,
-                    data: error.response.data,
-                });
+            try {
+                if (error.response.status) {
+                    if (error.response.data.code === '9998') {
+                        console.log('token not found');
+                        Alert.alert('Phiên đăng nhập đã hết hạn', '', [
+                            {
+                                text: 'OK',
+                                onPress: () => {
+                                    navigate(routes.LOGOUT);
+                                },
+                            },
+                        ]);
+                        return Promise.resolve({
+                            status: error.response.status,
+                            data: error.response.data,
+                        });
+                    } else {
+                        return Promise.resolve({
+                            status: error.response.status,
+                            data: error.response.data,
+                        });
+                    }
+                }
+            } catch (e) {
+                Promise.reject(error);
             }
-            return error.response;
         },
     );
     return request;

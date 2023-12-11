@@ -5,6 +5,8 @@ import ButtonComponent from '../../components/ButtonComponent';
 import Color from '../../utils/Color';
 import { checkVerifyCodeService } from '../../services/userService';
 import getUUID from '../../utils/getUUID';
+import { navigate } from '../../navigation/RootNavigator';
+import routes from '../../constants/route';
 
 const Container = styled.View`
     flex: 1;
@@ -24,7 +26,7 @@ const Body = styled.View`
 
 const Title = styled.Text`
     font-size: 24px;
-    font-weight: bold;
+    font-family: Roboto-Bold;
     line-height: 60px;
     margin-bottom: 20px;
 `;
@@ -44,14 +46,14 @@ const Input = styled.View`
 const TextPara2 = styled.Text`
     font-size: 18px;
     line-height: 24px;
-    font-weight: bold;
+    font-family: Roboto-Bold;
 `;
 
 const InputValue = styled.TextInput`
     width: 40%;
     height: 60px;
     font-size: 24px;
-    font-weight: bold;
+    font-family: Roboto-Bold;
     text-align: center;
     border: 1px solid ${Color.gray};
     border-radius: 10px;
@@ -115,7 +117,7 @@ function AccountAuthenScreen({ route, navigation }) {
                         setLoading(false);
                         navigation.reset({
                             index: 0,
-                            routes: [{ name: 'JoinScreen' }, { name: 'CompleteRegister', params: { user } }],
+                            routes: [{ name: 'CompleteRegister', params: { user } }],
                         });
                     } else {
                         setLoading(false);
@@ -153,7 +155,7 @@ function AccountAuthenScreen({ route, navigation }) {
                 <ButtonClick onPress={checkCode} title={'Xác nhận'} loading={loading} />
                 <ButtonClick title={'Tôi không nhận được mã'} color={Color.black} style={{ backgroundColor: Color.lightGray }} />
                 <ButtonClick
-                    onPress={() => navigation.navigate('AuthenticationScreen')}
+                    onPress={() => navigate(routes.AUTHENTICATION_SCREEN)}
                     title={'Đăng xuất'}
                     color={Color.gray}
                     style={{ backgroundColor: Color.mainBackgroundColor }}

@@ -13,12 +13,13 @@ const Color = {
     green: '#00FF00',
     greenLight: '#00FFFF',
 
+    grayButton: '#e4e6eb',
     // Background Loading
     backGroundLoading: 'rgba(0,0,0,0.4)',
+    backGroundTransparent: 'rgba(0,0,0,0.0)',
 
     // Home Screen
     mainBackgroundHome: '#c9ccd1',
-
 };
 
 export default Color;

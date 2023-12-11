@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components/native';
 import { Dimensions, Keyboard } from 'react-native';
-import { useImagePicker } from '../hooks/useImagePicker';
+import { View } from 'react-native';
 import { ScrollView } from 'react-native';
 
 import Color from '../utils/Color';
@@ -25,9 +25,8 @@ import {
     images,
 } from '../../assets';
 import ChoiceFeelingComponent from '../components/ChoiceFeelingComponent';
-import { View } from 'react-native';
 import { useMediaPicker } from '../hooks/useMediaPicker';
-import { addPostService } from '../services/postService';
+import GridImageView from '../components/GridImageView ';
 
 const Container = styled(PopupScreenComponent)`
     background-color: ${Color.black};
@@ -59,7 +58,7 @@ const ViewTitle = styled.View`
 const TitleHeader = styled.Text`
     margin-left: 10px;
     font-size: 20px;
-    font-weight: bold;
+    font-family: Roboto-Bold;
     color: ${Color.black};
 `;
 
@@ -108,7 +107,7 @@ const Description = styled.View`
 
 const FullName = styled.Text`
     font-size: 16px;
-    font-weight: bold;
+    font-family: Roboto-Bold;
     color: ${Color.black};
     margin-left: 2px;
 `;
@@ -120,7 +119,7 @@ const State = styled.Text`
 
 const StateBold = styled.Text`
     font-size: 14px;
-    font-weight: bold;
+    font-family: Roboto-Bold;
     color: ${Color.black};
 `;
 
@@ -153,7 +152,7 @@ const HeaderPopup = styled.View`
 
 const TitlePopup = styled.Text`
     font-size: 18px;
-    font-weight: bold;
+    font-family: Roboto-Bold;
     color: ${Color.black};
     margin-left: 10px;
 `;
@@ -172,7 +171,7 @@ const InputText = styled.TextInput`
     margin-top: 10px;
 `;
 
-function CreatePostScreen({ navigation, setShowCreatePost, showCreatePost, user }) {
+function CreatePostScreen({ navigation, setShowCreatePost, showCreatePost, user, imageFilesPostComposer = [], clearImagesPostComposer, handleCreatePost }) {
     const [input, setInput] = useState('');
     const [scope, setScope] = useState('Công khai');
     const [showScope, setShowScope] = useState(false);
@@ -183,16 +182,16 @@ function CreatePostScreen({ navigation, setShowCreatePost, showCreatePost, user 
     const [feelings, setFeelings] = useState('');
     const [activities, setActivities] = useState('');
     const [videoFiles, setVideoFiles] = useState([]);
-    const { imageFiles, pickImage, clearImages } = useImagePicker();
+    const [allImage, setAllImage] = useState(imageFilesPostComposer);
+    const [allImageUrl, setAllImageUrl] = useState(imageFilesPostComposer[0]?.uri ? [{ url: imageFilesPostComposer[0]?.uri }] : []);
+    const [allVideo, setAllVideo] = useState([]);
     const { mediaFiles, pickMedia, clearMedia } = useMediaPicker();
 
     const ButtonSubmit = styled(ButtonComponent)`
         position: absolute;
         right: 0px;
         top: 0px;
-        background-color: ${input.length > 0 || imageFiles.length > 0 || videoFiles.length > 0 || mediaFiles.length > 0 || feelings || activities
-            ? Color.blueButtonColor
-            : Color.lightGray};
+        background-color: ${input.length > 0 ? Color.blueButtonColor : Color.lightGray};
         border-radius: 5px;
         margin-top: 20px;
         margin-right: 20px;
@@ -309,7 +308,7 @@ function CreatePostScreen({ navigation, setShowCreatePost, showCreatePost, user 
 
     const propsButton = {
         width: 100,
-        height: 50,
+        height: 45,
         backgroundColor: Color.white,
         alignItems: 'center',
     };
@@ -354,45 +353,21 @@ function CreatePostScreen({ navigation, setShowCreatePost, showCreatePost, user 
         </HeaderPopup>
     );
 
-    const handleCreatePost = () => {
-        if (input.length > 0 || imageFiles.length > 0 || videoFiles.length > 0 || mediaFiles.length > 0 || feelings || activities) {
-            console.log('create post');
-            if (activities) {
-                console.log('activities', activities);
-            }
-            if (feelings) {
-                console.log('feelings', feelings);
-            }
-            if (imageFiles.length > 0) {
-                console.log('imageFiles', imageFiles);
-            }
-
+    const handleCreatePost1 = () => {
+        if (input.length > 0) {
             const statusJson = {
                 id: feelings?.id || activities?.id,
                 title: feelings?.title || activities?.title,
                 type: feelings ? 'feelings' : 'activities',
             };
 
-            const formData = new FormData();
-            formData.append('described', input);
-            formData.append('status', JSON.stringify(statusJson));
-            for (let i = 0; i < mediaFiles.length; i++) {
-                formData.append('image', mediaFiles[i].base64);
-            }
-            formData.append('video', videoFiles[0]);
-            addPostService(formData)
-                .then((res) => {
-                    if (res.data.code === '1000') {
-                        console.log('res', res.data);
-                        console.log('add post success');
-                    } else {
-                        console.log('res', res.data);
-                        console.log('add post fail');
-                    }
-                })
-                .catch((err) => {
-                    console.log('err', err);
-                });
+            const data = {
+                described: input,
+                status: JSON.stringify(statusJson),
+                image: allImage,
+                video: allVideo?.length > 0 ? allVideo[0].base64 : '',
+            };
+            handleCreatePost(data);
         }
         return;
     };
@@ -411,10 +386,11 @@ function CreatePostScreen({ navigation, setShowCreatePost, showCreatePost, user 
     };
 
     const handleClose = () => {
-        if (input.length > 0) {
+        if (input.length > 0 || allImage.length > 0 || allVideo.length > 0 || feelings || activities) {
             setRenderPopUpComponent2(true);
         } else {
             clearMedia();
+            clearImagesPostComposer();
             setShowCreatePost(false);
         }
     };
@@ -435,8 +411,30 @@ function CreatePostScreen({ navigation, setShowCreatePost, showCreatePost, user 
     }, []);
 
     useEffect(() => {
-        console.log('media', mediaFiles);
-    }, [imageFiles, videoFiles, mediaFiles]);
+        // console.log('allImage', allImage[0]?.base64);
+    }, [allImage]);
+
+    useEffect(() => {
+        // if (allVideo.length > 0) {
+        //     Alert.alert('Thông báo', 'Bạn chỉ được chọn tối đa 1 video');
+        //     return;
+        // } else if (allImage.length >= 4) {
+        //     Alert.alert('Thông báo', 'Bạn chỉ được chọn tối đa 4 ảnh');
+        //     return;
+        // }
+        if (mediaFiles.length > 0) {
+            if (mediaFiles[0].type === 'mp4') {
+                setAllVideo([...mediaFiles[0]]);
+            } else {
+                setAllImage([...allImage, mediaFiles[0]]);
+                setAllImageUrl([...allImageUrl, { url: mediaFiles[0].uri }]);
+            }
+            clearMedia();
+        } else if (videoFiles.length > 0) {
+            setAllVideo([...allVideo, videoFiles]);
+            clearMedia();
+        }
+    }, [mediaFiles]);
 
     return (
         <Container
@@ -450,110 +448,131 @@ function CreatePostScreen({ navigation, setShowCreatePost, showCreatePost, user 
                     <TitleHeader>Tạo bài viết</TitleHeader>
                 </ViewTitle>
                 <ButtonSubmit
-                    onPress={handleCreatePost}
+                    onPress={handleCreatePost1}
                     title={'Đăng'}
-                    disabled={input.length > 0 || imageFiles.length > 0 || videoFiles.length || feelings || activities ? false : true}
+                    disabled={input.length > 0 ? false : true}
                     style={{ alignItems: 'center', justifyContent: 'center', height: 40, width: 70 }}
                 />
             </Header>
-            <Content>
-                <ContentHeader>
-                    <ViewAvatar>
-                        <Avatar source={user?.avatar === '-1' || user?.avatar === '' ? images.defaultAvatar : { uri: user?.avatar }} />
-                    </ViewAvatar>
-                    <Info>
-                        {!feelings && !activities && <FullName>{user?.username || 'Người dùng'}</FullName>}
-                        {feelings && (
-                            <Description>
-                                <FullName>{user?.username || 'Người dùng'}</FullName>
-                                <State> hiện đang </State>
-                                <View style={{ width: 20, height: 20, marginRight: 5 }}>
-                                    <feelings.SVGIcon height={20} width={20} style={{ height: 20, width: 20 }} />
-                                </View>
-                                <State>cảm thấy </State>
-                                <StateBold>{feelings?.title}</StateBold>
-                            </Description>
-                        )}
-                        {activities && (
-                            <Description>
-                                <FullName>{user?.username || 'Người dùng'}</FullName>
-                                <State> đang </State>
-                                <StateBold>{activities?.title}</StateBold>
-                            </Description>
-                        )}
-                        <ViewSelectScope>
-                            <SelectScope
-                                title={scope}
-                                propsButton={{
-                                    padding: 1,
-                                    height: 30,
-                                    width: 90,
-                                    backgroundColor: Color.lightBlue,
-                                    borderRadius: 5,
-                                    marginRight: 10,
-                                    marginLeft: 2,
-                                }}
-                                nameIcon={scope === 'Công khai' ? 'earth' : scope === 'Bạn bè' ? 'account-group' : 'lock'}
-                                propsIcon={{
-                                    size: 16,
-                                    color: Color.blueButtonColor,
-                                    padding: 1,
-                                    marginRight: -10,
-                                    backgroundColor: Color.lightBlue,
-                                    marginLeft: 5,
-                                }}
-                                typeIcon={
-                                    scope === 'Công khai' ? 'MaterialCommunityIcons' : scope === 'Bạn bè' ? 'MaterialCommunityIcons' : 'MaterialCommunityIcons'
-                                }
-                                propsTitle={{ size: 12, color: Color.blueButtonColor }}
-                                onPress={() => setShowScope(!showScope)}
-                                downIcon={true}
-                                propsDownIcon={{ color: Color.blueButtonColor }}
-                            />
-                            {showScope && (
-                                <Scope
-                                    items={itemsScope}
-                                    showMore={showScope}
-                                    propsButton={{
-                                        width: 100,
-                                        height: 27,
-                                        backgroundColor: Color.white,
-                                        padding: 1,
-                                        alignItems: 'center',
-                                    }}
-                                    propsIcon={{ size: 18, color: Color.gray, padding: 1 }}
-                                    propsTitle={{ size: 14, color: Color.gray }}
-                                    top={20}
-                                />
+            <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
+                <Content>
+                    <ContentHeader>
+                        <ViewAvatar>
+                            <Avatar source={user?.avatar === '-1' || user?.avatar === '' ? images.defaultAvatar : { uri: user.avatar }} />
+                        </ViewAvatar>
+                        <Info>
+                            {!feelings && !activities && <FullName>{user?.username || 'Người dùng'}</FullName>}
+                            {feelings && (
+                                <Description>
+                                    <FullName>{user?.username || 'Người dùng'}</FullName>
+                                    <State> hiện đang </State>
+                                    <View style={{ width: 20, height: 20, marginRight: 5 }}>
+                                        <feelings.SVGIcon height={20} width={20} style={{ height: 20, width: 20 }} />
+                                    </View>
+                                    <State>cảm thấy </State>
+                                    <StateBold>{feelings?.title}</StateBold>
+                                </Description>
                             )}
-                            <SelectScope
-                                title={'Album'}
-                                propsButton={{ padding: 1, height: 30, width: 65, backgroundColor: Color.lightBlue, borderRadius: 5 }}
-                                nameIcon={'plus'}
-                                propsIcon={{
-                                    size: 16,
-                                    color: Color.blueButtonColor,
-                                    padding: 1,
-                                    marginRight: -10,
-                                    backgroundColor: Color.lightBlue,
-                                    marginLeft: 5,
-                                }}
-                                typeIcon={'MaterialCommunityIcons'}
-                                propsTitle={{ size: 12, color: Color.blueButtonColor }}
-                                downIcon={true}
-                                propsDownIcon={{ color: Color.blueButtonColor }}
-                            />
-                        </ViewSelectScope>
-                    </Info>
-                </ContentHeader>
-                <InputText
-                    placeholder="Bạn đang nghĩ gì?"
-                    onChangeText={(text) => handleInput(text)}
-                    placeholderTextColor={Color.gray}
-                    style={{ color: Color.black, zIndex: -1 }}
-                />
-            </Content>
-
+                            {activities && (
+                                <Description>
+                                    <FullName>{user?.username || 'Người dùng'}</FullName>
+                                    <State> đang </State>
+                                    <View style={{ width: 20, height: 20, marginRight: 5 }}>
+                                        <activities.SVGIcon height={20} width={20} style={{ height: 20, width: 20 }} />
+                                    </View>
+                                    <StateBold>{activities?.title}</StateBold>
+                                </Description>
+                            )}
+                            <ViewSelectScope>
+                                <SelectScope
+                                    title={scope}
+                                    propsButton={{
+                                        padding: 1,
+                                        height: 30,
+                                        width: 90,
+                                        backgroundColor: Color.lightBlue,
+                                        borderRadius: 5,
+                                        marginRight: 10,
+                                        marginLeft: 2,
+                                    }}
+                                    nameIcon={scope === 'Công khai' ? 'earth' : scope === 'Bạn bè' ? 'account-group' : 'lock'}
+                                    propsIcon={{
+                                        size: 16,
+                                        color: Color.blueButtonColor,
+                                        padding: 1,
+                                        marginRight: -10,
+                                        backgroundColor: Color.lightBlue,
+                                        marginLeft: 5,
+                                    }}
+                                    typeIcon={
+                                        scope === 'Công khai'
+                                            ? 'MaterialCommunityIcons'
+                                            : scope === 'Bạn bè'
+                                            ? 'MaterialCommunityIcons'
+                                            : 'MaterialCommunityIcons'
+                                    }
+                                    propsTitle={{ size: 12, color: Color.blueButtonColor }}
+                                    onPress={() => setShowScope(!showScope)}
+                                    downIcon={true}
+                                    propsDownIcon={{ color: Color.blueButtonColor }}
+                                />
+                                {showScope && (
+                                    <Scope
+                                        items={itemsScope}
+                                        showMore={showScope}
+                                        propsButton={{
+                                            width: 100,
+                                            height: 27,
+                                            backgroundColor: Color.white,
+                                            padding: 1,
+                                            alignItems: 'center',
+                                        }}
+                                        propsIcon={{ size: 18, color: Color.gray, padding: 1 }}
+                                        propsTitle={{ size: 14, color: Color.gray }}
+                                        top={20}
+                                    />
+                                )}
+                                <SelectScope
+                                    title={'Album'}
+                                    propsButton={{ padding: 1, height: 30, width: 65, backgroundColor: Color.lightBlue, borderRadius: 5 }}
+                                    nameIcon={'plus'}
+                                    propsIcon={{
+                                        size: 16,
+                                        color: Color.blueButtonColor,
+                                        padding: 1,
+                                        marginRight: -10,
+                                        backgroundColor: Color.lightBlue,
+                                        marginLeft: 5,
+                                    }}
+                                    typeIcon={'MaterialCommunityIcons'}
+                                    propsTitle={{ size: 12, color: Color.blueButtonColor }}
+                                    downIcon={true}
+                                    propsDownIcon={{ color: Color.blueButtonColor }}
+                                />
+                            </ViewSelectScope>
+                        </Info>
+                    </ContentHeader>
+                    <InputText
+                        placeholder="Bạn đang nghĩ gì?"
+                        onChangeText={(text) => handleInput(text)}
+                        placeholderTextColor={Color.gray}
+                        style={{ color: Color.black, zIndex: -1 }}
+                    />
+                    {allImageUrl.length > 0 && <GridImageView data={allImageUrl} />}
+                    {/* <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginTop: 10 }}>
+                    {mediaFiles.map((item, index) => (
+                        <View key={index} style={{ width: 100, height: 100, marginRight: 10, marginBottom: 10 }}>
+                            <Image source={{ uri: item.uri }} style={{ width: 100, height: 100 }} />
+                        </View>
+                    ))}
+                    {allImage.map((item, index) => (
+                        <View key={index} style={{ width: 100, height: 100, marginRight: 10, marginBottom: 10 }}>
+                            <Image source={{ uri: item.uri }} style={{ width: 100, height: 100 }} />
+                        </View>
+                    ))}
+                </View> */}
+                </Content>
+            </ScrollView>
             {renderPopUpComponent && (
                 <PopupComponent
                     renderPopUpComponent={renderPopUpComponent}

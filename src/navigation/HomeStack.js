@@ -3,26 +3,11 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { useSelector } from 'react-redux';
 
 import Color from '../utils/Color';
-import { HomeScreen, ProfileScreen } from '../screens';
+import { HomeScreen, Logout, ProfileScreen } from '../screens';
 import { selectUser } from '../redux/features/auth/authSlice';
-import ItemRightComponent from '../components/ItemRightComponent';
+import routes from '../constants/route';
 
 const StackHome = createStackNavigator();
-
-const itemsHeaderProfileRight = [
-    {
-        nameIcon: 'pencil',
-        typeIcon: 'FontAwesome',
-    },
-    {
-        nameIcon: 'search',
-        typeIcon: 'FontAwesome',
-    },
-];
-
-const headerRightProfile = () => {
-    return <ItemRightComponent items={itemsHeaderProfileRight} />;
-};
 
 const HomeStack = () => {
     const user = useSelector(selectUser);
@@ -30,7 +15,7 @@ const HomeStack = () => {
 
     const screenItemsLogin = [
         {
-            name: 'HomeScreen',
+            name: routes.HOME_SCREEN,
             component: HomeScreen,
             options: {
                 title: '',
@@ -38,20 +23,25 @@ const HomeStack = () => {
             },
         },
         {
-            name: 'ProfileScreen',
+            name: routes.PROFILE_SCREEN,
             component: ProfileScreen,
             options: {
-                title: username,
-                headerBackTitle: '',
-                headerRight: headerRightProfile,
-                headerTitleAlign: 'center',
+                headerShown: false,
+            },
+        },
+        {
+            name: routes.LOGOUT,
+            component: Logout,
+            options: {
+                title: '',
+                headerShown: false,
             },
         },
     ];
 
     return (
         <StackHome.Navigator
-            initialRouteName="HomeScreen"
+            initialRouteName={routes.HOME_SCREEN}
             screenOptions={{
                 headerStyle: {
                     backgroundColor: Color.white,

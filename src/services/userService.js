@@ -44,3 +44,8 @@ export const testPostService = async (params) => {
     const response = await request.api.post('posts', params);
     return response;
 };
+
+export const get_notification = async(params) =>{
+    const response = await request.apiAuth.post('/get_notification', params);
+    return response;
+}

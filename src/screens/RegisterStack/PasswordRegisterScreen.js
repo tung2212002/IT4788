@@ -75,12 +75,14 @@ function PasswordRegisterScreen({ route, navigation }) {
             setError('Vui lòng nhập password');
         } else if (!regex.test(password)) {
             setError('Password không hợp lệ');
-        } else {
+        }
+        else {
             const body = {
                 email: params.numberPhone ? '' : params.email,
                 password: password,
                 uuid: getUUID(),
             };
+            console.log(body);
             setLoading(true);
             registerService(body)
                 .then((res) => {
@@ -91,7 +93,11 @@ function PasswordRegisterScreen({ route, navigation }) {
                     } else if (res.data.code === '9996') {
                         setLoading(false);
                         setError('Tài khoản đã tồn tại');
-                    } else {
+                    } else if(res.data.code === '5001'){
+                        setLoading(false);
+                        setError('Email hoặc số điện thoại đã được đăng ký');
+                    }
+                    else {
                         console.log(res);
                         setLoading(false);
                         setError('Có lỗi xảy ra');

@@ -10,7 +10,8 @@ import ButtonComponent from '../../components/ButtonComponent';
 import Color from '../../utils/Color';
 import { getUserStorage, removeUserStorage } from '../../utils/userStorage';
 import { images } from '../../../assets';
-import { setUserInfo } from '../../redux/features/user/userSlice';
+import { navigate } from '../../navigation/RootNavigator';
+import routes from '../../constants/route';
 
 const Box = styled.View`
     width: 100%;
@@ -22,7 +23,7 @@ const TextBox = styled.Text`
     color: ${Color.blueButtonColor};
     font-size: 20px;
     margin-left: 20px;
-    font-weight: bold;
+    font-family: Roboto-Bold;
 `;
 
 const Icon = styled(FontAwesome5)`
@@ -63,7 +64,7 @@ const TextInfo = styled.Text`
     font-size: 22px;
     line-height: 24px;
     margin-left: 10px;
-    font-weight: bold;
+    font-family: Roboto-Bold;
 `;
 
 const ViewButton = styled.View`
@@ -100,7 +101,7 @@ function AuthenticationScreen({ navigation }) {
         removeUserStorage()
             .then(() => {
                 setUser(null);
-                dispatch(setUserInfo(null));
+                dispatch(setUser(null));
             })
             .catch((err) => console.log(err));
     };
@@ -121,9 +122,9 @@ function AuthenticationScreen({ navigation }) {
         <Popup>
             <Icon name="facebook" size={80} color={Color.blueButtonColor} />
             {user && (
-                <Info onPress={() => navigation.navigate('LoginScreen')}>
-                    <Avatar source={user.avatar === '' || user.avatar === '-1' ? images.defaultAvatar : { uri: user.avatar }} />
-                    <TextInfo>{user.username}</TextInfo>
+                <Info>
+                    <Avatar source={user?.avatar === '' || user?.avatar === '-1' ? images.defaultAvatar : { uri: user.avatar }} />
+                    <TextInfo>{user?.username}</TextInfo>
                     <MenuComponent>
                         <MenuTrigger
                             customStyles={{
@@ -154,14 +155,14 @@ function AuthenticationScreen({ navigation }) {
                 </Info>
             )}
             <Box>
-                <ButtonBox onPress={() => navigation.navigate('LoginNotSaveScreen')}>
+                <ButtonBox onPress={() => navigate(routes.LOGIN_NOT_SAVE_SCREEN)}>
                     <ViewIconBox>
                         <IconBox name="plus" size={20} color={Color.blueButtonColor} />
                     </ViewIconBox>
                     <TextBox>Thêm tài khoản khác</TextBox>
                 </ButtonBox>
 
-                <ButtonBox onPress={() => navigation.navigate('StackHome', { screen: 'HomeScreen' })}>
+                <ButtonBox onPress={() => {}}>
                     <ViewIconBox>
                         <IconBox name="search" size={20} color={Color.blueButtonColor} />
                     </ViewIconBox>
@@ -171,7 +172,7 @@ function AuthenticationScreen({ navigation }) {
             <ViewButton>
                 <ButtonChoose
                     title="TẠO TÀI KHOẢN FACEBOOK MỚI"
-                    onPress={() => navigation.navigate('JoinScreen')}
+                    onPress={() => navigate(routes.JOIN_SCREEN)}
                     color={Color.blueButtonColor}
                     style={{ backgroundColor: Color.lightBlue }}
                 />

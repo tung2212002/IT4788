@@ -34,13 +34,3 @@ export const resetPasswordService = async (body) => {
     const response = await request.api.post('/reset_password', body);
     return response;
 };
-
-export const testGetService = async (params) => {
-    const response = await request.api.get('posts', params);
-    return response;
-};
-
-export const testPostService = async (params) => {
-    const response = await request.api.post('posts', params);
-    return response;
-};

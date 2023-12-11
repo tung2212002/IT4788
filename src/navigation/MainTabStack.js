@@ -10,10 +10,12 @@ import { useSelector } from 'react-redux';
 import Color from '../utils/Color';
 import VectorIcon from '../utils/VectorIcon';
 import SettingStack from './SettingStack';
-import { FriendsScreen, GroupScreen, NotificationScreen } from '../screens';
+import { GroupScreen, NotificationScreen, ProfileScreen } from '../screens';
 import HomeStack from './HomeStack';
 import PersionalStack from './PersionalStack';
 import { selectUser } from '../redux/features/auth/authSlice';
+import routes from '../constants/route';
+import FriendStack from './FriendStack';
 
 const VectorIconStyled = styled(VectorIcon)``;
 
@@ -25,7 +27,7 @@ const MainTabStack = ({ user }) => {
 
     const screenItemsLogin = [
         {
-            name: 'HomeStack',
+            name: routes.HOME_STACK,
             component: HomeStack,
             icon: 'home-outline',
             iconFocused: 'home',
@@ -34,8 +36,8 @@ const MainTabStack = ({ user }) => {
         },
 
         {
-            name: 'FriendsScreen',
-            component: FriendsScreen,
+            name: routes.FRIEND_STACK,
+            component: FriendStack,
             icon: 'users',
             iconFocused: 'user-friends',
             sizeIcon: 26,
@@ -43,7 +45,7 @@ const MainTabStack = ({ user }) => {
             typeIconFocused: 'FontAwesome5',
         },
         {
-            name: 'GroupScreen',
+            name: routes.GROUP_SCREEN,
             component: GroupScreen,
             icon: 'account-group-outline',
             iconFocused: 'account-group',
@@ -53,15 +55,15 @@ const MainTabStack = ({ user }) => {
             typeIconFocused: 'MaterialCommunityIcons',
         },
         {
-            name: 'NotificationScreen',
+            name: routes.NOTIFICATION_SCREEN,
             component: NotificationScreen,
-            icon: 'bell-o',
-            iconFocused: 'bell',
-            typeIcon: 'FontAwesome',
-            typeIconFocused: 'FontAwesome',
+            icon: 'bell',
+            iconFocused: 'bell-fill',
+            typeIcon: 'Octicons',
+            typeIconFocused: 'Octicons',
         },
         {
-            name: 'PersionalStack',
+            name: routes.PERSIONAL_STACK,
             component: PersionalStack,
             icon: 'person-circle-outline',
             iconFocused: 'person-circle',
@@ -71,7 +73,7 @@ const MainTabStack = ({ user }) => {
             typeIconFocused: 'Ionicons',
         },
         {
-            name: 'SettingStack',
+            name: routes.SETTING_STACK,
             component: SettingStack,
             icon: 'reorder-three',
             iconFocused: 'reorder-three',
@@ -85,46 +87,47 @@ const MainTabStack = ({ user }) => {
     useEffect(() => {}, [userNew]);
 
     return (
-        <NavigationContainer>
-            <TabStack.Navigator
-                // 1 ==> -1 to check dont have avatar
-                // initialRouteName={user.avatar === '-1' || user.avatar === '' ? 'SettingStack' : 'HomeStack'}
-                initialRouteName={'HomeStack'}
-                tabBarPosition="bottom"
-                screenOptions={{
-                    // swipeEnabled: false,
-                    tabBarShowLabel: false,
-                    tabBarIndicatorStyle: {
-                        position: 'absolute',
-                        top: 0,
-                        height: 3,
-                        backgroundColor: Color.blueButtonColor,
-                        borderRadius: 10,
-                    },
-                }}
-            >
-                {screenItemsLogin.map((item, index) => (
-                    <TabStack.Screen
-                        key={index}
-                        name={item.name}
-                        component={item.component}
-                        initialParams={{ user }}
-                        options={{
-                            tabBarIcon: ({ focused }) => (
-                                <VectorIconStyled
-                                    nameIcon={focused ? item.iconFocused : item.icon}
-                                    typeIcon={focused ? item.typeIconFocused : item.typeIcon}
-                                    size={focused ? (item.sizeIconFocused ? item.sizeIconFocused : 24) : item.sizeIcon ? item.sizeIcon : 24}
-                                    color={focused ? Color.blueButtonColor : Color.gray}
-                                    style={{ width: 30, height: 30, justifyContent: 'center', alignItems: 'center' }}
-                                />
-                            ),
-                            tabBarShowLabel: false,
-                        }}
-                    />
-                ))}
-            </TabStack.Navigator>
-        </NavigationContainer>
+        <TabStack.Navigator
+            // 1 ==> -1 to check dont have avatar
+            // initialRouteName={user.avatar === '-1' || user.avatar === '' ? 'SettingStack' : 'HomeStack'}
+            initialRouteName={routes.HOME_STACK}
+            tabBarPosition="bottom"
+            screenOptions={{
+                // swipeEnabled: false,
+                tabBarShowLabel: false,
+                tabBarIndicatorStyle: {
+                    position: 'absolute',
+                    top: 0,
+                    height: 3,
+                    backgroundColor: Color.blueButtonColor,
+                    borderRadius: 10,
+                },
+                tabBarPressColor: Color.lightGray,
+                lazy: true,
+            }}
+        >
+            {screenItemsLogin.map((item, index) => (
+                <TabStack.Screen
+                    key={index}
+                    name={item.name}
+                    component={item.component}
+                    initialParams={{ user }}
+                    options={{
+                        tabBarIcon: ({ focused }) => (
+                            <VectorIconStyled
+                                nameIcon={focused ? item.iconFocused : item.icon}
+                                typeIcon={focused ? item.typeIconFocused : item.typeIcon}
+                                size={focused ? (item.sizeIconFocused ? item.sizeIconFocused : 24) : item.sizeIcon ? item.sizeIcon : 24}
+                                color={focused ? Color.blueButtonColor : Color.gray}
+                                style={{ width: 30, height: 30, justifyContent: 'center', alignItems: 'center' }}
+                            />
+                        ),
+                        tabBarShowLabel: false,
+                    }}
+                />
+            ))}
+
+        </TabStack.Navigator>
     );
 };
 

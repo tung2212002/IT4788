@@ -7,6 +7,8 @@ import Color from '../../utils/Color';
 import InputSecure from '../../components/InputSecure';
 import { getUserStorage, setUserStorage } from '../../utils/userStorage';
 import { images } from '../../../assets';
+import { useSelector } from 'react-redux';
+import { selectUser } from '../../redux/features/auth/authSlice';
 
 const Container = styled.View`
     flex: 1;
@@ -23,7 +25,7 @@ const Avatar = styled.Image`
 
 const Name = styled.Text`
     font-size: 24px;
-    font-weight: bold;
+    font-family: Roboto-Bold;
     margin: 10px;
 `;
 
@@ -67,7 +69,7 @@ const AlertComponent = styled(Alert)`
 function LoginScreen({ navigation }) {
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
-    const [user, setUser] = useState({});
+    const [user, setUser] = useState(null);
 
     const handleLogin = () => {
         if (!password) {
@@ -97,8 +99,8 @@ function LoginScreen({ navigation }) {
     return (
         <Container>
             <Info>
-                <Avatar source={user?.avatar === '' || user?.avatar === '-1' ? images.avatar : { uri: user.avatar }} />
-                <Name>{user?.name}</Name>
+                <Avatar source={user?.avatar === '' || user?.avatar === '-1' ? images.defaultAvatar : { uri: user.avatar }} />
+                <Name>{user?.username}</Name>
             </Info>
             <Enter>
                 <Input

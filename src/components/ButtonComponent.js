@@ -5,21 +5,26 @@ import { ActivityIndicator, Platform } from 'react-native';
 import Color from '../utils/Color';
 
 const Container = styled.TouchableOpacity`
-    width: 100%;
-    height: 50px;
+    width: ${(props) => (props.width === 'auto' ? 'auto' : (props.width || 100) + '%')};
+    height: ${(props) => (props.height === 'auto' ? 'auto' : (props.height || 50) + 'px')};
     background-color: ${(props) => props.backgroundColor || Color.blueButtonColor};
-    border-radius: 10px;
-    justify-content: center;
-    align-items: center;
+    border-radius: ${(props) => props.borderRadius || 10}px;
+    justify-content: ${(props) => props.justifyContent || 'center'};
+    align-items: ${(props) => props.alignItems || 'center'};
+    padding: ${(props) => props.padding || 10}px;
+    margin-right: ${(props) => (props.marginRight === 'auto' ? 'auto' : props.marginRight ? props.marginRight + 'px' : '10px')};
+    margin-left: ${(props) => (props.marginLeft === 'auto' ? 'auto' : props.marginLeft ? props.marginLeft + 'px' : '10px')};
+    margin-top: ${(props) => props.marginTop || '10'}px;
+    margin-bottom: ${(props) => props.marginBottom || '10'}px;
 `;
 
 const Title = styled.Text`
     font-size: ${(props) => props.size || 18}px;
-    font-weight: bold;
+    font-weight: ${(props) => (props.fontWeight ? props.fontWeight || 'normal' : 'bold')};
     color: ${(props) => props.color || Color.white};
 `;
 
-function ButtonComponent({ title, onPress, style = {}, color, size, loading, isShadow, ...props }) {
+function ButtonComponent({ title, onPress, style = {}, color, size, loading, fontWeight, isShadow, ...props }) {
     const generateBoxShadowStyle = () => {
         if (Platform.OS === 'ios') {
             return {
@@ -41,7 +46,7 @@ function ButtonComponent({ title, onPress, style = {}, color, size, loading, isS
     return (
         <Container onPress={onPress} style={[style, isShadow ? generateBoxShadowStyle() : {}]} disabled={loading} {...props}>
             {!loading ? (
-                <Title color={color} size={size}>
+                <Title color={color} size={size} fontWeight={fontWeight}>
                     {title}
                 </Title>
             ) : (

@@ -44,7 +44,19 @@ function ShowMoreComponent({ items, showMore, maxHeight }) {
             <AnimatedView style={{ maxHeight: heightInterpolate }}>
                 {items.map((item, index) => (
                     <ItemContainer key={index}>
-                        <ButtonIconComponent SVGIcon={item.SVGIcon} title={item.title} key={index} propsIcon={{ width: 30, height: 30 }} isShadow={true} />
+                        <ButtonIconComponent
+                            SVGIcon={item.SVGIcon}
+                            title={item.title}
+                            key={index}
+                            propsButton={{
+                                width: '100',
+                                height: '75',
+                                borderRadius: 10,
+                            }}
+                            propsIcon={{ width: 30, height: 30 }}
+                            propsTitle={{ fontWeight: '500', size: 17 }}
+                            isShadow={true}
+                        />
                     </ItemContainer>
                 ))}
             </AnimatedView>

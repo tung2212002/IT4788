@@ -7,6 +7,8 @@ import { MaterialIcons } from '@expo/vector-icons';
 
 import ButtonComponent from '../../components/ButtonComponent';
 import Color from '../../utils/Color';
+import { navigate } from '../../navigation/RootNavigator';
+import routes from '../../constants/route';
 
 const Container = styled.View`
     flex: 1;
@@ -20,7 +22,7 @@ const Container = styled.View`
 
 const Title = styled.Text`
     font-size: 24px;
-    font-weight: bold;
+    font-family: Roboto-Bold;
     margin-top: 50px;
 `;
 
@@ -80,7 +82,7 @@ function BirthDateScreen({ route, navigation }) {
         if (age < 18) {
             setError('Có vẻ như bạn đã nhập thông tin sai. Hãy đảm bảo sử dụng ngày sinh nhật của mình.');
         } else {
-            navigation.navigate('PolicyScreen', {
+            navigate(routes.POLICY_SCREEN, {
                 ...route.params,
                 birthDate: date.toISOString().split('T')[0],
             });

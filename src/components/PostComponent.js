@@ -1,4 +1,5 @@
-import React from 'react';
+/* eslint-disable react-native/no-inline-styles */
+import React, { useEffect } from 'react';
 import styled from 'styled-components/native';
 import { Surface } from 'react-native-paper';
 
@@ -8,13 +9,23 @@ import Color from '../utils/Color';
 import PopupComponent from './PopupComponent';
 import { useState } from 'react';
 import ButtonIconComponent from './ButtonIconComponent';
-import { Image, TouchableOpacity, View } from 'react-native';
-import GridImageView from './GridImageViewer/GridImageView ';
+import { Dimensions, View } from 'react-native';
+import { images } from '../../assets';
+import { deletePostService } from '../services/postService';
+import { useDispatch } from 'react-redux';
+import { logout, mergeUser } from '../redux/features/auth/authSlice';
+import { Alert } from 'react-native';
+import { SVGSad2, SVGHaha2 } from '../../assets';
+import { listActivity, listFeeling } from '../constants/listItem';
+import ButtonComponent from './ButtonComponent';
+import { navigate } from '../navigation/RootNavigator';
+import routes from '../constants/route';
+import GridImageView from './GridImageView ';
+import { Pressable } from 'react-native';
 
 const ShadowSurface = styled(Surface)`
     width: 100%;
     elevation: 4;
-    margin-top: 10px;
 `;
 
 const PostContainer = styled.View`
@@ -22,7 +33,7 @@ const PostContainer = styled.View`
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin-vertical: 8px;
+    padding-top: 8px;
     background-color: ${Color.white};
 `;
 
@@ -52,11 +63,6 @@ const PostAuthorAvatar = styled.Image`
     margin-horizontal: 12px;
 `;
 
-const PostAuthorName = styled.Text`
-    font-size: 16px;
-    font-weight: bold;
-`;
-
 const PostTimeContainer = styled.View`
     width: 100%;
     height: 20px;
@@ -68,13 +74,18 @@ const PostTimeContainer = styled.View`
 
 const PostTime = styled.Text`
     font-size: 13px;
+    color: ${Color.gray};
 `;
 
-const ThreeDots = styled(VectorIcon)`
+const ThreeDotsContainer = styled.Pressable`
     position: absolute;
-    right: 20px;
-    top: 10px;
+    right: 0;
+    top: -4px;
+    border-radius: 10px;
+    padding: 15px;
 `;
+
+const ThreeDots = styled(VectorIcon)``;
 
 const PostContent = styled.View`
     width: 100%;
@@ -88,70 +99,115 @@ const PostContentText = styled.Text`
     padding: 0 12px;
 `;
 
-const ImagesPost = styled.View`
-    width: 100%;
-    display: flex;
+const Info = styled.View`
     flex-direction: row;
     flex-wrap: wrap;
+    width: ${Dimensions.get('window').width - 100}px;
+    align-items: flex-end;
+`;
+
+const FeelView = styled.View`
+    flex-direction: row;
+    padding: 10px;
     margin-top: 10px;
 `;
 
-// const ImagePost = styled.Image`
-//     width: 100px;
-//     height: 100px;
-//     resize-mode: cover;
-// `;
+const Feel = styled.View`
+    flex-direction: row;
+    flex: 1;
+`;
 
-const PostComponent = ({ item, user }) => {
+const CommentView = styled.View``;
+
+const Comment = styled.Text`
+    font-size: 14px;
+    font-weight: 500;
+    color: ${Color.gray};
+`;
+
+const FooterPost = styled.View`
+    border-top-width: 1px;
+    border-color: ${Color.lightGray};
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding-horizontal: 10px;
+    padding-vertical: 2px;
+`;
+
+const Description = styled.View`
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: flex-start;
+`;
+
+const State = styled.Text`
+    font-size: 14px;
+    color: ${Color.gray};
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: flex-start;
+    margin-left: -2px;
+`;
+
+const ButtonIcon = styled(ButtonIconComponent)``;
+
+const PostComponent = ({ item, user, navigation, post, setPost }) => {
     const [renderPopUpComponent, setRenderPopUpComponent] = useState(false);
-    const post = {
-        id: '1',
-        name: 'Item 1',
-        created: '2021-09-01',
-        description: 'Description a post : ABCDEFGHIJKLMNOPQRSTUVWXYZ ABCDEFGHIJKac',
-        modified: '2021-09-01',
-        fake: '100',
-        trush: '100',
-        kudos: '100',
-        disappointed: '100',
-        is_rate: true,
-        is_mark: true,
-        image: [
+    const [gridImageViewData, setGridImageViewData] = useState(item?.image);
+    const dispatch = useDispatch();
+    const [state, setState] = useState({
+        activitie: null,
+        feel: null,
+    });
+
+    useEffect(() => {
+        console.log('change');
+    }, [item]);
+
+    const handleDeletePost = () => {
+        Alert.alert('Thông báo', 'Bạn có chắc chắn muốn xóa bài viết này?', [
             {
-                id: '0',
-                url: 'https://picsum.photos/200/300',
+                text: 'Hủy',
+                onPress: () => {},
+                style: 'cancel',
             },
             {
-                id: '1',
-                url: 'https://picsum.photos/200/300',
+                text: 'Xóa',
+                onPress: () => {
+                    deletePost();
+                },
             },
-            {
-                id: '1',
-                url: 'https://picsum.photos/200/300',
-            },
-        ],
-        video: [],
-        author: {
-            id: '1',
-            name: 'Author 1',
-            username: 'admin1',
-            avatar: 'https://picsum.photos/200/300',
-            coins: '100',
-            listing: 'Post A, Post B, Post C',
-        },
-        category: {
-            id: '1',
-            name: 'Category 1',
-            has_name: true,
-        },
-        state: 'published',
-        is_blocked: false,
-        can_edit: true,
-        banned: false,
-        can_mark: true,
-        can_rate: true,
-        url: 'https://picsum.photos/200/300',
-        message: 'Message',
+        ]);
+    };
+
+    const deletePost = () => {
+        const data = {
+            id: item.id,
+        };
+
+        deletePostService(data).then((res) => {
+            if (res.data.code === '1000') {
+                const newListPost = post.filter((ite) => ite.id !== item.id);
+                mergeUser({ ...user, coins: res.data.data.coins });
+                setPost(newListPost);
+                setRenderPopUpComponent(false);
+            } else if (res.data.code === '9992') {
+                Alert.alert(
+                    'Thông báo',
+                    'Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại',
+                    [
+                        {
+                            text: 'OK',
+                            onPress: () => {
+                                dispatch(logout());
+                            },
+                        },
+                    ],
+                    { cancelable: false },
+                );
+            }
+        });
     };
 
     const listItems = [
@@ -160,7 +216,7 @@ const PostComponent = ({ item, user }) => {
             name: 'bell-off',
             type: 'Feather',
             handlePress: () => {
-                console.log(`Tắt thông báo bài viết này ${post.id}`);
+                console.log(`Tắt thông báo bài viết này ${item.id}`);
             },
         },
         {
@@ -168,7 +224,7 @@ const PostComponent = ({ item, user }) => {
             name: 'bookmark',
             type: 'Feather',
             handlePress: () => {
-                console.log(`Lưu bài viết ${post.id}`);
+                console.log(`Lưu bài viết ${item.id}`);
             },
         },
         {
@@ -176,7 +232,7 @@ const PostComponent = ({ item, user }) => {
             name: 'delete',
             type: 'AntDesign',
             handlePress: () => {
-                console.log(`Xóa bài viết ${post.id}`);
+                handleDeletePost();
             },
         },
         {
@@ -193,117 +249,133 @@ const PostComponent = ({ item, user }) => {
         },
     ];
 
-    const lengthImage = post.image.length;
-    let container = {};
-    let itemStyle = {};
-    let style = {};
-
-    if (lengthImage === 1) {
-        container = { width: '100%', height: 300 };
-        style = { display: 'flex', flexDirection: 'row', flexWrap: 'wrap' };
-        itemStyle = [
-            {
-                width: '100%',
-                height: 300,
-            },
-        ];
-    } else if (lengthImage === 2) {
-        container = { width: '100%', height: 200 };
-        style = { display: 'flex', flexDirection: 'row', flexWrap: 'wrap' };
-
-        itemStyle = [
-            {
-                width: '50%',
-                height: 200,
-            },
-            {
-                width: '50%',
-                height: 200,
-            },
-        ];
-    } else if (lengthImage === 3) {
-        container = { width: '100%', height: 200 };
-        itemStyle = [
-            {
-                width: '50%',
-                height: 200,
-            },
-            {
-                width: '50%',
-                height: 100,
-            },
-            {
-                width: '50%',
-                height: 100,
-            },
-        ];
-    } else if (lengthImage === 4) {
-        container = { width: '100%', height: 200 };
-        itemStyle = [
-            {
-                width: '50%',
-                height: 100,
-            },
-            {
-                width: '50%',
-                height: 100,
-            },
-            {
-                width: '50%',
-                height: 100,
-            },
-            {
-                width: '50%',
-                height: 100,
-            },
-        ];
-    }
+    useEffect(() => {
+        try {
+            const json = JSON.parse(item.state);
+            const activitie = listActivity.find((it) => it.id === json.id && json.type === 'activities');
+            const feel = listFeeling.find((it) => it.id === json.id && json.type === 'feelings');
+            if (activitie || feel) {
+                setState({ ...state, activitie, feel });
+            }
+        } catch (e) {
+            return;
+        }
+    }, []);
 
     return (
         <ShadowSurface>
             <PostContainer>
                 <PostHeader>
-                    <PostAuthorAvatar source={{ uri: post.author.avatar }} />
+                    <Pressable
+                        onPress={() => {
+                            navigation.navigate(routes.PROFILE_SCREEN, { user_id: item.author.id });
+                        }}
+                    >
+                        <PostAuthorAvatar
+                            source={item.author?.avatar === '' || item.author?.avatar === '-1' ? images.defaultAvatar : { uri: item.author?.avatar }}
+                        />
+                    </Pressable>
                     <PostAuthor>
-                        <PostAuthorName>{post.author.name}</PostAuthorName>
+                        <Info>
+                            <ButtonComponent
+                                title={item.author.name || 'Author'}
+                                onPress={() => navigate(routes.PROFILE_SCREEN, { user_id: item.author.id })}
+                                color={Color.black}
+                                fontWeight={'bold'}
+                                size={16}
+                                style={{
+                                    backgroundColor: 'transparent',
+                                    width: 'auto',
+                                    height: 'auto',
+                                    paddingTop: 0,
+                                    paddingBottom: 0,
+                                    paddingLeft: 0,
+                                    paddingRight: 0,
+                                    marginBottom: 0,
+                                    marginRight: 0,
+                                    marginLeft: 0,
+                                }}
+                            />
+                            {(state.activitie || state.feel) && (
+                                <Description>
+                                    <State> {state.activitie ? 'hiện' : 'hiện đang'} </State>
+                                    <View style={{ width: 20, height: 20 }}>
+                                        {state.activitie && <state.activitie.SVGIcon height={20} width={20} style={{ height: 20, width: 20 }} />}
+                                        {state.feel && <state.feel.SVGIcon height={20} width={20} style={{ height: 20, width: 20 }} />}
+                                    </View>
+                                    <State>{state.activitie ? ' ' + state.activitie.title : ' cảm thấy ' + state.feel.title}</State>
+                                </Description>
+                            )}
+                        </Info>
                         <PostTimeContainer>
-                            <PostTime>{convertTimeAgo(post.created)}</PostTime>
-                            <VectorIcon nameIcon={'dot-single'} typeIcon={'Entypo'} size={14} />
-                            {post.state === 'published' ? (
-                                <VectorIcon nameIcon={'public'} typeIcon={'MaterialIcons'} size={16} />
+                            <PostTime>{convertTimeAgo(item.created)}</PostTime>
+                            <VectorIcon nameIcon={'dot-single'} typeIcon={'Entypo'} color={Color.gray} size={10} />
+                            {item.state !== 'published' ? (
+                                <VectorIcon nameIcon={'public'} typeIcon={'MaterialIcons'} color={Color.gray} size={16} />
                             ) : (
-                                <VectorIcon nameIcon={'user-friends'} typeIcon={'FontAwesome5'} size={16} />
+                                <VectorIcon nameIcon={'user-friends'} typeIcon={'FontAwesome5'} color={Color.gray} size={14} />
                             )}
                         </PostTimeContainer>
                     </PostAuthor>
-                    <ThreeDots
-                        nameIcon={'dots-three-horizontal'}
-                        typeIcon={'Entypo'}
-                        size={18}
-                        color={Color.black}
-                        onPress={() => setRenderPopUpComponent(true)}
-                    />
+                    <ThreeDotsContainer onPress={() => setRenderPopUpComponent(true)}>
+                        <ThreeDots nameIcon={'dots-three-horizontal'} typeIcon={'Entypo'} size={20} color={Color.black} />
+                    </ThreeDotsContainer>
                 </PostHeader>
                 <PostContent>
-                    <PostContentText>{post.description}</PostContentText>
-                    <PostContentText>{post.description}</PostContentText>
-                    <PostContentText>{post.description}</PostContentText>
-                    <View width="100%" style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap' }}>
-                        {post.image.map((it, index) => (
-                            <View key={index} style={itemStyle[index]}>
-                                <Image source={{ uri: it.url }} style={{ width: '100%', height: '100%' }} />
-                            </View>
-                        ))}
-                    </View>
+                    <PostContentText>{item?.described}</PostContentText>
+                    <GridImageView renderModalFooter={true} data={gridImageViewData} />
+
+                    <FeelView>
+                        <Feel>
+                            <SVGSad2 width={18} height={18} />
+                            <SVGHaha2 width={18} height={18} />
+                            {(item?.feel !== '0' && item.is_felt === '-1' && <Comment>{item?.feel}</Comment>) ||
+                                (item.is_felt !== '-1' && <Comment>Bạn và {item.feel - 1} người khác</Comment>)}
+                        </Feel>
+                        <CommentView>{item.comment_mark && item.comment_mark !== '0' && <Comment>{item.comment_mark} bình luận</Comment>}</CommentView>
+                    </FeelView>
+                    <FooterPost>
+                        <ButtonIcon
+                            title={'Thích'}
+                            nameIcon={'like2'}
+                            typeIcon={'AntDesign'}
+                            propsIcon={{ color: Color.gray, size: 24, padding: 1 }}
+                            propsTitle={{ color: Color.gray, size: 13, fontWeight: 600 }}
+                            propsButton={{ backgroundColor: Color.white, width: 'auto', padding: 1, height: 40 }}
+                        />
+                        <ButtonIcon
+                            title={'Bình luận'}
+                            nameIcon={'comment-o'}
+                            typeIcon={'FontAwesome'}
+                            propsIcon={{ color: Color.gray, size: 24, padding: 1 }}
+                            propsTitle={{ color: Color.gray, size: 13, fontWeight: 600 }}
+                            propsButton={{ backgroundColor: Color.white, width: 'auto', padding: 1, height: 40 }}
+                        />
+                        <ButtonIcon
+                            title={'Gửi'}
+                            nameIcon={'message1'}
+                            typeIcon={'AntDesign'}
+                            propsIcon={{ color: Color.gray, size: 24, padding: 1 }}
+                            propsTitle={{ color: Color.gray, size: 13, fontWeight: 600 }}
+                            propsButton={{ backgroundColor: Color.white, width: 'auto', padding: 1, height: 40 }}
+                        />
+                        <ButtonIcon
+                            nameIcon={'sharealt'}
+                            title={'Chia sẻ'}
+                            typeIcon={'AntDesign'}
+                            propsIcon={{ color: Color.gray, size: 24, padding: 1 }}
+                            propsTitle={{ color: Color.gray, size: 13, fontWeight: 600 }}
+                            propsButton={{ backgroundColor: Color.white, width: 'auto', padding: 1, height: 40 }}
+                        />
+                    </FooterPost>
                 </PostContent>
-                {/* <View style={{ width: '100%', height: 1, backgroundColor: Color.gray }}>
-                    <GridImageView data={['https://picsum.photos/200/300', 'https://picsum.photos/200/300', 'https://picsum.photos/200/300']} />
-                </View> */}
             </PostContainer>
             {renderPopUpComponent && (
                 <PopupComponent renderPopUpComponent={renderPopUpComponent} setRenderPopUpComponent={setRenderPopUpComponent}>
                     {listItems.map((button, index) =>
-                        (button.title === 'Xóa bài viết' && post.author.id === user.id) || button.title !== 'Xóa bài viết' ? (
+                        (button.title === 'Xóa bài viết' && item.author.id === user.id) ||
+                        (button.title === 'Chỉnh sửa bài viết' && item.can_edit === '1') ||
+                        (button.title !== 'Xóa bài viết' && button.title !== 'Chỉnh sửa bài viết') ? (
                             <ButtonIconComponent
                                 key={index}
                                 title={button.title}

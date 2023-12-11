@@ -1,16 +1,24 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components/native';
-import { TouchableOpacity } from 'react-native';
-import { useSelector } from 'react-redux';
+import { Alert, TouchableOpacity } from 'react-native';
+import { useDispatch, useSelector } from 'react-redux';
+import axios from 'axios';
 
 import Color from '../utils/Color';
-// import { selectUser } from '../redux/features/user/userSlice';
 import { selectUser } from '../redux/features/auth/authSlice';
 import { images } from '../../assets';
 import VectorIcon from '../utils/VectorIcon';
 import { SVGFilter, SVGCheckIn, SVGPhotos, SVGEdit } from '../../assets';
 import ButtonIconComponent from './ButtonIconComponent';
 import ButtonComponent from './ButtonComponent';
+import { useImagePicker } from '../hooks/useImagePicker';
+import { useEffect } from 'react';
+import CreatePostScreen from '../screens/CreatePostScreen';
+import { getPostService } from '../services/postService';
+import { getTokenStorage } from '../utils/userStorage';
+import { BASE_URL } from '@env';
+import { navigate } from '../navigation/RootNavigator';
+import routes from '../constants/route';
 
 const Container = styled.View`
     background-color: ${Color.white};
@@ -33,7 +41,7 @@ const Header = styled.View`
 const TitleHeader = styled.Text`
     margin-left: 10px;
     font-size: 20px;
-    font-weight: bold;
+    font-family: Roboto-Bold;
     color: ${Color.black};
     flex: 2;
 `;
@@ -90,6 +98,8 @@ const ButtonInput = styled(ButtonComponent)`
     border-radius: 50px;
     align-items: flex-start;
     padding-left: 20px;
+    border-width: 1px;
+    border-color: ${Color.mainBackgroundHome};
 `;
 
 const Bottom = styled.View`
@@ -100,20 +110,99 @@ const Bottom = styled.View`
     align-items: center;
 `;
 
-const PostComposerComponent = ({ navigation, stylesInput, isHeader = false, setShowCreatePost }) => {
+const AlertComponent = styled(Alert)`
+    background-color: ${Color.blue};
+    transform: scale(0.8);
+`;
+
+const PostComposerComponent = ({ navigation, stylesInput, isHeader = false, post, setPost, pagination, setPagination }) => {
+    const [showCreatePost, setShowCreatePost] = useState(false);
     const user = useSelector(selectUser);
+    const dispatch = useDispatch();
+
     const { placeholderTextColor, ...styles } = stylesInput;
+    const { imageFiles, pickImage, clearImages } = useImagePicker();
+
+    const handleClickImgIcon = () => {
+        pickImage();
+    };
+
+    const [perc, setPerc] = useState(0);
+
+    const handleCreatePost = async (data) => {
+        const formData = new FormData();
+        formData.append('described', data.described);
+        formData.append('status', data.status);
+        for (let i = 0; i < data.image.length; i++) {
+            formData.append('image', data.image[i].base64);
+        }
+        formData.append('video', data.video);
+
+        setShowCreatePost(false);
+
+        const token = await getTokenStorage();
+        const options = {
+            baseURL: BASE_URL,
+            headers: {
+                'Content-Type': 'multipart/form-data',
+                Accept: '*/*',
+                Authorization: `Bearer ${token}`,
+            },
+            onUploadProgress: function ({ loaded, total, progress, bytes, estimated, rate, upload = true }) {
+                console.log('onUploadProgress', progress, loaded, total);
+            },
+            maxRedirects: 0,
+        };
+        const url = '/add_post';
+        axios
+            .post(url, formData, options)
+            .then((res) => {
+                if (res.data.code === '1000') {
+                    console.log(res.data.data);
+                    handleRequestNewPost(res.data.data.id);
+                } else {
+                    console.log(res);
+                }
+            })
+            .catch((e) => {
+                console.log(e);
+            });
+    };
+
+    const handleRequestNewPost = (id) => {
+        const data = {
+            id,
+        };
+
+        getPostService(data)
+            .then((res) => {
+                if (res.data.code === '1000') {
+                    const newPost = res.data.data;
+                    const newListPost = [...post];
+                    newListPost.unshift(newPost);
+                    setPost(newListPost);
+                    setPagination({ ...pagination, lastId: id });
+                } else {
+                    console.log(res);
+                }
+            })
+            .catch((err) => {
+                console.log(err);
+            });
+    };
 
     const listItemsBottom = [
         {
             title: 'Trạng thái',
-            onPress: () => {},
+            onPress: () => {
+                AlertComponent.alert('OK');
+            },
             SVGIcon: SVGEdit,
             styleIcon: { width: 22, height: 22 },
         },
         {
             title: 'Ảnh',
-            onPress: () => {},
+            onPress: handleClickImgIcon,
             SVGIcon: SVGPhotos,
             styleIcon: { width: 26, height: 26 },
         },
@@ -124,6 +213,12 @@ const PostComposerComponent = ({ navigation, stylesInput, isHeader = false, setS
             styleIcon: { width: 26, height: 26 },
         },
     ];
+
+    useEffect(() => {
+        if (imageFiles.length > 0) {
+            setShowCreatePost(true);
+        }
+    }, [imageFiles]);
 
     return (
         <Container>
@@ -139,13 +234,14 @@ const PostComposerComponent = ({ navigation, stylesInput, isHeader = false, setS
                 </Header>
             ) : null}
             <Content>
-                <TouchableOpacity onPress={() => navigation.navigate('ProfileScreen')}>
-                    <Avatar source={user?.avatar === '-1' || user?.avatar === '' ? images.defaultAvatar : { uri: user?.avatar }} />
+                <TouchableOpacity onPress={() => navigate(routes.PROFILE_SCREEN)}>
+                    <Avatar source={user?.avatar === '' || user?.avatar === '-1' ? images.defaultAvatar : { uri: user?.avatar }} />
                 </TouchableOpacity>
                 <ButtonInput
                     onPress={() => setShowCreatePost(true)}
                     title="Bạn đang nghĩ gì?"
-                    color={Color.gray}
+                    color={placeholderTextColor ? placeholderTextColor : Color.gray}
+                    fontWeight="500"
                     style={[styles, { backgroundColor: Color.white }]}
                 />
             </Content>
@@ -170,6 +266,20 @@ const PostComposerComponent = ({ navigation, stylesInput, isHeader = false, setS
                     />
                 ))}
             </Bottom>
+
+            {/* {perc > 0 && perc < 100 && <ProgressBarCreatePost perc={perc} user={user} />} */}
+            {/* <ProgressBarCreatePost perc={perc} user={user} /> */}
+            {showCreatePost && (
+                <CreatePostScreen
+                    navigation={navigation}
+                    setShowCreatePost={setShowCreatePost}
+                    showCreatePost={showCreatePost}
+                    user={user}
+                    imageFilesPostComposer={imageFiles}
+                    clearImagesPostComposer={clearImages}
+                    handleCreatePost={handleCreatePost}
+                />
+            )}
         </Container>
     );
 };

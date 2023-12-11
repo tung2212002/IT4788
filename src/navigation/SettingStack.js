@@ -6,23 +6,24 @@ import Color from '../utils/Color';
 import { SettingScreen, ProfileScreen } from '../screens';
 import ItemRightComponent from '../components/ItemRightComponent';
 import { selectUser } from '../redux/features/auth/authSlice';
+import routes from '../constants/route';
 
 const StackSetting = createStackNavigator();
 
-const itemsHeaderProfileRight = [
-    {
-        nameIcon: 'pencil',
-        typeIcon: 'FontAwesome',
-    },
-    {
-        nameIcon: 'search',
-        typeIcon: 'FontAwesome',
-    },
-];
+// const itemsHeaderProfileRight = [
+//     {
+//         nameIcon: 'pencil',
+//         typeIcon: 'FontAwesome',
+//     },
+//     {
+//         nameIcon: 'search',
+//         typeIcon: 'FontAwesome',
+//     },
+// ];
 
-const headerRight = () => {
-    return <ItemRightComponent items={itemsHeaderProfileRight} />;
-};
+// const headerRight = () => {
+//     return <ItemRightComponent items={itemsHeaderProfileRight} />;
+// };
 
 const SettingStack = ({ route, navigation }) => {
     const user = useSelector(selectUser);
@@ -30,7 +31,7 @@ const SettingStack = ({ route, navigation }) => {
 
     const screenItemsSetting = [
         {
-            name: 'SettingScreen',
+            name: routes.SETTING_SCREEN,
             component: SettingScreen,
             options: {
                 title: 'SettingScreen',
@@ -38,20 +39,21 @@ const SettingStack = ({ route, navigation }) => {
             },
         },
         {
-            name: 'ProfileScreen',
+            name: routes.PROFILE_SCREEN,
             component: ProfileScreen,
             options: {
-                title: username,
-                headerBackTitle: '',
-                headerRight: headerRight,
-                headerTitleAlign: 'center',
+                headerShown: false,
+                // title: username,
+                // headerBackTitle: '',
+                // headerRight: headerRightProfile,
+                // headerTitleAlign: 'center',
             },
         },
     ];
 
     return (
         <StackSetting.Navigator
-            initialRouteName="SettingScreen"
+            initialRouteName={routes.SETTING_SCREEN}
             screenOptions={{
                 headerStyle: {
                     backgroundColor: Color.mainBackgroundColor,
@@ -64,7 +66,7 @@ const SettingStack = ({ route, navigation }) => {
             }}
         >
             {screenItemsSetting.map((item, index) => (
-                <StackSetting.Screen initialParams={{ user }} key={index} name={item.name} component={item.component} options={item.options} />
+                <StackSetting.Screen key={index} name={item.name} component={item.component} options={item.options} />
             ))}
         </StackSetting.Navigator>
     );

@@ -4,6 +4,8 @@ import styled from 'styled-components/native';
 import TextInputComponent from '../../components/TextInputComponent';
 import ButtonComponent from '../../components/ButtonComponent';
 import Color from '../../utils/Color';
+import { navigate } from '../../navigation/RootNavigator';
+import routes from '../../constants/route';
 
 const Container = styled.View`
     flex: 1;
@@ -22,7 +24,7 @@ const Body = styled.View`
 
 const Title = styled.Text`
     font-size: 24px;
-    font-weight: bold;
+    font-family: Roboto-Bold;
     margin-top: 50px;
 `;
 
@@ -70,7 +72,7 @@ function NameRegisterScreen({ navigation }) {
                 setError2('Tên không hợp lệ');
             }
             if (regex.test(firstName) && regex.test(lastName)) {
-                navigation.navigate('BirthDateScreen', {
+                navigate(routes.BIRTH_DATE_SCREEN, {
                     firstName: firstName,
                     lastName: lastName,
                 });

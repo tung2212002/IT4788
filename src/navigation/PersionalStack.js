@@ -6,26 +6,11 @@ import { useState } from 'react';
 import Color from '../utils/Color';
 import { PersionalScreen, ProfileScreen } from '../screens';
 import { selectUser } from '../redux/features/auth/authSlice';
-import ItemRightComponent from '../components/ItemRightComponent';
 import ButtonComponent from '../components/ButtonComponent';
 import CreatePostScreen from '../screens/CreatePostScreen';
+import routes from '../constants/route';
 
 const StackHome = createStackNavigator();
-
-const itemsHeaderProfileRight = [
-    {
-        nameIcon: 'pencil',
-        typeIcon: 'FontAwesome',
-    },
-    {
-        nameIcon: 'search',
-        typeIcon: 'FontAwesome',
-    },
-];
-
-const headerRightProfile = () => {
-    return <ItemRightComponent items={itemsHeaderProfileRight} />;
-};
 
 const PersionalStack = () => {
     const user = useSelector(selectUser);
@@ -43,7 +28,7 @@ const PersionalStack = () => {
 
     const screenItemsLogin = [
         {
-            name: 'PersionalScreen',
+            name: routes.PERSIONAL_SCREEN,
             component: PersionalScreen,
             options: {
                 title: '',
@@ -52,18 +37,15 @@ const PersionalStack = () => {
             initialParams: { user, isCreatePost },
         },
         {
-            name: 'ProfileScreen',
+            name: routes.PROFILE_SCREEN,
             component: ProfileScreen,
             options: {
-                title: username,
-                headerBackTitle: '',
-                headerRight: headerRightProfile,
-                headerTitleAlign: 'center',
+                headerShown: false,
             },
             initialParams: { user },
         },
         {
-            name: 'CreatePostScreen',
+            name: routes.CREATE_POST_SCREEN,
             component: CreatePostScreen,
             options: {
                 title: 'Tạo bài viết',
@@ -77,7 +59,7 @@ const PersionalStack = () => {
 
     return (
         <StackHome.Navigator
-            initialRouteName="PersionalScreen"
+            initialRouteName={routes.PERSIONAL_SCREEN}
             screenOptions={{
                 headerStyle: {
                     backgroundColor: Color.white,

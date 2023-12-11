@@ -37,7 +37,7 @@ const Box = styled.View`
 const Text = styled.Text`
     margin-top: 20px;
     font-size: ${(props) => props.size || 18}px;
-    font-weight: bold;
+    font-family: Roboto-Bold;
     color: ${(props) => props.color || Color.white};
 `;
 

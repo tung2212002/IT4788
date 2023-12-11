@@ -19,7 +19,12 @@ import LoginScreen from './AuthenticationStack/LoginScreen';
 // HomeScreens
 import HomeScreen from './HomeStack/HomeScreen';
 import GroupScreen from './GroupStack/GroupScreen';
+
+//StackFriend
 import FriendsScreen from './FriendsStack/FriendsScreen';
+import SuggestFriendsScreen from './FriendsStack/SuggestFriendsScreen';
+import UserFriendsScreen from './FriendsStack/UserFriendsScreen';
+
 import PersionalScreen from './PersionalStack/PersionalScreen';
 import NotificationScreen from './NotificationStack/NotificationScreen';
 import SettingScreen from './SettingStack/SettingScreen';
@@ -28,6 +33,7 @@ import ProfileScreen from './SettingStack/ProfileScreen';
 
 // LoadingScreen
 import LoadingScreen from './LoadingScreen';
+import Logout from './HomeStack/Logout';
 
 export {
     // RegisterScreens
@@ -51,7 +57,11 @@ export {
     // HomeScreens
     HomeScreen,
     GroupScreen,
+
+    //StackFriend
     FriendsScreen,
+    SuggestFriendsScreen,
+    UserFriendsScreen,
     PersionalScreen,
     NotificationScreen,
     SettingScreen,
@@ -60,39 +70,5 @@ export {
 
     // LoadingScreen
     LoadingScreen,
+    Logout,
 };
-
-const routes = {
-    // RegisterScreens
-    AccountAuthenScreen: 'AccountAuthenScreen',
-    BirthDateScreen: 'BirthDateScreen',
-    CompleteRegister: 'CompleteRegister',
-    EmailRegisterScreen: 'EmailRegisterScreen',
-    JoinScreen: 'JoinScreen',
-    NameRegisterScreen: 'NameRegisterScreen',
-    PasswordRegisterScreen: 'PasswordRegisterScreen',
-    PhoneRegisterScreen: 'PhoneRegisterScreen',
-    PolicyScreen: 'PolicyScreen',
-    SaveAccountScreen: 'SaveAccountScreen',
-    WebViewScreen: 'WebViewScreen',
-
-    // LoginScreens
-    AuthenticationScreen: 'AuthenticationScreen',
-    LoginNotSaveScreen: 'LoginNotSaveScreen',
-    LoginScreen: 'LoginScreen',
-
-    // HomeScreens
-    HomeScreen: 'HomeScreen',
-    GroupScreen: 'GroupScreen',
-    FriendsScreen: 'FriendsScreen',
-    PersionalScreen: 'PersionalScreen',
-    NotificationScreen: 'NotificationScreen',
-    SettingScreen: 'SettingScreen',
-    //// StackSetting
-    ProfileScreen: 'ProfileScreen',
-
-    // LoadingScreen
-    LoadingScreen: 'LoadingScreen',
-};
-
-export default routes;

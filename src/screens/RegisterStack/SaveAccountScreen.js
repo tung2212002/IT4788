@@ -26,7 +26,7 @@ const Box = styled.View`
 
 const Title = styled.Text`
     font-size: 24px;
-    font-weight: bold;
+    font-family: Roboto-Bold;
 `;
 
 const Description = styled.Text`

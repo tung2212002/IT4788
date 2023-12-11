@@ -4,6 +4,8 @@ import styled from 'styled-components/native';
 import Color from '../../utils/Color';
 
 import ButtonComponent from '../../components/ButtonComponent';
+import { navigate } from '../../navigation/RootNavigator';
+import routes from '../../constants/route';
 
 const Container = styled.View`
     flex: 1;
@@ -27,7 +29,7 @@ const Bottom = styled.Text`
 
 const Title = styled.Text`
     font-size: 24px;
-    font-weight: bold;
+    font-family: Roboto-Bold;
     margin-bottom: 30px;
 `;
 
@@ -61,21 +63,21 @@ const PolicyScreen = ({ route, navigation }) => {
             <Title>Hoàn tất đăng ký</Title>
             <Body>
                 <Content>Bằng việc nhấn vào nút Đăng ký, bạn đã đồng ý với </Content>
-                <Link onPress={() => navigation.navigate('WebViewScreen', { webName: 'Terms' })}> Điều khoản </Link>
+                <Link onPress={() => navigate(routes.WEB_VIEW_SCREEN, { webName: 'Terms' })}> Điều khoản </Link>
                 <Content>và</Content>
-                <Link onPress={() => navigation.navigate('WebViewScreen', { webName: 'Data' })}> Chính sách dữ liệu </Link>
+                <Link onPress={() => navigate(routes.WEB_VIEW_SCREEN, { webName: 'Data' })}> Chính sách dữ liệu </Link>
                 <Content>và</Content>
-                <Link onPress={() => navigation.navigate('WebViewScreen', { webName: 'Cookie' })}> Chính sách cookie </Link>
+                <Link onPress={() => navigate(routes.WEB_VIEW_SCREEN, { webName: 'Cookie' })}> Chính sách cookie </Link>
 
                 <Content>
                     của chúng tôi. Bạn có thể nhận được thông báo của chúng tôi qua SMS và hủy nhận bất cứ lúc nào. Thông tin từ danh bạ của bạn sẽ được tải lên
                     Facebook liên tục để chúng tôi gợi ý bạn bè bạn, cung cấp cải thiện quảng cáo cho bạn và người khác, cũng như mang đến dịch vụ tốt hơn.
                 </Content>
             </Body>
-            <ButtonComponent title="Đăng ký" onPress={() => navigation.navigate('EmailRegisterScreen', route.params)} />
+            <ButtonComponent title={'Đăng ký'} onPress={() => navigate(routes.EMAIL_REGISTER_SCREEN, route.params)} />
             <ButtonComponent
                 title="Đăng ký mà không tải danh bạ của tôi lên"
-                onPress={() => navigation.navigate('LoginScreen')}
+                onPress={() => navigate(routes.EMAIL_REGISTER_SCREEN, route.params)}
                 style={{ backgroundColor: Color.mainBackgroundColor, marginTop: 20 }}
                 color={Color.blueButtonColor}
             />
@@ -85,7 +87,7 @@ const PolicyScreen = ({ route, navigation }) => {
                     cung cấp cải thiện quảng cáo cho bạn và người dùng khác, cũng như mang đến dịch vụ tốt hơn. Bạn có thể tắt tính năng này trong phần Cài đặt,
                     quản lý hoặc xóa thông tin liên hệ của mình đã chia sẻ trên Facebook.
                 </ContentBottom>
-                <LinkBottom onPress={() => navigation.navigate('WebViewScreen', { webName: 'Data' })}> Tìm hiểu thêm </LinkBottom>
+                <LinkBottom onPress={() => navigate(routes.WEB_VIEW_SCREEN, { webName: 'Data' })}> Tìm hiểu thêm </LinkBottom>
             </Bottom>
         </Container>
     );

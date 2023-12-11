@@ -1,25 +1,27 @@
 /* eslint-disable react-native/no-inline-styles */
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useRef, useState } from 'react';
-import { RefreshControl, Animated, Platform } from 'react-native';
+import { RefreshControl, Animated } from 'react-native';
 import styled from 'styled-components/native';
 import { useSelector } from 'react-redux';
+import { Alert } from 'react-native';
+import { ActivityIndicator } from 'react-native-paper';
 
 import HeaderApp from '../../components/HeaderApp';
 import PostComponent from '../../components/PostComponent';
 import PostComposerComponent from '../../components/PostComposerComponent';
 import Color from '../../utils/Color';
-import CreatePostScreen from '../CreatePostScreen';
-import fakeItems from '../../constants/fakeData';
 import { selectUser } from '../../redux/features/auth/authSlice';
+import { getListPostsService } from '../../services/postService';
+import { getLocationStorage } from '../../utils/locationStorage';
 
 const Container = styled.View`
     flex: 1;
     width: 100%;
-    background-color: ${Color.mainBackgroundHome};
+    background-color: ${Color.white};
 `;
 
-const ActivityIndicatorIcon = styled.ActivityIndicator``;
+const ActivityIndicatorIcon = styled(ActivityIndicator)``;
 
 const AnimatedHeader = styled(Animated.View)`
     position: absolute;
@@ -29,29 +31,109 @@ const AnimatedHeader = styled(Animated.View)`
     z-index: 100;
 `;
 
+const ItemSeparatorView = styled.View`
+    height: 8px;
+    background-color: ${Color.mainBackgroundHome};
+`;
+
+const Footer = styled.View`
+    height: 50px;
+    width: 100%;
+    justify-content: center;
+    align-items: center;
+`;
+
 const CONTAINER_HEIGHT = 60;
 
 function HomeScreen({ route, navigation }) {
-    const user = useSelector(selectUser);
-    const [isRefreshing, setIsRefreshing] = useState(false);
-    const [isLoadMore, setIsLoadMore] = useState(false);
-    const [refreshing, setRefreshing] = useState(false);
-    const [showCreatePost, setShowCreatePost] = useState(false);
+    const count = 10;
 
-    const platform = Platform.OS === 'ios' ? true : false;
+    const user = useSelector(selectUser);
+    const [location, setLocation] = useState(null);
+    const [post, setPost] = useState(null);
+    const [pagination, setPagination] = useState({
+        index: 0,
+        lastId: 0,
+        isRefreshing: false,
+        isLoadMore: false,
+    });
 
     const scrollY = useRef(new Animated.Value(0)).current;
     const offsetAnim = useRef(new Animated.Value(0)).current;
 
-    const Refresh = styled.View`
-        width: 100%;
-        height: ${CONTAINER_HEIGHT}px;
-        background-color: ${Color.white};
-        justify-content: center;
-        align-items: center;
-        z-index: 100;
-        margin-top: ${platform ? 0 : -60}px;
-    `;
+    const onRefresh = () => {
+        setPagination({ ...pagination, isRefreshing: true, index: 0 });
+    };
+
+    const onLoadMore = () => {
+        setPagination({ ...pagination, isLoadMore: true });
+    };
+
+    const handleLoadMore = () => {
+        const data = {
+            in_campaign: '1',
+            campaign_id: '1',
+            latitude: location.latitude,
+            longitude: location.longitude,
+            last_id: pagination.lastId,
+            index: pagination.index,
+            count: count,
+        };
+        getListPostsService(data)
+            .then((response) => {
+                if (response.data.code === '1000') {
+                    if (response.data.data.post.length !== 0 && response.data.data.last_id !== pagination.lastId) {
+                        setPost([...post, ...response.data.data.post]);
+                        setPagination({
+                            ...pagination,
+                            lastId: response.data.data.last_id,
+                            index: response.data.data.post.length + pagination.index,
+                            isLoadMore: false,
+                        });
+                    } else {
+                        setPagination({ ...pagination, isLoadMore: false });
+                    }
+                }
+            })
+            .catch((e) => {
+                setPagination({ ...pagination, isLoadMore: false });
+                console.log(e);
+            });
+    };
+
+    const refreshControl = <RefreshControl refreshing={pagination.isRefreshing} onRefresh={onRefresh} progressViewOffset={CONTAINER_HEIGHT} />;
+
+    const refreshData = () => {
+        const data = {
+            in_campaign: '1',
+            campaign_id: '1',
+            latitude: location.latitude,
+            longitude: location.longitude,
+            index: pagination.index,
+            count: count,
+        };
+        getListPostsService(data)
+            .then((response) => {
+                if (response.data.code === '1000') {
+                    if (response.data.data.post.length !== 0 && response.data.data.last_id !== pagination.lastId) {
+                        setPost(response.data.data.post);
+                        setPagination({
+                            ...pagination,
+                            lastId: response.data.data.last_id,
+                            index: response.data.data.post.length,
+                            isRefreshing: false,
+                        });
+                    } else {
+                        setPagination({ ...pagination, isRefreshing: false });
+                    }
+                }
+            })
+            .catch((e) => {
+                setPagination({ ...pagination, isRefreshing: false });
+                console.log(e);
+            });
+    };
+
     const clampedScroll = Animated.diffClamp(
         Animated.add(
             scrollY.interpolate({
@@ -65,22 +147,6 @@ function HomeScreen({ route, navigation }) {
         CONTAINER_HEIGHT,
     );
 
-    const handleRefresh = () => {
-        !platform && setIsRefreshing(true);
-        setTimeout(() => {
-            platform ? setRefreshing(false) : setIsRefreshing(false);
-        }, 4000);
-    };
-
-    const handleLoadMore = () => {
-        setTimeout(() => {
-            setIsLoadMore(true);
-        }, 4000);
-    };
-
-    const refreshControl =
-        Platform.OS === 'ios' ? null : <RefreshControl refreshing={isRefreshing} progressViewOffset={CONTAINER_HEIGHT} onRefresh={handleRefresh} />;
-
     var _clampedScrollValue = 0;
     var _offsetValue = 0;
     var _scrollValue = 0;
@@ -88,10 +154,6 @@ function HomeScreen({ route, navigation }) {
     useEffect(() => {
         scrollY.addListener(({ value }) => {
             const absoluteScrollY = value < 0 ? 0 : value;
-            if (value <= -CONTAINER_HEIGHT) {
-                setRefreshing(true);
-                handleRefresh();
-            }
             const diff = absoluteScrollY - _scrollValue;
             _scrollValue = absoluteScrollY;
             _clampedScrollValue = Math.min(Math.max(_clampedScrollValue + diff, 0), CONTAINER_HEIGHT);
@@ -100,7 +162,7 @@ function HomeScreen({ route, navigation }) {
         offsetAnim.addListener(({ value }) => {
             _offsetValue = value;
         });
-    }, []);
+    });
 
     var scrollEndTimer = null;
     const onMomentumScrollBegin = () => {
@@ -132,48 +194,90 @@ function HomeScreen({ route, navigation }) {
     });
 
     useEffect(() => {
-        // console.log('scrollY', scrollY);
-    }, [scrollY]);
+        if (pagination.isRefreshing && location) {
+            refreshData();
+        } else if (pagination.isLoadMore && location) {
+            handleLoadMore();
+        }
+    }, [pagination]);
+
+    useEffect(() => {
+        getLocationStorage()
+            .then((res) => {
+                if (res) {
+                    setLocation(res);
+                    const data = {
+                        in_campaign: '1',
+                        campaign_id: '1',
+                        latitude: res.latitude,
+                        longitude: res.longitude,
+                        index: pagination.index,
+                        count: count,
+                    };
+
+                    getListPostsService(data)
+                        .then((response) => {
+                            if (response.data.code === '1000') {
+                                if (response.data.data.post.length !== 0) {
+                                    setPost(response.data.data.post);
+                                    setPagination({ ...pagination, lastId: response.data.data.last_id, index: response.data.data.post.length });
+                                } else {
+                                    setPagination({ ...pagination, isRefreshing: false });
+                                }
+                            }
+                        })
+                        .catch((e) => {
+                            setPagination({ ...pagination, isRefreshing: false });
+                        });
+                } else {
+                    Alert.alert('Please turn on location');
+                }
+            })
+            .catch((e) => {
+                Alert.alert('Have error, please try again');
+            });
+    }, []);
 
     return (
         <Container>
-            <>
-                <AnimatedHeader style={[{ transform: [{ translateY: headerTranslate }] }]}>
-                    <HeaderApp style={{ opacity }} />
-                </AnimatedHeader>
-                <Animated.FlatList
-                    onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: scrollY } } }], { useNativeDriver: true })}
-                    data={fakeItems}
-                    ListHeaderComponent={
-                        <>
-                            {refreshing && (
-                                <Refresh>
-                                    <ActivityIndicatorIcon size="large" color={Color.blueButtonColor} />
-                                </Refresh>
-                            )}
-                            <PostComposerComponent
-                                navigation={navigation}
-                                stylesInput={{ borderWidth: 2, borderColor: Color.lightGray, placeholderTextColor: Color.black }}
-                                isHeader={false}
-                                setShowCreatePost={setShowCreatePost}
-                            />
-                        </>
-                    }
-                    keyExtractor={(item, index) => item.title + index.toString()}
-                    renderItem={({ item }) => <PostComponent item={item} user={user} />}
-                    onEndReached={handleLoadMore}
-                    onEndReachedThreshold={0.1}
-                    initialNumToRender={4}
-                    refreshControl={refreshControl}
-                    contentContainerStyle={{ paddingTop: CONTAINER_HEIGHT }}
-                    onMomentumScrollBegin={onMomentumScrollBegin}
-                    onMomentumScrollEnd={onMomentumScrollEnd}
-                    onScrollEndDrag={onScrollEndDrag}
-                    scrollEventThrottle={1}
-                    ListFooterComponent={isLoadMore && <ActivityIndicatorIcon size="large" color={Color.blueButtonColor} />}
-                />
-            </>
-            {showCreatePost && <CreatePostScreen navigation={navigation} setShowCreatePost={setShowCreatePost} showCreatePost={showCreatePost} user={user} />}
+            <AnimatedHeader style={[{ transform: [{ translateY: headerTranslate }] }]}>
+                <HeaderApp style={{ opacity }} />
+            </AnimatedHeader>
+
+            <Animated.FlatList
+                onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: scrollY } } }], { useNativeDriver: true })}
+                data={post}
+                refreshing={pagination.isRefreshing}
+                onRefresh={onRefresh}
+                ListHeaderComponent={
+                    <>
+                        <PostComposerComponent
+                            navigation={navigation}
+                            stylesInput={{ placeholderTextColor: Color.black, borderWidth: 1, borderColor: Color.black }}
+                            isHeader={false}
+                            post={post}
+                            setPost={setPost}
+                            pagination={pagination}
+                            setPagination={setPagination}
+                        />
+                        <ItemSeparatorView />
+                    </>
+                }
+                refreshControl={refreshControl}
+                keyExtractor={(item, index) => item.title + index.toString()}
+                renderItem={({ item }) => <PostComponent item={item} user={user} navigation={navigation} post={post} setPost={setPost} />}
+                onEndReached={onLoadMore}
+                ItemSeparatorComponent={ItemSeparatorView}
+                onEndReachedThreshold={0}
+                // initialNumToRender={4}
+                contentContainerStyle={{ marginTop: CONTAINER_HEIGHT, paddingBottom: CONTAINER_HEIGHT }}
+                onMomentumScrollBegin={onMomentumScrollBegin}
+                onMomentumScrollEnd={onMomentumScrollEnd}
+                onScrollEndDrag={onScrollEndDrag}
+                scrollEventThrottle={1}
+                ListFooterComponent={<Footer>{pagination.isLoadMore && <ActivityIndicatorIcon size={30} color={Color.blueButtonColor} />}</Footer>}
+                ListFooterComponentStyle={{ marginVertical: 15 }}
+            />
         </Container>
     );
 }

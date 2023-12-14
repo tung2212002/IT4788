@@ -1,4 +1,5 @@
 import * as request from '../utils/requestAxios';
+import { getUserStorage } from '../utils/userStorage';
 
 export const registerService = async (body) => {
     const response = await request.api.post('/signup', body);
@@ -46,6 +47,7 @@ export const testPostService = async (params) => {
 };
 
 export const get_notification = async(params) =>{
+    console.log(params);
     const response = await request.apiAuth.post('/get_notification', params);
     return response;
 }

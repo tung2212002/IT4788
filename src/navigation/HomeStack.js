@@ -6,6 +6,7 @@ import Color from '../utils/Color';
 import { HomeScreen, Logout, ProfileScreen } from '../screens';
 import { selectUser } from '../redux/features/auth/authSlice';
 import routes from '../constants/route';
+import HeaderApp from '../components/HeaderApp';
 
 const StackHome = createStackNavigator();
 

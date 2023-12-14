@@ -3,7 +3,6 @@ import styled from 'styled-components/native';
 
 import Color from '../utils/Color';
 import VectorIcon from '../utils/VectorIcon';
-import { View } from 'react-native';
 
 const Container = styled.View`
     width: 100%;
@@ -33,7 +32,7 @@ const ButtonIcon = styled(VectorIcon)`
     background-color: ${Color.lightGray};
 `;
 
-function HeaderScreen({ navigation, title, listItems}){
+function HeaderScreen({title, listItems}){
     return (
         <Container>
             <Title>{title}</Title>

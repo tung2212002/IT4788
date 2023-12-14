@@ -25,9 +25,9 @@ export default function App() {
     return (
         <Provider store={store}>
             <SafeAreaView style={styles.container} onLayout={onLayoutRootView}>
-                <StatusBar StatusBarStyle="dark-content" backgroundColor={Color.mainBackgroundColor} />
-                {/* <ProviderScreen onLayout={onLayoutRootView} /> */}
-                <SubSettingScreen />
+                {/*<StatusBar StatusBarStyle="dark-content" backgroundColor={Color.mainBackgroundColor} /> */}
+                <ProviderScreen onLayout={onLayoutRootView} /> 
+                {/* <SubSettingScreen /> */}
             </SafeAreaView>
         </Provider>
     );

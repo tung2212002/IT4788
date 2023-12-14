@@ -71,12 +71,14 @@ import SVGSad2 from './icons/sad2.svg';
 import SVGWave from './icons/wave.svg';
 import SVGProfile from './icons/profile.svg';
 import SVGPrivateAccount from './icons/private-account.svg';
-
 const images = {
     defaultBackground: require('./images/cloud.jpg'),
     logoRegister: require('./images/logo-register.jpg'),
     defaultAvatar: require('./images/default-avatar.png'),
     logoFacebook: require('./images/logo.png'),
+    errorNotification: require('./errorNotification.jpg'),
+    like: require('./like.png'),
+    dislike: require('./dislike.png'),
 };
 
 const icons = {

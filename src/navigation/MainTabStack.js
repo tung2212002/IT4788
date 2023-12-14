@@ -1,12 +1,11 @@
 /* eslint-disable react-native/no-inline-styles */
 /* eslint-disable react/no-unstable-nested-components */
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 // import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
-import { NavigationContainer } from '@react-navigation/native';
 import styled from 'styled-components/native';
 import { useSelector } from 'react-redux';
-
+import { View } from 'react-native';
 import Color from '../utils/Color';
 import VectorIcon from '../utils/VectorIcon';
 import SettingStack from './SettingStack';
@@ -16,6 +15,8 @@ import PersionalStack from './PersionalStack';
 import { selectUser } from '../redux/features/auth/authSlice';
 import routes from '../constants/route';
 import FriendStack from './FriendStack';
+import HeaderApp from '../components/HeaderApp';
+import { navigate } from './RootNavigator';
 
 const VectorIconStyled = styled(VectorIcon)``;
 
@@ -85,13 +86,13 @@ const MainTabStack = ({ user }) => {
     ];
 
     useEffect(() => {}, [userNew]);
-
     return (
+        <>
         <TabStack.Navigator
             // 1 ==> -1 to check dont have avatar
             // initialRouteName={user.avatar === '-1' || user.avatar === '' ? 'SettingStack' : 'HomeStack'}
             initialRouteName={routes.HOME_STACK}
-            tabBarPosition="bottom"
+            tabBarPosition= {'bottom'}
             screenOptions={{
                 // swipeEnabled: false,
                 tabBarShowLabel: false,
@@ -104,9 +105,12 @@ const MainTabStack = ({ user }) => {
                 },
                 tabBarPressColor: Color.lightGray,
                 lazy: true,
+                header: () => <HeaderApp></HeaderApp>
             }}
+
         >
-            {screenItemsLogin.map((item, index) => (
+            {screenItemsLogin.map((item, index) => 
+             (
                 <TabStack.Screen
                     key={index}
                     name={item.name}
@@ -125,9 +129,11 @@ const MainTabStack = ({ user }) => {
                         tabBarShowLabel: false,
                     }}
                 />
-            ))}
+            ))
+            }
 
         </TabStack.Navigator>
+        </>
     );
 };
 

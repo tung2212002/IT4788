@@ -90,6 +90,7 @@ function PasswordRegisterScreen({ route, navigation }) {
                 .then((res) => {
                     if (res.data.code === '1000') {
                         const verify_code = res.data.data.verify_code;
+                        console.log(verify_code);
                         setLoading(false);
                         navigate(routes.ACCOUNT_AUTHEN_SCREEN, { ...route.params, password, verify_code });
                     } else if (res.data.code === '9996') {
@@ -109,6 +110,7 @@ function PasswordRegisterScreen({ route, navigation }) {
                     setLoading(false);
                     console.log('err', err);
                 });
+                setError(1);
         }
     };
 

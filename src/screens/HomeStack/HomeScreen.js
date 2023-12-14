@@ -47,7 +47,6 @@ const CONTAINER_HEIGHT = 60;
 
 function HomeScreen({ route, navigation }) {
     const count = 10;
-
     const user = useSelector(selectUser);
     const [location, setLocation] = useState(null);
     const [post, setPost] = useState(null);
@@ -241,7 +240,7 @@ function HomeScreen({ route, navigation }) {
     return (
         <Container>
             <AnimatedHeader style={[{ transform: [{ translateY: headerTranslate }] }]}>
-                <HeaderApp style={{ opacity }} />
+                <HeaderApp style={ {opacity}} />
             </AnimatedHeader>
 
             <Animated.FlatList

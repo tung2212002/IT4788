@@ -82,7 +82,7 @@ function ProviderScreen() {
                     <LoadingScreen alpha={1} backgroundColor={'rgba(255, 255, 255, 1)'} />
                 </Modal>
             )}
-            {/* <NavigationContainer ref={navigationRef}>{isAuth ? <MainTabStack user /> : <LoginStack />}</NavigationContainer> */}
+            {/*<NavigationContainer ref={navigationRef}>{isAuth ? <MainTabStack user /> : <LoginStack />}</NavigationContainer>*/}
 
             {showPopup ? (
                 isConnected ? (
@@ -108,6 +108,7 @@ function ProviderScreen() {
                 )
             ) : null}
         </Container>
+        
     );
 }
 

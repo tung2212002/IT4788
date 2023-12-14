@@ -322,7 +322,7 @@ const PostComponent = ({ item, user, navigation, post, setPost }) => {
                     </ThreeDotsContainer>
                 </PostHeader>
                 <PostContent>
-                    <PostContentText>{item?.described}</PostContentText>
+                    <PostContentText>{item?.described}</PostContentText> 
                     <GridImageView renderModalFooter={true} data={gridImageViewData} />
 
                     <FeelView>

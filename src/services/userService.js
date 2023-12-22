@@ -47,7 +47,12 @@ export const testPostService = async (params) => {
 };
 
 export const get_notification = async(params) =>{
-    console.log(params);
     const response = await request.apiAuth.post('/get_notification', params);
+    return response;
+}
+
+export const get_recentSearch = async(params) =>{
+    console.log(params);
+    const response = await request.apiAuth.post('/get_saved_search', params);
     return response;
 }

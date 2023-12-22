@@ -5,6 +5,7 @@ import styled from 'styled-components/native';
 import GridImageView from '../../components/GridImageView ';
 import { Button } from 'react-native-paper';
 import { useEffect } from 'react';
+import SearchScreen from '../SearchStack/SearchScreen';
 
 const Container = styled.View`
     flex: 1;
@@ -15,9 +16,7 @@ const Container = styled.View`
 
 function GroupScreen() {
     return (
-        <Container>
-            <Text>GroupScreen</Text>
-        </Container>
+        <SearchScreen></SearchScreen>
     );
 }
 

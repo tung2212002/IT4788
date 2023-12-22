@@ -105,7 +105,6 @@ const MainTabStack = ({ user }) => {
                 },
                 tabBarPressColor: Color.lightGray,
                 lazy: true,
-                header: () => <HeaderApp></HeaderApp>
             }}
 
         >
@@ -118,6 +117,7 @@ const MainTabStack = ({ user }) => {
                     initialParams={{ user }}
                     options={{
                         tabBarIcon: ({ focused }) => (
+                            <>
                             <VectorIconStyled
                                 nameIcon={focused ? item.iconFocused : item.icon}
                                 typeIcon={focused ? item.typeIconFocused : item.typeIcon}
@@ -125,6 +125,8 @@ const MainTabStack = ({ user }) => {
                                 color={focused ? Color.blueButtonColor : Color.gray}
                                 style={{ width: 30, height: 30, justifyContent: 'center', alignItems: 'center' }}
                             />
+                            
+                            </>
                         ),
                         tabBarShowLabel: false,
                     }}

@@ -1,12 +1,15 @@
 import axios from 'axios';
 
 import { getTokenStorage } from './userStorage';
-import { BASE_URL } from '@env';
+//import { BASE_URL } from '@env';
 import { navigate } from '../navigation/RootNavigator';
 import routes from '../constants/route';
 import { Alert } from 'react-native';
 
+const BASE_URL = 'https://it4788.catan.io.vn';
+
 const instance = (config = {}, auth = false) => {
+    console.log(BASE_URL);
     const request = axios.create(config);
     request.interceptors.request.use(
         async (requestConfig) => {

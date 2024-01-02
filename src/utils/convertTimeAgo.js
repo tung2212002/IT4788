@@ -25,8 +25,62 @@ function convertTimeAgo(timestamp) {
     } else if (minutes > 0) {
         return `${minutes} phút trước`;
     } else {
-        return `vừa xong`;
+        return 'vừa xong';
     }
 }
 
 export default convertTimeAgo;
+
+function convertTimeMonthYear(timestamp) {
+    const targetDate = new Date(timestamp);
+    const month = targetDate.getMonth() + 1;
+    const year = targetDate.getFullYear();
+
+    return `Tháng ${month} ${year}`;
+}
+
+function convertTimeNoti(timestamp) {
+    const targetDate = new Date(timestamp);
+    const currentDate = new Date();
+    const month = targetDate.getMonth() + 1;
+    const year = targetDate.getFullYear();
+    const date = targetDate.getDate();
+    const hour = targetDate.getHours();
+    const minute = targetDate.getMinutes();
+
+    const diff = currentDate - targetDate;
+    const diffSeconds = Math.floor(diff / 1000);
+    const diffMinutes = Math.floor(diffSeconds / 60);
+    const diffHours = Math.floor(diffMinutes / 60);
+    const diffDays = Math.floor(diffHours / 24);
+    const diffMonths = Math.floor(diffDays / 30);
+    const diffYears = Math.floor(diffDays / 365);
+
+    if (diffYears > 0) {
+        return `Ngày ${date} tháng ${month} năm ${year}`;
+    } else {
+        if (year > currentDate.getFullYear()) {
+            return `Ngày ${date} tháng ${month} năm ${year}`;
+        } else {
+            if (diffMonths > 0) {
+                return `Th ${month} ${date} lúc ${hour}:${minute}`;
+            } else {
+                if (diffDays > 0) {
+                    return `Th ${month} ${date} lúc ${hour}:${minute}`;
+                } else {
+                    if (diffHours > 0) {
+                        return `${diffHours} giờ trước`;
+                    } else {
+                        if (diffMinutes > 0) {
+                            return `${diffMinutes} phút trước`;
+                        } else {
+                            return `${diffSeconds} giây trước`;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+export { convertTimeMonthYear };

@@ -41,7 +41,7 @@ const ViewTitle = styled.View`
 const TitleHeader = styled.Text`
     margin-left: 50px;
     font-size: 16px;
-    font-weight: bold;
+    font-family: Roboto-Bold;
     color: ${Color.black};
 `;
 

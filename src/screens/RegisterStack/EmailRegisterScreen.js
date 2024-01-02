@@ -4,6 +4,8 @@ import styled from 'styled-components/native';
 import TextInputComponent from '../../components/TextInputComponent';
 import ButtonComponent from '../../components/ButtonComponent';
 import Color from '../../utils/Color';
+import { navigate } from '../../navigation/RootNavigator';
+import routes from '../../constants/route';
 
 const Container = styled.View`
     flex: 1;
@@ -22,7 +24,7 @@ const Body = styled.View`
 
 const Title = styled.Text`
     font-size: 24px;
-    font-weight: bold;
+    font-family: Roboto-Bold;
     margin-top: 50px;
 `;
 
@@ -71,7 +73,7 @@ function EmailRegisterScreen({ route, navigation }) {
         } else if (!regex.test(email)) {
             setError('Email không hợp lệ');
         } else {
-            navigation.navigate('PasswordRegisterScreen', { ...route.params, email });
+            navigate(routes.PASSWORD_REGISTER_SCREEN, { ...route.params, email });
         }
     };
 
@@ -97,7 +99,7 @@ function EmailRegisterScreen({ route, navigation }) {
             <ButtonPhone
                 onPress={() => {
                     setError('');
-                    navigation.navigate('PhoneRegisterScreen', route.params);
+                    navigate(routes.PHONE_REGISTER_SCREEN, route.params);
                 }}
                 title={'Sử dụng số điện thoại'}
                 style={{ backgroundColor: Color.mainBackgroundColor }}

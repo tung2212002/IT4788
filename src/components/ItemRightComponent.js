@@ -17,6 +17,7 @@ const ItemButton = styled(VectorIcon)`
 `;
 
 const ItemRightComponent = ({ items }) => {
+    console.log('items', items);
     return (
         <Container>
             {items.map((item, index) => (

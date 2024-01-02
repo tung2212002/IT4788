@@ -2,7 +2,6 @@ import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 
 import JoinScreen from '../screens/RegisterStack/JoinScreen';
-import { NavigationContainer } from '@react-navigation/native';
 import Color from '../utils/Color';
 import {
     NameRegisterScreen,
@@ -19,13 +18,14 @@ import {
     LoginScreen,
     LoginNotSaveScreen,
 } from '../screens';
+import routes from '../constants/route';
 
 const StackAuth = createStackNavigator();
 
 const LoginStack = ({ navigation }) => {
     const screenItemsLogin = [
         {
-            name: 'AuthenticationScreen',
+            name: routes.AUTHENTICATION_SCREEN,
             component: AuthenticationScreen,
             options: {
                 title: 'AuthenticationScreen',
@@ -33,7 +33,7 @@ const LoginStack = ({ navigation }) => {
             },
         },
         {
-            name: 'JoinScreen',
+            name: routes.JOIN_SCREEN,
             component: JoinScreen,
             options: {
                 title: 'Tạo tài khoản',
@@ -41,7 +41,7 @@ const LoginStack = ({ navigation }) => {
             },
         },
         {
-            name: 'NameRegisterScreen',
+            name: routes.NAME_REGISTER_SCREEN,
             component: NameRegisterScreen,
             options: {
                 title: 'Tên',
@@ -49,7 +49,7 @@ const LoginStack = ({ navigation }) => {
             },
         },
         {
-            name: 'BirthDateScreen',
+            name: routes.BIRTH_DATE_SCREEN,
             component: BirthDateScreen,
             options: {
                 title: 'Ngày sinh',
@@ -57,7 +57,7 @@ const LoginStack = ({ navigation }) => {
             },
         },
         {
-            name: 'PolicyScreen',
+            name: routes.POLICY_SCREEN,
             component: PolicyScreen,
             options: {
                 title: 'Điều khoản và quyền riêng tư',
@@ -65,7 +65,7 @@ const LoginStack = ({ navigation }) => {
             },
         },
         {
-            name: 'WebViewScreen',
+            name: routes.WEB_VIEW_SCREEN,
             component: WebViewScreen,
             options: {
                 title: '',
@@ -73,7 +73,7 @@ const LoginStack = ({ navigation }) => {
             },
         },
         {
-            name: 'EmailRegisterScreen',
+            name: routes.EMAIL_REGISTER_SCREEN,
             component: EmailRegisterScreen,
             options: {
                 title: 'Địa chỉ Email',
@@ -81,7 +81,7 @@ const LoginStack = ({ navigation }) => {
             },
         },
         {
-            name: 'PhoneRegisterScreen',
+            name: routes.PHONE_REGISTER_SCREEN,
             component: PhoneRegisterScreen,
             options: {
                 title: 'Số điện thoại',
@@ -89,7 +89,7 @@ const LoginStack = ({ navigation }) => {
             },
         },
         {
-            name: 'PasswordRegisterScreen',
+            name: routes.PASSWORD_REGISTER_SCREEN,
             component: PasswordRegisterScreen,
             options: {
                 title: 'Mật khẩu',
@@ -97,7 +97,7 @@ const LoginStack = ({ navigation }) => {
             },
         },
         {
-            name: 'AccountAuthenScreen',
+            name: routes.ACCOUNT_AUTHEN_SCREEN,
             component: AccountAuthenScreen,
             options: {
                 title: 'Xác nhận tài khoản',
@@ -105,7 +105,7 @@ const LoginStack = ({ navigation }) => {
             },
         },
         {
-            name: 'CompleteRegister',
+            name: routes.COMPLETE_REGISTER,
             component: CompleteRegister,
             options: {
                 title: '',
@@ -113,7 +113,7 @@ const LoginStack = ({ navigation }) => {
             },
         },
         {
-            name: 'SaveAccountScreen',
+            name: routes.SAVE_ACCOUNT_SCREEN,
             component: SaveAccountScreen,
             options: {
                 title: '',
@@ -121,7 +121,7 @@ const LoginStack = ({ navigation }) => {
             },
         },
         {
-            name: 'LoginScreen',
+            name: routes.LOGIN_SCREEN,
             component: LoginScreen,
             options: {
                 title: 'Đăng nhập',
@@ -129,7 +129,7 @@ const LoginStack = ({ navigation }) => {
             },
         },
         {
-            name: 'LoginNotSaveScreen',
+            name: routes.LOGIN_NOT_SAVE_SCREEN,
             component: LoginNotSaveScreen,
             options: {
                 title: 'Đăng nhập',
@@ -139,25 +139,23 @@ const LoginStack = ({ navigation }) => {
     ];
 
     return (
-        <NavigationContainer>
-            <StackAuth.Navigator
-                initialRouteName="AuthenticationScreen"
-                screenOptions={{
-                    headerStyle: {
-                        backgroundColor: Color.mainBackgroundColor,
-                        borderBottomWidth: 1,
-                    },
-                    headerTintColor: Color.black,
-                    headerTitleStyle: {
-                        fontWeight: 'bold',
-                    },
-                }}
-            >
-                {screenItemsLogin.map((item, index) => (
-                    <StackAuth.Screen key={index} name={item.name} component={item.component} options={item.options} />
-                ))}
-            </StackAuth.Navigator>
-        </NavigationContainer>
+        <StackAuth.Navigator
+            initialRouteName={routes.AUTHENTICATION_SCREEN}
+            screenOptions={{
+                headerStyle: {
+                    backgroundColor: Color.mainBackgroundColor,
+                    borderBottomWidth: 1,
+                },
+                headerTintColor: Color.black,
+                headerTitleStyle: {
+                    fontWeight: 'bold',
+                },
+            }}
+        >
+            {screenItemsLogin.map((item, index) => (
+                <StackAuth.Screen key={index} name={item.name} component={item.component} options={item.options} />
+            ))}
+        </StackAuth.Navigator>
     );
 };
 

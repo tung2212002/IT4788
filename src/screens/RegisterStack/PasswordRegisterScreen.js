@@ -6,6 +6,8 @@ import ButtonComponent from '../../components/ButtonComponent';
 import Color from '../../utils/Color';
 import { registerService } from '../../services/userService';
 import getUUID from '../../utils/getUUID';
+import { navigate } from '../../navigation/RootNavigator';
+import routes from '../../constants/route';
 
 const Container = styled.View`
     flex: 1;
@@ -24,7 +26,7 @@ const Body = styled.View`
 
 const Title = styled.Text`
     font-size: 24px;
-    font-weight: bold;
+    font-family: Roboto-Bold;
     margin-top: 30px;
     margin-bottom: 20px;
 `;
@@ -87,7 +89,7 @@ function PasswordRegisterScreen({ route, navigation }) {
                     if (res.data.code === '1000') {
                         const verify_code = res.data.data.verify_code;
                         setLoading(false);
-                        navigation.navigate('AccountAuthenScreen', { ...route.params, password, verify_code });
+                        navigate(routes.ACCOUNT_AUTHEN_SCREEN, { ...route.params, password, verify_code });
                     } else if (res.data.code === '9996') {
                         setLoading(false);
                         setError('Tài khoản đã tồn tại');

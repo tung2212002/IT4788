@@ -4,6 +4,8 @@ import styled from 'styled-components/native';
 import { images } from '../../../assets';
 import ButtonComponent from '../../components/ButtonComponent';
 import Color from '../../utils/Color';
+import { navigate } from '../../navigation/RootNavigator';
+import routes from '../../constants/route';
 
 const Container = styled.View`
     flex: 1;
@@ -28,7 +30,7 @@ const Logo = styled.Image`
 
 const Title = styled.Text`
     font-size: 24px;
-    font-weight: bold;
+    font-family: Roboto-Bold;
     margin-top: 50px;
 `;
 
@@ -47,7 +49,7 @@ function JoinScreen({ navigation }) {
                 <Title>Tham gia Facebook</Title>
                 <SubTitle>Chúng tôi sẽ giúp bạn tạo tài khoản mới sau vài bước dễ dàng</SubTitle>
             </Body>
-            <ButtonComponent onPress={() => navigation.navigate('NameRegisterScreen')} title={'Tiếp'} />
+            <ButtonComponent onPress={() => navigate(routes.NAME_REGISTER_SCREEN)} title={'Tiếp'} />
         </Container>
     );
 }

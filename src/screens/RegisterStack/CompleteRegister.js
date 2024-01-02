@@ -6,6 +6,8 @@ import styled from 'styled-components/native';
 import { SVGIconfb } from '../../../assets';
 import ButtonComponent from '../../components/ButtonComponent';
 import Color from '../../utils/Color';
+import routes from '../../constants/route';
+import { navigate } from '../../navigation/RootNavigator';
 
 const Container = styled.View`
     flex: 1;
@@ -70,7 +72,7 @@ function CompleteRegister({ route, navigation }) {
                 />
                 <ButtonComponent
                     title="Đăng xuất"
-                    onPress={() => navigation.navigate('AuthenticationScreen')}
+                    onPress={() => navigation.reset({ index: 0, routes: [{ name: routes.AUTHENTICATION_SCREEN }] })}
                     color={Color.gray}
                     style={{ backgroundColor: Color.mainBackgroundColor }}
                 />

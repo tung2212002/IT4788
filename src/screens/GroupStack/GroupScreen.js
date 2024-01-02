@@ -1,12 +1,23 @@
 import React from 'react';
-import { Text, View } from 'react-native';
+import { Text, TouchableOpacity, View } from 'react-native';
 import styled from 'styled-components/native';
 
-function GroupScreen({ navigation }) {
+import GridImageView from '../../components/GridImageView ';
+import { Button } from 'react-native-paper';
+import { useEffect } from 'react';
+
+const Container = styled.View`
+    flex: 1;
+    background-color: #fff;
+    padding-horizontal: 20px;
+    padding-vertical: 50px;
+`;
+
+function GroupScreen() {
     return (
-        <View>
+        <Container>
             <Text>GroupScreen</Text>
-        </View>
+        </Container>
     );
 }
 

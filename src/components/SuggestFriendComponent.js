@@ -10,6 +10,8 @@ import { Alert } from 'react-native';
 import ButtonIconComponent from './ButtonIconComponent';
 import { navigate } from '../navigation/RootNavigator';
 import routes from '../constants/route';
+import { useDispatch } from 'react-redux';
+import { deleteRequestFriendMain, deleteSuggestFriendMain, deleteSuggestFriendSub } from '../redux/features/friend/friendSlice';
 
 const Container = styled.View`
     flex-direction: row;
@@ -70,7 +72,9 @@ const ContainerNext = styled.View`
     width: 100%;
 `;
 
-function SuggestFriendComponent({ data, listSuggestFriend, setListSuggestFriend }) {
+function SuggestFriendComponent({ data, listSuggestFriend }) {
+    const dispatch = useDispatch();
+
     const [isRequest, setIsRequest] = useState(-1);
 
     const handleRequestFriend = () => {
@@ -101,6 +105,8 @@ function SuggestFriendComponent({ data, listSuggestFriend, setListSuggestFriend 
             .then((res) => {
                 if (res.data.code === '1000') {
                     setIsRequest(2);
+                    dispatch(deleteSuggestFriendMain(data.id));
+                    // dispatch(deleteSuggestFriendSub(data.id));
                 } else {
                     return;
                 }
@@ -112,13 +118,14 @@ function SuggestFriendComponent({ data, listSuggestFriend, setListSuggestFriend 
     };
 
     const handleDeleteRequestFriend = () => {
-        setListSuggestFriend(listSuggestFriend.filter((item) => item.id !== data.id));
+        // setListSuggestFriend(listSuggestFriend.filter((item) => item.id !== data.id));
+        dispatch(deleteSuggestFriendSub(data.id));
     };
 
     return (
         <Container>
             <ContainerAvatar onPress={() => navigate(routes.PROFILE_SCREEN, { user_id: data.id })}>
-                <Avatar source={data.avatar === '' || data.avatar === '-1' ? images.defaultAvatar : { uri: data.avatar }} />
+                <Avatar source={data.avatar === '' ? images.defaultAvatar : { uri: data.avatar }} />
             </ContainerAvatar>
             <Info>
                 <ContainerText>

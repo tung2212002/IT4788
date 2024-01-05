@@ -7,6 +7,8 @@ import ButtonComponent from '../../components/ButtonComponent';
 import Color from '../../utils/Color';
 import { removeUserStorage, setUserStorage } from '../../utils/userStorage';
 import { images } from '../../../assets';
+import { removeAccountStorage, setAccountsStorage } from '../../utils/accountStorage';
+import routes from '../../constants/route';
 
 const Container = styled.View`
     flex: 1;
@@ -14,7 +16,7 @@ const Container = styled.View`
     align-items: center;
     padding-horizontal: 20px;
     padding-vertical: 50px;
-    background-color: ${Color.mainBackgroundColor};
+    background-color: ${Color.grey6};
 `;
 
 const Box = styled.View`
@@ -26,15 +28,17 @@ const Box = styled.View`
 
 const Title = styled.Text`
     font-size: 24px;
-    font-family: Roboto-Bold;
+    font-family: OpenSans-Bold;
 `;
 
 const Description = styled.Text`
-    font-size: 16px;
+    font-size: 15px;
     line-height: 24px;
     margin-top: 20px;
     text-align: center;
     color: ${Color.gray};
+    opacity: 0.6;
+    font-family: OpenSans-SemiBold;
 `;
 
 const Icon = styled(FontAwesome5)`
@@ -58,6 +62,7 @@ const TextInfo = styled.Text`
     font-size: 20px;
     line-height: 24px;
     margin-left: 10px;
+    font-family: OpenSans-SemiBold;
 `;
 
 const ViewButton = styled.View`
@@ -72,7 +77,7 @@ const ViewButton = styled.View`
 
 const ButtonChoose = styled(ButtonComponent)`
     width: 45%;
-    border: 1px solid ${Color.black};
+    border: 1px solid ${Color.grey3};
 `;
 
 const AnimatedView = styled(Animated.View)`
@@ -94,9 +99,9 @@ function SaveAccountScreen({ route, navigation }) {
 
     const handleSaveAccount = async () => {
         const user = params.user;
-        setUserStorage(user)
+        setAccountsStorage(user)
             .then((res) => {
-                navigation.reset({ index: 0, routes: [{ name: 'AuthenticationScreen' }] });
+                navigation.reset({ index: 0, routes: [{ name: routes.AUTHENTICATION_SCREEN }] });
             })
             .catch((err) => {
                 console.log(err);
@@ -104,9 +109,9 @@ function SaveAccountScreen({ route, navigation }) {
     };
 
     const handleLogout = () => {
-        removeUserStorage()
+        removeAccountStorage(username)
             .then((res) => {
-                navigation.reset({ index: 0, routes: [{ name: 'AuthenticationScreen' }] });
+                navigation.reset({ index: 0, routes: [{ name: routes.AUTHENTICATION_SCREEN }] });
             })
             .catch((err) => {
                 console.log(err);
@@ -118,7 +123,7 @@ function SaveAccountScreen({ route, navigation }) {
             <Container>
                 <Icon name="facebook" size={80} color={Color.blueButtonColor} />
                 <Box>
-                    <Title>Lưu thông tin đăng nhập của bạn</Title>
+                    <Title>Lưu thông tin đăng nhập?</Title>
                     <Description>Lần tới khi đăng nhập vào điện thoại này, bạn chỉ cần nhấn vào ảnh đại diện thay vì nhập mật khẩu.</Description>
                 </Box>
                 <Info>
@@ -126,13 +131,8 @@ function SaveAccountScreen({ route, navigation }) {
                     <TextInfo>{username}</TextInfo>
                 </Info>
                 <ViewButton>
-                    <ButtonChoose title="Đăng xuất" onPress={handleLogout} color={Color.black} style={{ backgroundColor: Color.mainBackgroundColor }} />
-                    <ButtonChoose
-                        title="Tiếp tục"
-                        onPress={handleSaveAccount}
-                        color={Color.mainBackgroundColor}
-                        style={{ backgroundColor: Color.blueButtonColor }}
-                    />
+                    <ButtonChoose title="Đăng xuất" onPress={handleLogout} color={Color.black} style={{ backgroundColor: Color.grey6 }} />
+                    <ButtonChoose title="Lưu" onPress={handleSaveAccount} color={Color.grey6} style={{ backgroundColor: Color.blueButtonColor }} />
                 </ViewButton>
             </Container>
         </AnimatedView>

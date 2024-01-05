@@ -218,7 +218,7 @@ function ChoiceFeelingComponent({ navigation, setFeelings, feelings, activities,
                                             borderLeftWidth: 1,
                                             borderRightWidth: 1,
                                             borderBottomWidth: 1,
-                                            border: `1px solid ${Color.lightGray}`,
+                                            borderColor: Color.lightGray,
                                         }}
                                         propsTitle={{
                                             style: {

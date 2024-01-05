@@ -10,6 +10,7 @@ import { useImagePicker } from '../../hooks/useImagePicker';
 import { changeProfileAfterSignupService } from '../../services/profileService';
 import { mergeUser, selectAuth, setLoading } from '../../redux/features/auth/authSlice';
 import { Alert } from 'react-native';
+import { images } from '../../../assets';
 
 const Container = styled.View`
     background-color: ${Color.white};
@@ -56,10 +57,11 @@ const Content = styled.View`
 `;
 
 const ButtonSaveAvatar = styled(ButtonComponent)`
-    width: 50px;
+    width: 60px;
     height: 40px;
     margin-top: 10px;
-    background-color: ${Color.white};
+    background-color: ${Color.blueButtonColor};
+    padding: 0px;
 `;
 
 const AvatarContainer = styled.View`
@@ -93,7 +95,7 @@ const AlertComponent = styled(Alert)`
 `;
 
 function ChangeAvatarScreen({ navigation, setRenderPopUpComponent, renderPopUpComponent, user, lastAvatar }) {
-    const [avatar, setAvatar] = useState(lastAvatar.uri);
+    const [avatar, setAvatar] = useState(lastAvatar?.uri);
     const { imageFiles, pickImage } = useImagePicker();
     const loadingState = useSelector(selectAuth);
     const dispatch = useDispatch();
@@ -138,11 +140,11 @@ function ChangeAvatarScreen({ navigation, setRenderPopUpComponent, renderPopUpCo
                 <ViewTitle>
                     <TitleHeader>Xem trước ảnh đại diện</TitleHeader>
                 </ViewTitle>
-                <ButtonSaveAvatar title={'Lưu'} onPress={handleSaveAvatar} color={Color.black} />
+                <ButtonSaveAvatar title={'Lưu'} onPress={handleSaveAvatar} color={Color.white} />
             </Header>
             <Content>
                 <AvatarContainer>
-                    <Avatar source={{ uri: avatar }} />
+                    <Avatar source={!avatar ? images.defaultAvatar : { uri: avatar }} />
                 </AvatarContainer>
                 <AvatarIcon onPress={() => pickImage()}>
                     <VectorIcon nameIcon="camera" typeIcon="FontAwesome5" size={35} color={Color.black} />

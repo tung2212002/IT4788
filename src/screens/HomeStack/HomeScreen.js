@@ -1,19 +1,22 @@
 /* eslint-disable react-native/no-inline-styles */
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useRef, useState } from 'react';
-import { RefreshControl, Animated } from 'react-native';
+import { RefreshControl, Animated, Text } from 'react-native';
 import styled from 'styled-components/native';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { Alert } from 'react-native';
 import { ActivityIndicator } from 'react-native-paper';
 
 import HeaderApp from '../../components/HeaderApp';
-import PostComponent from '../../components/PostComponent';
+import PostComponent from '../../components/PostComponent/PostComponent';
 import PostComposerComponent from '../../components/PostComposerComponent';
 import Color from '../../utils/Color';
 import { selectUser } from '../../redux/features/auth/authSlice';
-import { getListPostsService } from '../../services/postService';
+import { getListPostsService, getPostService } from '../../services/postService';
 import { getLocationStorage } from '../../utils/locationStorage';
+import { useNavigation, useScrollToTop } from '@react-navigation/native';
+import HeaderComponent from '../../components/HeaderComponent';
+import { addListPostHomeEnd, addPost, selectHomePost, setListHomePost } from '../../redux/features/post/postSlice';
 
 const Container = styled.View`
     flex: 1;
@@ -47,10 +50,13 @@ const CONTAINER_HEIGHT = 60;
 
 function HomeScreen({ route, navigation }) {
     const count = 10;
+    const dispatch = useDispatch();
 
+    // const [post, setPost] = useState(null);
+    const post = useSelector(selectHomePost);
     const user = useSelector(selectUser);
+
     const [location, setLocation] = useState(null);
-    const [post, setPost] = useState(null);
     const [pagination, setPagination] = useState({
         index: 0,
         lastId: 0,
@@ -58,14 +64,20 @@ function HomeScreen({ route, navigation }) {
         isLoadMore: false,
     });
 
+    const [isSearch, setIsSearch] = useState(false);
+
     const scrollY = useRef(new Animated.Value(0)).current;
     const offsetAnim = useRef(new Animated.Value(0)).current;
+    const ref = useRef(null);
 
     const onRefresh = () => {
         setPagination({ ...pagination, isRefreshing: true, index: 0 });
     };
 
     const onLoadMore = () => {
+        if (!pagination.lastId || pagination.isRefreshing) {
+            return;
+        }
         setPagination({ ...pagination, isLoadMore: true });
     };
 
@@ -82,14 +94,15 @@ function HomeScreen({ route, navigation }) {
         getListPostsService(data)
             .then((response) => {
                 if (response.data.code === '1000') {
-                    if (response.data.data.post.length !== 0 && response.data.data.last_id !== pagination.lastId) {
-                        setPost([...post, ...response.data.data.post]);
+                    if (response.data.data.post?.length !== 0 && response.data.data?.last_id !== pagination.lastId) {
                         setPagination({
                             ...pagination,
                             lastId: response.data.data.last_id,
                             index: response.data.data.post.length + pagination.index,
                             isLoadMore: false,
                         });
+                        // setPost((prev) => [...prev, ...response.data.data.post]);
+                        dispatch(addListPostHomeEnd(response.data.data.post));
                     } else {
                         setPagination({ ...pagination, isLoadMore: false });
                     }
@@ -116,7 +129,8 @@ function HomeScreen({ route, navigation }) {
             .then((response) => {
                 if (response.data.code === '1000') {
                     if (response.data.data.post.length !== 0 && response.data.data.last_id !== pagination.lastId) {
-                        setPost(response.data.data.post);
+                        // setPost(response.data.data.post);
+                        dispatch(setListHomePost(response.data.data.post));
                         setPagination({
                             ...pagination,
                             lastId: response.data.data.last_id,
@@ -131,6 +145,33 @@ function HomeScreen({ route, navigation }) {
             .catch((e) => {
                 setPagination({ ...pagination, isRefreshing: false });
                 console.log(e);
+            });
+    };
+
+    const handleRequestNewPost = (id) => {
+        console.log(id);
+        const data = {
+            id,
+        };
+
+        getPostService(data)
+            .then((res) => {
+                if (res.data.code === '1000') {
+                    // const updatePosts = post.map((item) => {
+                    //     if (item.id === id) {
+                    //         return res.data.data;
+                    //     }
+                    //     return item;
+                    // });
+                    // setPost(updatePosts);
+                    let isVideo = res.data.data.video ? true : false;
+                    dispatch(addPost({ post: res.data.data, isVideo }));
+                } else {
+                    console.log(res);
+                }
+            })
+            .catch((err) => {
+                console.log(err);
             });
     };
 
@@ -219,8 +260,9 @@ function HomeScreen({ route, navigation }) {
                         .then((response) => {
                             if (response.data.code === '1000') {
                                 if (response.data.data.post.length !== 0) {
-                                    setPost(response.data.data.post);
                                     setPagination({ ...pagination, lastId: response.data.data.last_id, index: response.data.data.post.length });
+                                    // setPost(response.data.data.post);
+                                    dispatch(setListHomePost(response.data.data.post));
                                 } else {
                                     setPagination({ ...pagination, isRefreshing: false });
                                 }
@@ -238,13 +280,16 @@ function HomeScreen({ route, navigation }) {
             });
     }, []);
 
+    useScrollToTop(ref);
+
     return (
         <Container>
-            <AnimatedHeader style={[{ transform: [{ translateY: headerTranslate }] }]}>
-                <HeaderApp style={{ opacity }} />
+            <AnimatedHeader style={isSearch ? null : [{ transform: [{ translateY: headerTranslate }] }]}>
+                <HeaderComponent style={{ opacity }} navigation={navigation} />
             </AnimatedHeader>
 
             <Animated.FlatList
+                ref={ref}
                 onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: scrollY } } }], { useNativeDriver: true })}
                 data={post}
                 refreshing={pagination.isRefreshing}
@@ -253,23 +298,35 @@ function HomeScreen({ route, navigation }) {
                     <>
                         <PostComposerComponent
                             navigation={navigation}
-                            stylesInput={{ placeholderTextColor: Color.black, borderWidth: 1, borderColor: Color.black }}
+                            stylesInput={{ placeholderTextColor: Color.grey3, borderWidth: 1, borderColor: Color.grey3 }}
                             isHeader={false}
                             post={post}
-                            setPost={setPost}
+                            // setPost={setPost}
                             pagination={pagination}
                             setPagination={setPagination}
                         />
+                        {/* <ItemSeparatorView />
+                        <StoryComponent /> */}
                         <ItemSeparatorView />
                     </>
                 }
+                showsVerticalScrollIndicator={false}
                 refreshControl={refreshControl}
-                keyExtractor={(item, index) => item.title + index.toString()}
-                renderItem={({ item }) => <PostComponent item={item} user={user} navigation={navigation} post={post} setPost={setPost} />}
+                keyExtractor={(item, index) => item.id.toString()}
+                renderItem={({ item }) => (
+                    <PostComponent
+                        item={item}
+                        user={user}
+                        navigation={navigation}
+                        post={post}
+                        // setPost={setPost}
+                        handleRequestNewPost={handleRequestNewPost}
+                    />
+                )}
                 onEndReached={onLoadMore}
                 ItemSeparatorComponent={ItemSeparatorView}
                 onEndReachedThreshold={0}
-                // initialNumToRender={4}
+                initialNumToRender={10}
                 contentContainerStyle={{ marginTop: CONTAINER_HEIGHT, paddingBottom: CONTAINER_HEIGHT }}
                 onMomentumScrollBegin={onMomentumScrollBegin}
                 onMomentumScrollEnd={onMomentumScrollEnd}

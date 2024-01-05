@@ -66,7 +66,7 @@ function ProgressBarCreatePost({ perc, user }) {
             <Container>
                 <InfoView>
                     <AvatarView>
-                        <Avatar source={user?.avatar === '' || user?.avatar === '-1' ? images.defaultAvatar : { uri: user?.avatar }} />
+                        <Avatar source={user?.avatar === '' ? images.defaultAvatar : { uri: user?.avatar }} />
                     </AvatarView>
                     <Info>
                         <FullName>{user?.username ? user.username : 'Người dùng'}</FullName>

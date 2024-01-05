@@ -20,7 +20,6 @@ export const useImagePicker = () => {
                 aspect: [4, 4],
                 quality: 1,
                 multiple: true,
-                selectionLimit: 4,
                 base64: true,
             });
 

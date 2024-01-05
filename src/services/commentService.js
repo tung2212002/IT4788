@@ -1,12 +1,12 @@
 import * as request from '../utils/requestAxios';
 
 export const getMarkCommentService = async (body) => {
-    const response = await request.apiAuthAttach.post('/get_mark_comment', body);
+    const response = await request.apiAuth.post('/get_mark_comment', body);
     return response;
 };
 
 export const setMarkCommentService = async (body) => {
-    const response = await request.apiAuthAttach.post('/set_mark_comment', body);
+    const response = await request.apiAuth.post('/set_mark_comment', body);
     return response;
 };
 

@@ -4,8 +4,6 @@ import { createStackNavigator } from '@react-navigation/stack';
 import Color from '../utils/Color';
 import { FriendsScreen, ProfileScreen, SuggestFriendsScreen, UserFriendsScreen } from '../screens';
 import routes from '../constants/route';
-import { selectUser } from '../redux/features/auth/authSlice';
-import { useSelector } from 'react-redux';
 
 const StackSetting = createStackNavigator();
 
@@ -53,6 +51,7 @@ const FriendStack = () => {
                 headerTitleStyle: {
                     fontSize: 18,
                 },
+                // lazy: true,
             }}
         >
             {screenItemsSetting.map((item, index) => (

@@ -132,8 +132,7 @@ const LoginStack = ({ navigation }) => {
             name: routes.LOGIN_NOT_SAVE_SCREEN,
             component: LoginNotSaveScreen,
             options: {
-                title: 'Đăng nhập',
-                headerBackTitle: '',
+                headerShown: false,
             },
         },
     ];

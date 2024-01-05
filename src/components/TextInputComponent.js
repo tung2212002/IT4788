@@ -30,6 +30,7 @@ function TextInputComponent(props) {
                             props.onChangeText('');
                             setShowClear(false);
                         }}
+                        style={{ marginTop: props.topClose ? props.topClose : 0 }}
                     />
                 )
             }

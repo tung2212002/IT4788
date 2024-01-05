@@ -71,12 +71,24 @@ import SVGSad2 from './icons/sad2.svg';
 import SVGWave from './icons/wave.svg';
 import SVGProfile from './icons/profile.svg';
 import SVGPrivateAccount from './icons/private-account.svg';
+import SVGMeta from './icons/meta.svg';
+import SVGMonitor from './icons/monitor.svg';
+import SVGUser from './icons/user.svg';
+import SVGChat from './icons/chat.svg';
+import SVGExclamationMark from './icons/exclamation-mark.svg';
+import SVGCheck from './icons/check.svg';
+import SVGEditPost from './icons/edit-post.svg';
+import SVGCommentMark from './icons/comment-mark.svg';
+import SVGYes from './icons/yes.svg';
+import SVGMultiply from './icons/multiply.svg';
 
 const images = {
     defaultBackground: require('./images/cloud.jpg'),
     logoRegister: require('./images/logo-register.jpg'),
     defaultAvatar: require('./images/default-avatar.png'),
     logoFacebook: require('./images/logo.png'),
+    hahaGif: require('./gif/haha.gif'),
+    sadGif: require('./gif/sad.gif'),
 };
 
 const icons = {
@@ -157,5 +169,15 @@ export {
     SVGWave,
     SVGProfile,
     SVGPrivateAccount,
+    SVGMeta,
+    SVGMonitor,
+    SVGUser,
+    SVGChat,
+    SVGExclamationMark,
+    SVGCheck,
+    SVGEditPost,
+    SVGCommentMark,
+    SVGYes,
+    SVGMultiply,
 };
 export { icons, images };

@@ -13,6 +13,8 @@ import PopupComponent from './PopupComponent';
 import { Alert } from 'react-native';
 import { unfriendService } from '../services/friendService';
 import { setBlockService } from '../services/blockService';
+import { useDispatch } from 'react-redux';
+import { deleteFriendSub } from '../redux/features/friend/friendSlice';
 
 const Container = styled.View`
     flex-direction: row;
@@ -107,7 +109,9 @@ const TimeModal = styled.Text`
     font-family: 'Roboto-Regular';
 `;
 
-function FriendComponent({ data, listFriend, setListFriend }) {
+function FriendComponent({ data, listFriend }) {
+    const dispatch = useDispatch();
+
     const [renderPopUpComponent, setRenderPopUpComponent] = useState(false);
 
     const handleDeleteFriend = () => {
@@ -182,8 +186,10 @@ function FriendComponent({ data, listFriend, setListFriend }) {
         unfriendService(body)
             .then((res) => {
                 if (res.data.code === '1000') {
-                    const newListFriend = listFriend.filter((item) => item.id !== data.id);
-                    setListFriend(newListFriend);
+                    // const newListFriend = listFriend.filter((item) => item.id !== data.id);
+                    // setListFriend(newListFriend);
+
+                    dispatch(deleteFriendSub(data.id));
                 } else {
                     Alert.alert('Thông báo', res.data.message);
                 }
@@ -199,8 +205,9 @@ function FriendComponent({ data, listFriend, setListFriend }) {
         setBlockService(body)
             .then((res) => {
                 if (res.data.code === '1000') {
-                    const newListFriend = listFriend.filter((item) => item.id !== data.id);
-                    setListFriend(newListFriend);
+                    // const newListFriend = listFriend.filter((item) => item.id !== data.id);
+                    // setListFriend(newListFriend);
+                    dispatch(deleteFriendSub(data.id));
                 } else {
                     Alert.alert('Thông báo', res.data.message);
                 }
@@ -235,7 +242,7 @@ function FriendComponent({ data, listFriend, setListFriend }) {
     return (
         <Container>
             <ContainerAvatar onPress={() => navigate(routes.PROFILE_SCREEN, { user_id: data.id })}>
-                <Avatar source={data.avatar === '' || data.avatar === '-1' ? images.defaultAvatar : { uri: data.avatar }} />
+                <Avatar source={data.avatar === '' ? images.defaultAvatar : { uri: data.avatar }} />
             </ContainerAvatar>
             <Info>
                 <ContainerText>
@@ -253,7 +260,7 @@ function FriendComponent({ data, listFriend, setListFriend }) {
                     headerItem={
                         <ContainerModalHeader>
                             <ContainerAvatarModal onPress={() => navigate(routes.PROFILE_SCREEN, { user_id: data.id })}>
-                                <AvatarModal source={data.avatar === '' || data.avatar === '-1' ? images.defaultAvatar : { uri: data.avatar }} />
+                                <AvatarModal source={data.avatar === '' ? images.defaultAvatar : { uri: data.avatar }} />
                             </ContainerAvatarModal>
                             <Info>
                                 <ContainerText>

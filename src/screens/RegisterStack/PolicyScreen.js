@@ -9,19 +9,18 @@ import routes from '../../constants/route';
 
 const Container = styled.View`
     flex: 1;
-    background-color: ${Color.mainBackgroundColor};
+    background-color: ${Color.grey6};
     align-items: center;
     padding-horizontal: 20px;
     padding-vertical: 20px;
 `;
 
 const Body = styled.Text`
-    text-align: center;
-    margin-bottom: 30px;
+    margin-bottom: 10px;
+    font-family: OpenSans-Medium;
 `;
 
 const Bottom = styled.Text`
-    text-align: center;
     margin-bottom: 30px;
     position: absolute;
     bottom: 0;
@@ -29,38 +28,48 @@ const Bottom = styled.Text`
 
 const Title = styled.Text`
     font-size: 24px;
-    font-family: Roboto-Bold;
-    margin-bottom: 30px;
+    font-family: OpenSans-Bold;
+    margin-bottom: 10px;
 `;
 
 const Content = styled.Text`
-    font-size: 16px;
-    line-height: 24px;
-    color: ${Color.gray};
+    font-size: 14px;
+    line-height: 22px;
+    color: ${Color.black};
+    opacity: 0.8;
+    font-family: OpenSans-Medium;
 `;
 
 const Link = styled.Text`
     color: ${Color.blueButtonColor};
-    font-size: 16px;
-    line-height: 24px;
+    font-size: 14px;
+    line-height: 22px;
+    font-family: OpenSans-Bold;
 `;
 
 const ContentBottom = styled.Text`
     font-size: 14px;
     line-height: 20px;
-    color: ${Color.gray};
+    color: ${Color.black};
+    opacity: 0.8;
+    font-family: OpenSans-Medium;
 `;
 
 const LinkBottom = styled.Text`
     color: ${Color.blueButtonColor};
     font-size: 14px;
     line-height: 20px;
+    font-family: OpenSans-Bold;
+`;
+
+const ButtonNext = styled(ButtonComponent)`
+    border-radius: 30px;
 `;
 
 const PolicyScreen = ({ route, navigation }) => {
     return (
         <Container>
-            <Title>Hoàn tất đăng ký</Title>
+            <Title>Đồng ý với điều khoản chính sách của Facebook</Title>
             <Body>
                 <Content>Bằng việc nhấn vào nút Đăng ký, bạn đã đồng ý với </Content>
                 <Link onPress={() => navigate(routes.WEB_VIEW_SCREEN, { webName: 'Terms' })}> Điều khoản </Link>
@@ -74,11 +83,11 @@ const PolicyScreen = ({ route, navigation }) => {
                     Facebook liên tục để chúng tôi gợi ý bạn bè bạn, cung cấp cải thiện quảng cáo cho bạn và người khác, cũng như mang đến dịch vụ tốt hơn.
                 </Content>
             </Body>
-            <ButtonComponent title={'Đăng ký'} onPress={() => navigate(routes.EMAIL_REGISTER_SCREEN, route.params)} />
-            <ButtonComponent
+            <ButtonNext title={'Đăng ký'} onPress={() => navigate(routes.EMAIL_REGISTER_SCREEN, route.params)} />
+            <ButtonNext
                 title="Đăng ký mà không tải danh bạ của tôi lên"
                 onPress={() => navigate(routes.EMAIL_REGISTER_SCREEN, route.params)}
-                style={{ backgroundColor: Color.mainBackgroundColor, marginTop: 20 }}
+                style={{ backgroundColor: Color.mainBackgroundColor, marginTop: 10 }}
                 color={Color.blueButtonColor}
             />
             <Bottom>

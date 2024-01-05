@@ -15,41 +15,41 @@ const Container = styled.View`
     align-items: center;
     justify-content: space-between;
     padding-horizontal: 20px;
-    padding-bottom: 50px;
-    background-color: ${Color.mainBackgroundColor};
+    padding-bottom: 10px;
+    background-color: ${Color.grey6};
 `;
 
 const Body = styled.View`
     width: 100%;
-    align-items: center;
 `;
 
 const Title = styled.Text`
-    font-size: 24px;
-    font-family: Roboto-Bold;
-    margin-top: 30px;
+    font-size: 30px;
+    font-family: OpenSans-Bold;
+    margin-top: 10px;
     margin-bottom: 20px;
 `;
 
 const TextPara = styled.Text`
     font-size: 16px;
     line-height: 20px;
+    font-family: OpenSans-Medium;
 `;
 
 const Input = styled.View`
     width: 100%;
-    margin-top: 10px;
     display: flex;
     flex-direction: row;
     justify-content: space-around;
 `;
 
-const InputValue = styled(InputSecure)`
+const InputSecureCus = styled(InputSecure)`
+    margin-bottom: 10px;
+    background-color: ${Color.white};
     width: 100%;
-    height: 60px;
+    border-radius: 20px;
     font-size: 18px;
-    margin-bottom: 20px;
-    background-color: ${Color.mainBackgroundColor};
+    font-family: OpenSans-Medium;
 `;
 
 const Error = styled.Text`
@@ -62,6 +62,10 @@ const ViewError = styled.View`
     width: 100%;
     height: 50px;
     align-items: center;
+`;
+
+const ButtonNext = styled(ButtonComponent)`
+    border-radius: 30px;
 `;
 
 function PasswordRegisterScreen({ route, navigation }) {
@@ -113,7 +117,7 @@ function PasswordRegisterScreen({ route, navigation }) {
                 <TextPara>Để bảo mật tài khoản, vui lòng nhập mật khẩu ít nhất 6 chữ cái hoặc chữ số. Bạn nên chọn mật khẩu khó đoán.</TextPara>
                 <ViewError>{error !== '' && <Error>{error}</Error>}</ViewError>
                 <Input>
-                    <InputValue
+                    <InputSecureCus
                         label={'Mật khẩu'}
                         placeholder={'Mật khẩu'}
                         value={password}
@@ -122,10 +126,17 @@ function PasswordRegisterScreen({ route, navigation }) {
                             setError('');
                             setPassword(text);
                         }}
+                        mode="outlined"
+                        topClose={16}
+                        style={{ height: 60 }}
+                        outlineColor={Color.blueButtonColor}
+                        outlineStyle={{ borderRadius: 10 }}
+                        underlineColor={Color.blueButtonColor}
+                        underlineStyle={{ borderRadius: 10 }}
                     />
                 </Input>
             </Body>
-            <ButtonComponent onPress={checkPassword} title={'Tiếp'} loading={loading} />
+            <ButtonNext onPress={checkPassword} title={'Tiếp'} loading={loading} disabled={loading} />
         </Container>
     );
 }

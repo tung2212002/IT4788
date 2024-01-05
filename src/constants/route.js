@@ -21,8 +21,12 @@ const routes = {
     // StackHome
     HOME_STACK: 'HomeStack',
     HOME_SCREEN: 'HomeScreen',
+    SEARCH_RESULT_SCREEN: 'SearchResultScreen',
+    SEARCH_LOG_SCREEN: 'SearchLogScreen',
 
-    GROUP_SCREEN: 'GroupScreen',
+    // StackVideo
+    VIDEO_STACK: 'VideoStack',
+    VIDEO_SCREEN: 'VideoScreen',
 
     //StackFriend
     FRIEND_STACK: 'FriendStack',
@@ -33,11 +37,18 @@ const routes = {
     //StackPersional
     PERSIONAL_STACK: 'PersionalStack',
     PERSIONAL_SCREEN: 'PersionalScreen',
+
+    //StackNotification
+    NOTIFICATION_STACK: 'NotificationStack',
     NOTIFICATION_SCREEN: 'NotificationScreen',
+
     SETTING_SCREEN: 'SettingScreen',
     //// StackSetting
     SETTING_STACK: 'SettingStack',
     PROFILE_SCREEN: 'ProfileScreen',
+    SUB_SETTING_SCREEN: 'SubSettingScreen',
+    CHANGE_AVATAR_SCREEN: 'ChangeAvatarScreen',
+    CHANGE_INFO_AFTER_SIGN_UP: 'ChangInfoAfterSignUp',
 
     // LoadingScreen
     LOADING_SCREEN: 'LoadingScreen',

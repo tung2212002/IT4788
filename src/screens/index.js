@@ -18,7 +18,11 @@ import LoginScreen from './AuthenticationStack/LoginScreen';
 
 // HomeScreens
 import HomeScreen from './HomeStack/HomeScreen';
-import GroupScreen from './GroupStack/GroupScreen';
+import SearchResultScreen from './HomeStack/SearchResultScreen';
+import SearchLogScreen from './HomeStack/SearchLogScreen';
+
+//StackVideo
+import VideoScreen from './VideoStack/VideoScreen';
 
 //StackFriend
 import FriendsScreen from './FriendsStack/FriendsScreen';
@@ -27,9 +31,12 @@ import UserFriendsScreen from './FriendsStack/UserFriendsScreen';
 
 import PersionalScreen from './PersionalStack/PersionalScreen';
 import NotificationScreen from './NotificationStack/NotificationScreen';
-import SettingScreen from './SettingStack/SettingScreen';
 //// StackSetting
+import SettingScreen from './SettingStack/SettingScreen';
 import ProfileScreen from './SettingStack/ProfileScreen';
+import SubSettingScreen from './SettingStack/SubSettingScreen';
+import ChangeAvatarScreen from './SettingStack/ChangeAvatarScreen';
+import ChangInfoAfterSignUp from './SettingStack/ChangInfoAfterSignUp';
 
 // LoadingScreen
 import LoadingScreen from './LoadingScreen';
@@ -56,7 +63,9 @@ export {
 
     // HomeScreens
     HomeScreen,
-    GroupScreen,
+    VideoScreen,
+    SearchResultScreen,
+    SearchLogScreen,
 
     //StackFriend
     FriendsScreen,
@@ -64,9 +73,12 @@ export {
     UserFriendsScreen,
     PersionalScreen,
     NotificationScreen,
-    SettingScreen,
     //// StackSetting
+    SettingScreen,
     ProfileScreen,
+    SubSettingScreen,
+    ChangeAvatarScreen,
+    ChangInfoAfterSignUp,
 
     // LoadingScreen
     LoadingScreen,

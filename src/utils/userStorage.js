@@ -7,7 +7,7 @@ const getUserStorage = async () => {
 
 const getTokenStorage = async () => {
     const user = await getUserStorage();
-    return user.token;
+    return user?.token;
 };
 
 const setUserStorage = async (data) => {

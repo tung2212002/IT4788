@@ -24,7 +24,7 @@ import {
     SVGProfile,
     SVGPrivateAccount,
 } from '../../../assets';
-import { logout, selectUser } from '../../redux/features/auth/authSlice';
+import { logout, mergeUser, selectUser } from '../../redux/features/auth/authSlice';
 import Color from '../../utils/Color';
 import ShowMoreComponent from '../../components/ShowMoreComponent';
 import { useDispatch, useSelector } from 'react-redux';
@@ -33,7 +33,7 @@ import { Alert } from 'react-native';
 import { navigate } from '../../navigation/RootNavigator';
 import routes from '../../constants/route';
 import VectorIcon from '../../utils/VectorIcon';
-import { StatusBar } from 'expo-status-bar';
+import { buyCoinsService } from '../../services/settingService';
 
 const ContainerScrollView = styled.ScrollView`
     flex: 1;
@@ -59,6 +59,13 @@ const Title = styled.Text`
     color: ${Color.black};
     margin: 10px;
     flex: 1;
+`;
+
+const Subtitle = styled.Text`
+    font-size: 16px;
+    font-family: Roboto-Regular;
+    color: ${Color.gray};
+    margin: 10px;
 `;
 
 const ContainerItem = styled.View`
@@ -112,57 +119,47 @@ function SettingScreen({ route, navigation }) {
         },
         {
             title: 'Bảng feed',
-            // onPress: 'SettingScreen',
             SVGIcon: SVGFeed,
         },
         {
             title: 'Nhóm',
-            onPress: () => navigate(routes.GROUP_SCREEN),
             SVGIcon: SVGGroups,
         },
         {
             title: 'Marketplace',
-            // onPress: 'SettingScreen',
             SVGIcon: SVGMarket,
         },
         {
             title: 'Video',
-            // onPress: 'SettingScreen',
+            onPress: () => navigate(routes.VIDEO_SCREEN),
             SVGIcon: SVGVideo,
         },
         {
             title: 'Kỷ niệm',
-            // onPress: 'SettingScreen',
             SVGIcon: SVGPast,
         },
         {
             title: 'Đã lưu',
-            // onPress: 'SettingScreen',
             SVGIcon: SVGBookmark,
         },
         {
             title: 'Trang',
-            // onPress: 'SettingScreen',
             SVGIcon: SVGPage,
         },
         {
             title: 'Reels',
-            // onPress: 'SettingScreen',
             SVGIcon: SVGReel,
         },
         {
             title: 'Hẹn hò',
-            // onPress: 'SettingScreen',
             SVGIcon: SVGDating,
         },
         {
             title: 'Sự kiện',
-            // onPress: 'SettingScreen',
             SVGIcon: SVGEvent,
         },
         {
             title: 'Trò chơi',
-            // onPress: 'SettingScreen',
             SVGIcon: SVGGame,
         },
     ];
@@ -170,7 +167,6 @@ function SettingScreen({ route, navigation }) {
     const moreItemsPolicy = [
         {
             title: 'Điều khoản & chính sách',
-            // navigate: 'SettingScreen',
             SVGIcon: SVGPrivateAccount,
         },
     ];
@@ -178,12 +174,10 @@ function SettingScreen({ route, navigation }) {
     const moreItems = [
         {
             title: 'Cài đặt',
-            // navigate: 'SettingScreen',
             SVGIcon: SVGProfile,
         },
         {
             title: 'Điều khoản & chính sách',
-            // navigate: 'SettingScreen',
             SVGIcon: SVGPrivateAccount,
         },
     ];
@@ -191,7 +185,6 @@ function SettingScreen({ route, navigation }) {
     const moreItemsSetting = [
         {
             title: 'Cài đặt',
-            // navigate: 'SettingScreen',
             SVGIcon: SVGProfile,
         },
     ];
@@ -222,11 +215,34 @@ function SettingScreen({ route, navigation }) {
         navigate(routes.PROFILE_SCREEN);
     };
 
+    const handleGetCoin = () => {
+        const data = {
+            code: 'string',
+            coins: '3000',
+        };
+
+        buyCoinsService(data)
+            .then((res) => {
+                console.log(res.data.data);
+                if (res.data.code === '1000') {
+                    const userCoins = {
+                        coins: res.data.data.coins,
+                    };
+                    dispatch(mergeUser(userCoins));
+                }
+            })
+            .catch((err) => {
+                console.log(err);
+            });
+    };
+
     return (
-        <ContainerScrollView>
+        <ContainerScrollView showsVerticalScrollIndicator={false}>
             <ContainerView>
                 <ContainerHeader>
                     <Title>Menu</Title>
+                    <Subtitle>Coins: {user?.coins || 0}</Subtitle>
+                    <Icon nameIcon={'plus'} typeIcon={'FontAwesome5'} size={20} color={Color.gray} onPress={handleGetCoin} />
                     <Icon nameIcon={'settings-sharp'} typeIcon={'Ionicons'} size={20} color={Color.black} />
                     <Icon nameIcon={'search'} typeIcon={'FontAwesome5'} size={20} color={Color.black} />
                 </ContainerHeader>
@@ -234,7 +250,7 @@ function SettingScreen({ route, navigation }) {
                     title={user?.username || 'Người dùng'}
                     message={'Xem trang cá nhân của bạn'}
                     onPress={redirectProfile}
-                    imgIcon={user?.avatar === '-1' || user?.avatar === '' ? images.defaultAvatar : { uri: user.avatar }}
+                    imgIcon={user?.avatar === '' ? images.defaultAvatar : { uri: user.avatar }}
                     propsButton={{
                         height: 'auto',
                         width: '100',

@@ -1,25 +1,23 @@
 /* eslint-disable react-native/no-inline-styles */
 /* eslint-disable react/no-unstable-nested-components */
-import React, { useEffect } from 'react';
-// import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import React from 'react';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
-import { NavigationContainer } from '@react-navigation/native';
 import styled from 'styled-components/native';
 import { useSelector } from 'react-redux';
 
 import Color from '../utils/Color';
 import VectorIcon from '../utils/VectorIcon';
 import SettingStack from './SettingStack';
-import { GroupScreen, NotificationScreen, ProfileScreen } from '../screens';
 import HomeStack from './HomeStack';
 import PersionalStack from './PersionalStack';
 import { selectUser } from '../redux/features/auth/authSlice';
 import routes from '../constants/route';
 import FriendStack from './FriendStack';
+import NotificationStack from './NotificationStack';
+import VideoStack from './VideoStack';
 
 const VectorIconStyled = styled(VectorIcon)``;
 
-// const TabStack = createBottomTabNavigator();
 const TabStack = createMaterialTopTabNavigator();
 
 const MainTabStack = ({ user }) => {
@@ -45,18 +43,18 @@ const MainTabStack = ({ user }) => {
             typeIconFocused: 'FontAwesome5',
         },
         {
-            name: routes.GROUP_SCREEN,
-            component: GroupScreen,
-            icon: 'account-group-outline',
-            iconFocused: 'account-group',
+            name: routes.VIDEO_STACK,
+            component: VideoStack,
+            icon: 'television-play',
+            iconFocused: 'youtube-tv',
             sizeIconFocused: 30,
             sizeIcon: 30,
             typeIcon: 'MaterialCommunityIcons',
             typeIconFocused: 'MaterialCommunityIcons',
         },
         {
-            name: routes.NOTIFICATION_SCREEN,
-            component: NotificationScreen,
+            name: routes.NOTIFICATION_STACK,
+            component: NotificationStack,
             icon: 'bell',
             iconFocused: 'bell-fill',
             typeIcon: 'Octicons',
@@ -84,13 +82,9 @@ const MainTabStack = ({ user }) => {
         },
     ];
 
-    useEffect(() => {}, [userNew]);
-
     return (
         <TabStack.Navigator
-            // 1 ==> -1 to check dont have avatar
-            // initialRouteName={user.avatar === '-1' || user.avatar === '' ? 'SettingStack' : 'HomeStack'}
-            initialRouteName={routes.HOME_STACK}
+            initialRouteName={userNew.active === '-1' ? routes.SETTING_STACK : routes.HOME_STACK}
             tabBarPosition="bottom"
             screenOptions={{
                 // swipeEnabled: false,
@@ -103,7 +97,7 @@ const MainTabStack = ({ user }) => {
                     borderRadius: 10,
                 },
                 tabBarPressColor: Color.lightGray,
-                lazy: true,
+                // lazy: true,
             }}
         >
             {screenItemsLogin.map((item, index) => (
@@ -126,7 +120,6 @@ const MainTabStack = ({ user }) => {
                     }}
                 />
             ))}
-
         </TabStack.Navigator>
     );
 };

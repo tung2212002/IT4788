@@ -15,15 +15,23 @@ const Container = styled.View`
     background-color: #fff;
     align-items: center;
     justify-content: space-between;
-    padding-horizontal: 20px;
-    padding-vertical: 50px;
-    background-color: ${Color.mainBackgroundColor};
+    padding-horizontal: 10px;
+    padding-vertical: 10px;
+    background-color: ${Color.grey6};
 `;
 
 const Title = styled.Text`
     font-size: 24px;
-    font-family: Roboto-Bold;
+    font-family: OpenSans-Bold;
     margin-top: 50px;
+`;
+
+const SubTitle = styled.Text`
+    font-size: 16px;
+    margin-top: 10px;
+    font-family: OpenSans-Medium;
+    color: ${Color.black};
+    text-align: left;
 `;
 
 const Body = styled.View`
@@ -48,6 +56,11 @@ const TextDate = styled.Text`
 
 const ErrorIcon = styled(MaterialIcons)`
     left: 10px;
+`;
+
+const ButtonNext = styled(ButtonComponent)`
+    margin-top: 20px;
+    border-radius: 30px;
 `;
 
 function BirthDateScreen({ route, navigation }) {
@@ -100,7 +113,8 @@ function BirthDateScreen({ route, navigation }) {
     return (
         <Container>
             <Body>
-                <Title>Sinh nhật của bạn là khi nào?</Title>
+                <Title>Ngày sinh của bạn là khi nào?</Title>
+                <SubTitle>Chọn ngày sinh của bạn. Bạn luôn có thể đặt thông tin này ở chế độ riêng tư và chỉ chia sẻ cho những người bạn muốn.</SubTitle>
                 <Error>
                     {error}
                     {error !== '' && <ErrorIcon name="error" size={24} color="red" />}
@@ -117,7 +131,7 @@ function BirthDateScreen({ route, navigation }) {
                         </Pressable>
                     ))}
             </Body>
-            <ButtonComponent onPress={checkDate} title={'Tiếp'} />
+            <ButtonNext onPress={checkDate} title={'Tiếp'} width={'90'} />
         </Container>
     );
 }

@@ -1,18 +1,21 @@
 /* eslint-disable react-native/no-inline-styles */
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useRef, useState } from 'react';
-import { RefreshControl, Animated, Alert } from 'react-native';
+import { RefreshControl, Animated, Text } from 'react-native';
 import styled from 'styled-components/native';
-// import debounce from 'lodash.debounce';
+import { useSelector } from 'react-redux';
+import { Alert } from 'react-native';
+import { ActivityIndicator } from 'react-native-paper';
 
 import HeaderApp from '../../components/HeaderApp';
-import PostComponent from '../../components/PostComponent';
+import PostComponent from '../../components/PostComponent/PostComponent';
 import PostComposerComponent from '../../components/PostComposerComponent';
 import Color from '../../utils/Color';
-import { getLocationStorage } from '../../utils/locationStorage';
-import { getListPostsService } from '../../services/postService';
 import { selectUser } from '../../redux/features/auth/authSlice';
-import { useSelector } from 'react-redux';
+import { getListPostsService } from '../../services/postService';
+import { getLocationStorage } from '../../utils/locationStorage';
+import { useNavigation, useScrollToTop } from '@react-navigation/native';
+import HeaderComponent from '../../components/HeaderComponent';
 
 const Container = styled.View`
     flex: 1;
@@ -20,10 +23,7 @@ const Container = styled.View`
     background-color: ${Color.white};
 `;
 
-const ActivityIndicatorIcon = styled.ActivityIndicator`
-    background-color: ${Color.white};
-    padding: 10px;
-`;
+const ActivityIndicatorIcon = styled(ActivityIndicator)``;
 
 const AnimatedHeader = styled(Animated.View)`
     position: absolute;
@@ -36,6 +36,13 @@ const AnimatedHeader = styled(Animated.View)`
 const ItemSeparatorView = styled.View`
     height: 8px;
     background-color: ${Color.mainBackgroundHome};
+`;
+
+const Footer = styled.View`
+    height: 50px;
+    width: 100%;
+    justify-content: center;
+    align-items: center;
 `;
 
 const CONTAINER_HEIGHT = 60;
@@ -55,75 +62,7 @@ function PersionalScreen({ route, navigation }) {
 
     const scrollY = useRef(new Animated.Value(0)).current;
     const offsetAnim = useRef(new Animated.Value(0)).current;
-
-    const onRefresh = () => {
-        setPagination({ ...pagination, isRefreshing: true, index: 0 });
-    };
-
-    const onLoadMore = () => {
-        setPagination({ ...pagination, isLoadMore: true });
-    };
-
-    const handleLoadMore = () => {
-        const data = {
-            user_id: user?.id,
-            in_campaign: '1',
-            campaign_id: '1',
-            latitude: location.latitude,
-            longitude: location.longitude,
-            last_id: pagination.lastId,
-            index: pagination.index,
-            count: count,
-        };
-        getListPostsService(data)
-            .then((response) => {
-                if (response.data.code === '1000') {
-                    if (response.data.data.post.length !== 0 && response.data.data.last_id !== pagination.lastId) {
-                        setPost([...post, ...response.data.data.post]);
-                        setPagination({
-                            ...pagination,
-                            lastId: response.data.data.last_id,
-                            index: response.data.data.post.length + pagination.index,
-                            isLoadMore: false,
-                        });
-                    } else {
-                        setPagination({ ...pagination, isLoadMore: false });
-                    }
-                }
-            })
-            .catch((e) => {
-                setPagination({ ...pagination, isLoadMore: false });
-                console.log(e);
-            });
-    };
-    const refreshControl = <RefreshControl refreshing={pagination.isRefreshing} onRefresh={onRefresh} progressViewOffset={CONTAINER_HEIGHT} />;
-
-    const refreshData = () => {
-        const data = {
-            user_id: user?.id,
-            in_campaign: '1',
-            campaign_id: '1',
-            latitude: location.latitude,
-            longitude: location.longitude,
-            index: pagination.index,
-            count: count,
-        };
-        getListPostsService(data)
-            .then((response) => {
-                if (response.data.code === '1000') {
-                    if (response.data.data.post.length !== 0 && response.data.data.last_id !== pagination.lastId) {
-                        setPost(response.data.data.post);
-                        setPagination({ ...pagination, lastId: response.data.data.last_id, index: response.data.data.post.length, isRefreshing: false });
-                    } else {
-                        setPagination({ ...pagination, isRefreshing: false });
-                    }
-                }
-            })
-            .catch((e) => {
-                setPagination({ ...pagination, isRefreshing: false });
-                console.log(e);
-            });
-    };
+    const ref = useRef(null);
 
     const clampedScroll = Animated.diffClamp(
         Animated.add(
@@ -184,90 +123,29 @@ function PersionalScreen({ route, navigation }) {
         extrapolate: 'clamp',
     });
 
-    useEffect(() => {
-        if (pagination.isRefreshing && location) {
-            refreshData();
-        } else if (pagination.isLoadMore && location) {
-            handleLoadMore();
-        }
-    }, [pagination]);
-
-    useEffect(() => {
-        getLocationStorage()
-            .then((res) => {
-                if (res) {
-                    setLocation(res);
-                    const data = {
-                        user_id: user?.id,
-                        in_campaign: '1',
-                        campaign_id: '1',
-                        latitude: res.latitude,
-                        longitude: res.longitude,
-                        index: pagination.index,
-                        count: count,
-                    };
-
-                    getListPostsService(data)
-                        .then((response) => {
-                            if (response.data.code === '1000') {
-                                if (response.data.data.post.length !== 0) {
-                                    setPost(response.data.data.post);
-                                    setPagination({ ...pagination, lastId: response.data.data.last_id, index: response.data.data.post.length });
-                                } else {
-                                    setPagination({ ...pagination, isRefreshing: false });
-                                }
-                            }
-                        })
-                        .catch((e) => {
-                            setPagination({ ...pagination, isRefreshing: false });
-                        });
-                } else {
-                    Alert.alert('Please turn on location');
-                }
-            })
-            .catch((e) => {
-                Alert.alert('Have error, please try again');
-            });
-    }, []);
-
     return (
         <Container>
             <AnimatedHeader style={[{ transform: [{ translateY: headerTranslate }] }]}>
-                <HeaderApp style={{ opacity }} />
+                <HeaderComponent style={{ opacity }} />
             </AnimatedHeader>
 
             <Animated.FlatList
+                ref={ref}
                 onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: scrollY } } }], { useNativeDriver: true })}
-                data={post}
-                refreshing={pagination.isRefreshing}
-                onRefresh={onRefresh}
                 ListHeaderComponent={
                     <>
-                        <PostComposerComponent
-                            navigation={navigation}
-                            stylesInput={{ placeholderTextColor: Color.black, borderWidth: 1, borderColor: Color.black }}
-                            isHeader={true}
-                            post={post}
-                            setPost={setPost}
-                            pagination={pagination}
-                            setPagination={setPagination}
-                        />
                         <ItemSeparatorView />
                     </>
                 }
-                refreshControl={refreshControl}
-                keyExtractor={(item, index) => item.title + index.toString()}
-                renderItem={({ item }) => <PostComponent item={item} user={user} navigation={navigation} post={post} setPost={setPost} />}
-                onEndReached={onLoadMore}
+                showsVerticalScrollIndicator={false}
                 ItemSeparatorComponent={ItemSeparatorView}
-                onEndReachedThreshold={0.2}
-                // initialNumToRender={4}
-                contentContainerStyle={{ marginTop: CONTAINER_HEIGHT, paddingBottom: CONTAINER_HEIGHT }}
+                onEndReachedThreshold={0}
+                initialNumToRender={10}
+                contentContainerStyle={{ marginTop: 10 * CONTAINER_HEIGHT, paddingBottom: CONTAINER_HEIGHT }}
                 onMomentumScrollBegin={onMomentumScrollBegin}
                 onMomentumScrollEnd={onMomentumScrollEnd}
                 onScrollEndDrag={onScrollEndDrag}
                 scrollEventThrottle={1}
-                ListFooterComponent={pagination.isLoadMore && <ActivityIndicatorIcon size="large" color={Color.blueButtonColor} />}
             />
         </Container>
     );

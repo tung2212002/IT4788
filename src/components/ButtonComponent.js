@@ -20,11 +20,11 @@ const Container = styled.TouchableOpacity`
 
 const Title = styled.Text`
     font-size: ${(props) => props.size || 18}px;
-    font-weight: ${(props) => (props.fontWeight ? props.fontWeight || 'normal' : 'bold')};
     color: ${(props) => props.color || Color.white};
+    font-family: ${(props) => (props.fontFamily ? props.fontFamily : 'OpenSans-SemiBold')};
 `;
 
-function ButtonComponent({ title, onPress, style = {}, color, size, loading, fontWeight, isShadow, ...props }) {
+function ButtonComponent({ title, onPress, style = {}, color, size, loading, fontWeight, fontFamily, isShadow, ...props }) {
     const generateBoxShadowStyle = () => {
         if (Platform.OS === 'ios') {
             return {
@@ -46,7 +46,7 @@ function ButtonComponent({ title, onPress, style = {}, color, size, loading, fon
     return (
         <Container onPress={onPress} style={[style, isShadow ? generateBoxShadowStyle() : {}]} disabled={loading} {...props}>
             {!loading ? (
-                <Title color={color} size={size} fontWeight={fontWeight}>
+                <Title color={color} size={size} fontWeight={fontWeight} fontFamily={fontFamily}>
                     {title}
                 </Title>
             ) : (

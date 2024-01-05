@@ -6,7 +6,7 @@ import Color from '../../utils/Color';
 import { useDispatch } from 'react-redux';
 import { useEffect } from 'react';
 import { logout } from '../../redux/features/auth/authSlice';
-import { Modal } from 'react-native';
+import { Alert, Modal } from 'react-native';
 
 const Container = styled.View`
     flex: 1;
@@ -21,7 +21,7 @@ function Logout({ route, navigation, props }) {
     const backgroundColor = `rgba(1, 1, 1, ${alpha})`;
 
     useEffect(() => {
-        dispatch(logout());
+        Alert.alert('Thông báo', 'Hết phiên đăng nhập', [{ text: 'OK', onPress: () => dispatch(logout()) }]);
     }, []);
     return (
         <Modal visible={true}>

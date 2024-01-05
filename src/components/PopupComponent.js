@@ -68,11 +68,12 @@ function PopupComponent({
 
     const handleSwipeMove = (percentageShown) => {
         if (percentageShown <= 0.2) {
-            setIsVisible(false);
+            // setIsVisible(false);
+            setRenderPopUpComponent(false);
         }
     };
 
-    const [isVisible, setIsVisible] = useState(true);
+    // const [isVisible, setIsVisible] = useState(true);
 
     const generateBoxShadowStyle = () => {
         if (Platform.OS === 'ios') {
@@ -94,19 +95,22 @@ function PopupComponent({
 
     return (
         <ModalContainer
-            isVisible={isVisible}
+            // isVisible={isVisible}
+            isVisible={renderPopUpComponent}
             onSwipeComplete={close}
             swipeDirection={disableHandleSwipeMoveBottom ? [] : ['down']}
-            scrollTo={handleScrollTo}
+            scrollTo={disableHandleSwipeMoveBottom ? null : handleScrollTo}
             scrollOffset={state.scrollOffset}
             scrollOffsetMax={400 - 300}
             propagateSwipe={true}
             onSwipeMove={(percentageShown) => handleSwipeMove(percentageShown)}
-            onBackdropPress={onBackdropPress ? onBackdropPress : () => setIsVisible(false)}
+            // onBackdropPress={onBackdropPress ? onBackdropPress : () => setIsVisible(false)}
+            onBackdropPress={onBackdropPress ? onBackdropPress : () => setRenderPopUpComponent(false)}
             onModalHide={() => setRenderPopUpComponent(false)}
             coverScreen={!coverScreen ? coverScreen : true}
             hasBackdrop={!hasBackdrop ? hasBackdrop : true}
             avoidKeyboard={true}
+            animationOutTiming={1000}
         >
             <ScrollAbleModal scrollEventThrottle={16} style={[generateBoxShadowStyle()]}>
                 <ScrollAbleModalTop />

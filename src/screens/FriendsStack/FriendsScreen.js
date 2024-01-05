@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import styled from 'styled-components/native';
 import { useState } from 'react';
 import { Alert } from 'react-native';
 import { useEffect } from 'react';
 import { RefreshControl } from 'react-native';
+import { ActivityIndicator } from 'react-native-paper';
 
 import { getRequestedFriendsService, getSuggestedFriends } from '../../services/friendService';
 import VectorIcon from '../../utils/VectorIcon';
@@ -13,7 +14,16 @@ import RequestFriendComponent from '../../components/RequestFriendComponent';
 import { navigate } from '../../navigation/RootNavigator';
 import routes from '../../constants/route';
 import SuggestFriendComponent from '../../components/SuggestFriendComponent';
-import { ActivityIndicator } from 'react-native-paper';
+import { useScrollToTop } from '@react-navigation/native';
+import { useDispatch, useSelector } from 'react-redux';
+import {
+    addListRequestFriendMain,
+    addListSuggestFriendMain,
+    selectRequestFriendMain,
+    selectSuggestFriendMain,
+    setRequestFriendMain,
+    setSuggestFriendMain,
+} from '../../redux/features/friend/friendSlice';
 
 const Container = styled.View`
     flex: 1;
@@ -95,9 +105,15 @@ const ButtonItem = styled(ButtonComponent)`
 `;
 
 function FriendsScreen() {
-    const [listRequestFriend, setListRequestFriend] = useState([]);
-    const [listSuggestFriend, setListSuggestFriend] = useState([]);
+    const dispatch = useDispatch();
+
+    const listRequestFriend = useSelector(selectRequestFriendMain);
+    const listSuggestFriend = useSelector(selectSuggestFriendMain);
+
+    // const [listRequestFriend, setListRequestFriend] = useState([]);
+    // const [listSuggestFriend, setListSuggestFriend] = useState([]);
     const [isLoadMore, setIsLoadMore] = useState(false);
+    const ref = useRef(null);
 
     const [total, setTotal] = useState(0);
     const [page, setPage] = useState({
@@ -144,8 +160,9 @@ function FriendsScreen() {
         getRequestedFriendsService(body)
             .then((res) => {
                 if (res.data.code === '1000') {
-                    // setTotal(res.data.data.total);
-                    setListRequestFriend([...listRequestFriend, ...res.data.data.requests]);
+                    // setListRequestFriend([...listRequestFriend, ...res.data.data.requests]);
+                    dispatch(addListRequestFriendMain(res.data.data.requests));
+                    setTotal(res.data.data.total);
                     setPage({ ...page, index: page.index + res.data.data.requests.length, isLoadMore: false, last_index: page.index });
                     if (res.data.data.requests.length >= page.count) {
                         setIsLoadMore(true);
@@ -171,10 +188,9 @@ function FriendsScreen() {
         getRequestedFriendsService(body)
             .then((res) => {
                 if (res.data.code === '1000') {
-                    // setTotal(res.data.data.total);
-                    setListRequestFriend(res.data.data.requests);
+                    // setListRequestFriend(res.data.data.requests);
+                    dispatch(setRequestFriendMain(res.data.data.requests));
                     setPage({ ...page, index: res.data.data.requests.length, isRefreshing: false });
-                    console.log('listRequestFriend', page);
                 } else {
                     setPage({ ...page, isRefreshing: false });
                 }
@@ -194,7 +210,8 @@ function FriendsScreen() {
         getSuggestedFriends(body)
             .then((res) => {
                 if (res.data.code === '1000') {
-                    setListSuggestFriend([...listSuggestFriend, ...res.data.data]);
+                    // setListSuggestFriend([...listSuggestFriend, ...res.data.data]);
+                    dispatch(addListSuggestFriendMain(res.data.data));
                     setPage({ ...page2, index: page2.index + res.data.data.length, isLoadMore: false, last_index: page2.index });
                 } else {
                     setPage({ ...page2, isLoadMore: false });
@@ -215,7 +232,8 @@ function FriendsScreen() {
         getSuggestedFriends(body)
             .then((res) => {
                 if (res.data.code === '1000') {
-                    setListSuggestFriend(res.data.data);
+                    // setListSuggestFriend(res.data.data);
+                    dispatch(setSuggestFriendMain(res.data.data));
                     setPage({ ...page2, index: res.data.data.length, isRefreshing: false, last_index: 0 });
                 } else {
                     setPage({ ...page2, isRefreshing: false });
@@ -229,11 +247,13 @@ function FriendsScreen() {
     };
 
     useEffect(() => {
-        handleGetRequestFriend();
-        handleGetRequestFriend2();
+        // console.log('load friend');
+        handleRefresh();
+        handleRefresh2();
     }, []);
 
     useEffect(() => {
+        // console.log('load friend2');
         if (page.isLoadMore) {
             handleGetRequestFriend();
         } else if (page.isRefreshing && page.index === 0) {
@@ -243,6 +263,7 @@ function FriendsScreen() {
     }, [page]);
 
     useEffect(() => {
+        // console.log('load friend3');
         if (page2.isLoadMore) {
             handleGetRequestFriend2();
         } else if (page2.isRefreshing && page2.index === 0) {
@@ -251,8 +272,11 @@ function FriendsScreen() {
     }, [page2]);
 
     useEffect(() => {
+        // console.log('load friend4');
         setTotal(listRequestFriend.length);
     }, [listRequestFriend]);
+
+    useScrollToTop(ref);
 
     return (
         <Container>
@@ -262,6 +286,8 @@ function FriendsScreen() {
             </Header>
             <Body>
                 <ContainerBody
+                    ref={ref}
+                    showsVerticalScrollIndicator={false}
                     refreshing={page.isRefreshing}
                     onRefresh={onRefresh}
                     ListHeaderComponent={
@@ -284,7 +310,7 @@ function FriendsScreen() {
                                     onPress={() => navigate(routes.USER_FRIENDS_SCREEN)}
                                 />
                             </ItemButton>
-                            {total !== 0 && (
+                            {total > 0 && (
                                 <HeaderBody>
                                     <TitleHeaderBody>Lời mời kết bạn</TitleHeaderBody>
                                     <NumberRequest> {total}</NumberRequest>
@@ -296,8 +322,10 @@ function FriendsScreen() {
                                     <RequestFriendComponent
                                         data={item}
                                         listRequestFriend={listRequestFriend}
-                                        setListRequestFriend={setListRequestFriend}
-                                        key={index}
+                                        // setListRequestFriend={setListRequestFriend}
+                                        // setPage={setPage}
+                                        setTotal={setTotal}
+                                        key={item.id + item.created + index}
                                     />
                                 );
                             })}
@@ -327,8 +355,8 @@ function FriendsScreen() {
                                     <SuggestFriendComponent
                                         data={item}
                                         listSuggestFriend={listSuggestFriend}
-                                        setListSuggestFriend={setListSuggestFriend}
-                                        key={index}
+                                        // setListSuggestFriend={setListSuggestFriend}
+                                        key={item.created + index}
                                     />
                                 );
                             })}

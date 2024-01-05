@@ -11,14 +11,6 @@ const Container = styled.View`
     background-color: ${(props) => props.backgroundColor || `rgba(1, 1, 1, ${props.alpha})`};
 `;
 
-// function LoadingScreen({ alpha = 0.7, backgroundColor }) {
-//     return (
-//         <Container alpha={alpha} backgroundColor={backgroundColor}>
-//             <ActivityIndicator size="large" color={Color.blueButtonColor} />
-//         </Container>
-//     );
-// }
-
 function LoadingScreen({ alpha = 0.7, backgroundColor }) {
     return (
         <Container alpha={alpha} backgroundColor={backgroundColor}>

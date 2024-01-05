@@ -1,40 +1,30 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import styled from 'styled-components/native';
 import { useState } from 'react';
-import { Alert } from 'react-native';
+import { Text, View } from 'react-native';
 import { useEffect } from 'react';
 import { RefreshControl } from 'react-native';
+import { ScrollView } from 'react-native';
 
-import { getRequestedFriendsService, getSuggestedFriends } from '../../services/friendService';
 import VectorIcon from '../../utils/VectorIcon';
 import Color from '../../utils/Color';
 import ButtonComponent from '../../components/ButtonComponent';
-import RequestFriendComponent from '../../components/RequestFriendComponent';
-import { navigate } from '../../navigation/RootNavigator';
-import routes from '../../constants/route';
-import SuggestFriendComponent from '../../components/SuggestFriendComponent';
 import { ActivityIndicator } from 'react-native-paper';
+import { checkTime } from '../../utils/convertTimeAgo';
+import NotificationComponent from '../../components/NotificationComponent';
+import { getNotificationService } from '../../services/notificationService';
+import { useScrollToTop } from '@react-navigation/native';
 
 const Container = styled.View`
     flex: 1;
-    padding: 10px;
     background-color: ${Color.white};
-`;
-
-const Body = styled.View`
-    flex: 1;
-    flex-direction: column;
-    background-color: ${Color.white};
-`;
-
-const ContainerBody = styled.FlatList`
-    flex: 1;
 `;
 
 const Header = styled.View`
     flex-direction: row;
     width: 100%;
-    height: 40px;
+    height: 57px;
+    padding: 10px;
 `;
 
 const Title = styled.Text`
@@ -55,47 +45,149 @@ const Icon = styled(VectorIcon)`
     margin-left: 10px;
 `;
 
-const ItemButton = styled.View`
-    flex-direction: row;
-    border-bottom-width: 1px;
-    border-bottom-color: ${Color.lightGray};
-    padding-bottom: 10px;
-`;
-
-const HeaderBody = styled.View`
-    width: 100%;
-    height: 50px;
-    flex-direction: row;
-    align-items: center;
-`;
-
-const TitleHeaderBody = styled.Text`
-    font-size: 20px;
-    font-family: 'Roboto-Bold';
+const Subtitle = styled.Text`
+    font-size: 22px;
+    font-family: 'Montserrat-Bold';
     color: ${Color.black};
+    margin: 10px;
 `;
 
-const NumberRequest = styled.Text`
-    font-size: 20px;
-    font-family: 'Roboto-Bold';
-    color: ${Color.gray};
+const Body = styled.ScrollView`
+    flex: 1;
 `;
 
-const TextMore = styled.Text`
-    font-size: 16px;
-    font-family: 'Roboto-Regular';
-    color: ${Color.blueButtonColor};
-    position: absolute;
-    right: 0;
+const NotNotification = styled.Text`
+    font-size: 18px;
+    font-family: 'Montserrat-Medium';
+    color: ${Color.black};
+    margin: 10px;
+    margin-left: auto;
+    margin-right: auto;
 `;
 
-const ButtonItem = styled(ButtonComponent)`
-    border-radius: 20px;
-    background-color: ${Color.lightGray};
-    padding: 0 15px;
-`;
+function NotificationScreen({ navigation }) {
+    const [newNotification, setNewNotification] = useState([]);
+    const [lastNotification, setLastNotification] = useState([]);
+    const [previousNotification, setPreviousNotification] = useState([]);
+    const ref = useRef(null);
 
-function NotificationScreen() {
+    const [page, setPage] = useState({
+        index: 0,
+        count: 10,
+        isRefreshing: false,
+        isLoadMore: false,
+        firstLoad: false,
+        canGetMore: true,
+    });
+
+    const onRefresh = () => {
+        setPage({ ...page, isRefreshing: true, index: 0, canGetMore: true });
+    };
+
+    const onLoadMore = () => {
+        setPage({ ...page, isLoadMore: true });
+    };
+
+    const refreshControl = <RefreshControl refreshing={page.isRefreshing} onRefresh={onRefresh} />;
+
+    const handleGetMoreNotification = async () => {
+        const body = {
+            index: page.index,
+            count: page.count,
+        };
+
+        getNotificationService(body)
+            .then((res) => {
+                if (res.data.code === '1000') {
+                    if (res.data.data.length === 0) {
+                        setPage({ ...page, isLoadMore: false, firstLoad: true, canGetMore: false });
+                        return;
+                    }
+                    const newNotif = [];
+                    const lastNotif = [];
+                    const previousNotif = [];
+                    res.data.data.forEach((item, index) => {
+                        if (checkTime(item.created) === 'now') {
+                            newNotif.push(item);
+                        } else if (checkTime(item.created) === 'today') {
+                            lastNotif.push(item);
+                        } else {
+                            previousNotif.push(item);
+                        }
+                    });
+
+                    setNewNotification((prev) => [...prev, ...newNotif]);
+                    setLastNotification((prev) => [...prev, ...lastNotif]);
+                    setPreviousNotification((prev) => [...prev, ...previousNotif]);
+
+                    setPage({ ...page, index: page.index + res.data.data.length + 1, isLoadMore: false, firstLoad: true });
+                } else {
+                    setPage({ ...page, isLoadMore: false, firstLoad: true });
+                }
+            })
+            .catch((error) => {
+                console.log(error);
+                setPage({ ...page, isLoadMore: false, firstLoad: true });
+            });
+    };
+
+    const handleRefreshNotification = async () => {
+        const body = {
+            index: page.index,
+            count: page.count,
+        };
+
+        getNotificationService(body)
+            .then((res) => {
+                if (res.data.code === '1000') {
+                    if (res.data.data.length === 0) {
+                        setPage({ ...page, isRefreshing: false });
+                        return;
+                    }
+
+                    const newNotif = [];
+                    const lastNotif = [];
+                    const previousNotif = [];
+
+                    res.data.data.forEach((item, index) => {
+                        if (checkTime(item.created) === 'now') {
+                            newNotif.push(item);
+                        } else if (checkTime(item.created) === 'today') {
+                            lastNotif.push(item);
+                        } else {
+                            previousNotif.push(item);
+                        }
+                    });
+
+                    setNewNotification(newNotif);
+                    setLastNotification(lastNotif);
+                    setPreviousNotification(previousNotif);
+
+                    setPage({ ...page, index: res.data.data.length, isRefreshing: false });
+                } else {
+                    setPage({ ...page, isRefreshing: false });
+                }
+            })
+            .catch((error) => {
+                console.log(error);
+                setPage({ ...page, isRefreshing: false });
+            });
+    };
+
+    useEffect(() => {
+        if (page.isRefreshing && page.firstLoad) {
+            handleRefreshNotification();
+        }
+    }, [page.isRefreshing]);
+
+    useEffect(() => {
+        if (page.isLoadMore || !page.firstLoad) {
+            handleGetMoreNotification();
+        }
+    }, [page.isLoadMore]);
+
+    useScrollToTop(ref);
+
     return (
         <Container>
             <Header>
@@ -103,6 +195,33 @@ function NotificationScreen() {
                 <Icon nameIcon={'settings-sharp'} typeIcon={'Ionicons'} size={20} color={Color.black} />
                 <Icon nameIcon={'search'} typeIcon={'FontAwesome5'} size={20} color={Color.black} />
             </Header>
+            <Body refreshControl={refreshControl} showsVerticalScrollIndicator={false} ref={ref}>
+                {newNotification.length > 0 && <Subtitle>Mới</Subtitle>}
+                {newNotification.map((item, index) => {
+                    return <NotificationComponent key={index} item={item} navigation={navigation} />;
+                })}
+                {lastNotification.length > 0 && <Subtitle>Hôm nay</Subtitle>}
+                {lastNotification.map((item, index) => {
+                    return <NotificationComponent key={index} item={item} navigation={navigation} />;
+                })}
+                {previousNotification.length > 0 && <Subtitle>Trước đó</Subtitle>}
+                {previousNotification.map((item, index) => {
+                    return <NotificationComponent key={index} item={item} navigation={navigation} />;
+                })}
+                {page.isLoadMore && <ActivityIndicator size="small" color={Color.blueButtonColor} style={{ marginTop: 10 }} />}
+                {!page.canGetMore && <NotNotification>Không còn thông báo</NotNotification>}
+                {page.canGetMore && (
+                    <ButtonComponent
+                        title={'Xem thông báo trước đó'}
+                        onPress={onLoadMore}
+                        width={'96'}
+                        height={'40'}
+                        size={15}
+                        color={Color.black}
+                        style={{ marginLeft: 'auto', marginRight: 'auto', backgroundColor: Color.grey5 }}
+                    />
+                )}
+            </Body>
         </Container>
     );
 }

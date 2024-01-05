@@ -25,7 +25,7 @@ const Avatar = styled.Image`
 
 const Name = styled.Text`
     font-size: 24px;
-    font-family: Roboto-Bold;
+    font-family: OpenSans-Bold;
     margin: 10px;
 `;
 
@@ -99,7 +99,7 @@ function LoginScreen({ navigation }) {
     return (
         <Container>
             <Info>
-                <Avatar source={user?.avatar === '' || user?.avatar === '-1' ? images.defaultAvatar : { uri: user.avatar }} />
+                <Avatar source={user?.avatar === '' ? images.defaultAvatar : { uri: user.avatar }} />
                 <Name>{user?.username}</Name>
             </Info>
             <Enter>

@@ -4,7 +4,6 @@ import { getTokenStorage } from './userStorage';
 import { BASE_URL } from '@env';
 import { navigate } from '../navigation/RootNavigator';
 import routes from '../constants/route';
-import { Alert } from 'react-native';
 
 const instance = (config = {}, auth = false) => {
     const request = axios.create(config);
@@ -14,6 +13,8 @@ const instance = (config = {}, auth = false) => {
                 const token = await getTokenStorage();
                 if (token) {
                     requestConfig.headers.Authorization = `Bearer ${token}`;
+                } else {
+                    navigate(routes.LOGOUT);
                 }
             }
             return requestConfig;
@@ -30,19 +31,7 @@ const instance = (config = {}, auth = false) => {
             try {
                 if (error.response.status) {
                     if (error.response.data.code === '9998') {
-                        console.log('token not found');
-                        Alert.alert('Phiên đăng nhập đã hết hạn', '', [
-                            {
-                                text: 'OK',
-                                onPress: () => {
-                                    navigate(routes.LOGOUT);
-                                },
-                            },
-                        ]);
-                        return Promise.resolve({
-                            status: error.response.status,
-                            data: error.response.data,
-                        });
+                        navigate(routes.LOGOUT);
                     } else {
                         return Promise.resolve({
                             status: error.response.status,

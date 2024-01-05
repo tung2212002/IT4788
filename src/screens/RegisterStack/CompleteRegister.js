@@ -15,7 +15,7 @@ const Container = styled.View`
     align-items: center;
     justify-content: flex-end;
     padding-horizontal: 20px;
-    padding-bottom: 50px;
+    padding-bottom: 10px;
     background-color: ${Color.mainBackgroundColor};
 `;
 
@@ -30,6 +30,11 @@ const ViewAnimation = styled.View`
 const ViewButton = styled.View`
     width: 100%;
     margin-top: 50px;
+`;
+
+const ButtonNext = styled(ButtonComponent)`
+    border-radius: 30px;
+    margin-bottom: 10px;
 `;
 
 function CompleteRegister({ route, navigation }) {
@@ -66,11 +71,8 @@ function CompleteRegister({ route, navigation }) {
                 </Animated.View>
             </ViewAnimation>
             <ViewButton>
-                <ButtonComponent
-                    title="Tiếp tục"
-                    onPress={() => navigation.reset({ index: 0, routes: [{ name: 'SaveAccountScreen', params: route.params }] })}
-                />
-                <ButtonComponent
+                <ButtonNext title="Tiếp tục" onPress={() => navigation.reset({ index: 0, routes: [{ name: 'SaveAccountScreen', params: route.params }] })} />
+                <ButtonNext
                     title="Đăng xuất"
                     onPress={() => navigation.reset({ index: 0, routes: [{ name: routes.AUTHENTICATION_SCREEN }] })}
                     color={Color.gray}

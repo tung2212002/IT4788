@@ -16,6 +16,8 @@ import routes from '../constants/route';
 import { setBlockService } from '../services/blockService';
 import PopupComponent from './PopupComponent';
 import { Pressable } from 'react-native';
+import { useDispatch } from 'react-redux';
+import { deleteRequestFriendMain } from '../redux/features/friend/friendSlice';
 
 const Container = styled.View`
     flex-direction: row;
@@ -103,7 +105,9 @@ const Modal = styled(PopupComponent)`
     paddiing-bottom: 20px;
 `;
 
-function RequestFriendComponent({ data, listRequestFriend, setListRequestFriend }) {
+function RequestFriendComponent({ data, listRequestFriend, setTotal }) {
+    const dispatch = useDispatch();
+
     const [isAccept, setIsAccept] = useState(-1);
     const [renderPopUpComponent, setRenderPopUpComponent] = useState(false);
 
@@ -117,6 +121,7 @@ function RequestFriendComponent({ data, listRequestFriend, setListRequestFriend 
             .then((res) => {
                 if (res.data.code === '1000') {
                     setIsAccept(1);
+                    setTotal((prev) => prev - 1);
                 } else {
                     return;
                 }
@@ -137,6 +142,7 @@ function RequestFriendComponent({ data, listRequestFriend, setListRequestFriend 
             .then((res) => {
                 if (res.data.code === '1000') {
                     setIsAccept(2);
+                    setTotal((prev) => prev - 1);
                 } else {
                     return;
                 }
@@ -178,8 +184,10 @@ function RequestFriendComponent({ data, listRequestFriend, setListRequestFriend 
         setBlockService(body)
             .then((res) => {
                 if (res.data.code === '1000') {
-                    const newListRequestFriend = listRequestFriend.filter((item) => item.id !== data.id);
-                    setListRequestFriend(newListRequestFriend);
+                    // const newListRequestFriend = listRequestFriend.filter((item) => item.id !== data.id);
+                    // setListRequestFriend(newListRequestFriend);
+                    dispatch(deleteRequestFriendMain(data.id));
+                    setTotal((prev) => prev - 1);
                 } else {
                     Alert.alert('Thông báo', res.data.message);
                 }
@@ -207,7 +215,7 @@ function RequestFriendComponent({ data, listRequestFriend, setListRequestFriend 
     return (
         <Container>
             <ContainerAvatar onPress={() => navigate(routes.PROFILE_SCREEN, { user_id: data.id })}>
-                <Avatar source={data.avatar === '' || data.avatar === '-1' ? images.defaultAvatar : { uri: data.avatar }} />
+                <Avatar source={data.avatar === '' ? images.defaultAvatar : { uri: data.avatar }} />
             </ContainerAvatar>
             <Info>
                 <ContainerText>
@@ -251,7 +259,7 @@ function RequestFriendComponent({ data, listRequestFriend, setListRequestFriend 
                             title="Vẫy tay chào"
                             propsIcon={{ width: '20px' }}
                             propsButton={{ backgroundColor: Color.lightGray, justifyContent: 'center', height: '40', marginTop: '10' }}
-                            propsTitle={{ color: Color.black, fontSize: 12, fontWeight: '500' }}
+                            propsTitle={{ color: Color.black, size: 16, fontWeight: '500' }}
                         />
                     </ContainerNext>
                 ) : (

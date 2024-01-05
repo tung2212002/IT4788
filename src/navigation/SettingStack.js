@@ -3,8 +3,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { useSelector } from 'react-redux';
 
 import Color from '../utils/Color';
-import { SettingScreen, ProfileScreen } from '../screens';
-import ItemRightComponent from '../components/ItemRightComponent';
+import { SettingScreen, ProfileScreen, SubSettingScreen, ChangeAvatarScreen, ChangInfoAfterSignUp } from '../screens';
 import { selectUser } from '../redux/features/auth/authSlice';
 import routes from '../constants/route';
 
@@ -27,7 +26,6 @@ const StackSetting = createStackNavigator();
 
 const SettingStack = ({ route, navigation }) => {
     const user = useSelector(selectUser);
-    const username = user?.username || 'Người dùng';
 
     const screenItemsSetting = [
         {
@@ -49,11 +47,35 @@ const SettingStack = ({ route, navigation }) => {
                 // headerTitleAlign: 'center',
             },
         },
+        {
+            name: routes.SUB_SETTING_SCREEN,
+            component: SubSettingScreen,
+            options: {
+                headerShown: user.active === '-1' ? true : true,
+                headerBackTitle: 'Cài đặt ',
+                headerTitleAlign: 'center',
+            },
+        },
+        {
+            name: routes.CHANGE_AVATAR_SCREEN,
+            component: ChangeAvatarScreen,
+            options: {
+                headerShown: false,
+            },
+        },
+        {
+            name: routes.CHANGE_INFO_AFTER_SIGN_UP,
+            component: ChangInfoAfterSignUp,
+            options: {
+                headerShown: false,
+            },
+        },
     ];
 
     return (
         <StackSetting.Navigator
-            initialRouteName={routes.SETTING_SCREEN}
+            initialRouteName={user.active === '-1' ? routes.CHANGE_INFO_AFTER_SIGN_UP : routes.SETTING_SCREEN}
+            // initialRouteName={routes.SETTING_SCREEN}
             screenOptions={{
                 headerStyle: {
                     backgroundColor: Color.mainBackgroundColor,

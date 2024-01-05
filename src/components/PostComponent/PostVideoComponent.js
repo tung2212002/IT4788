@@ -1,27 +1,33 @@
 /* eslint-disable react-native/no-inline-styles */
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import styled from 'styled-components/native';
 import { Surface } from 'react-native-paper';
+import { Video } from 'expo-av';
 
-import convertTimeAgo from '../utils/convertTimeAgo';
-import VectorIcon from '../utils/VectorIcon';
-import Color from '../utils/Color';
-import PopupComponent from './PopupComponent';
+import convertTimeAgo from '../../utils/convertTimeAgo';
+import VectorIcon from '../../utils/VectorIcon';
+import Color from '../../utils/Color';
+import PopupComponent from '../PopupComponent';
 import { useState } from 'react';
-import ButtonIconComponent from './ButtonIconComponent';
+import ButtonIconComponent from '../ButtonIconComponent';
 import { Dimensions, View } from 'react-native';
-import { images } from '../../assets';
-import { deletePostService } from '../services/postService';
-import { useDispatch } from 'react-redux';
-import { logout, mergeUser } from '../redux/features/auth/authSlice';
+import { images } from '../../../assets';
+import { deletePostService } from '../../services/postService';
+import { useDispatch, useSelector } from 'react-redux';
+import { logout, mergeUser, selectUser } from '../../redux/features/auth/authSlice';
 import { Alert } from 'react-native';
-import { SVGSad2, SVGHaha2 } from '../../assets';
-import { listActivity, listFeeling } from '../constants/listItem';
-import ButtonComponent from './ButtonComponent';
-import { navigate } from '../navigation/RootNavigator';
-import routes from '../constants/route';
-import GridImageView from './GridImageView ';
+import { SVGSad2 } from '../../../assets';
+import { listActivity, listFeeling } from '../../constants/listItem';
+import ButtonComponent from '../ButtonComponent';
+import { navigate } from '../../navigation/RootNavigator';
+import routes from '../../constants/route';
 import { Pressable } from 'react-native';
+import FeelComponent from './FeelComponent';
+import { setRequestFriendService } from '../../services/friendService';
+import { setBlockService } from '../../services/blockService';
+import VideoComponent from './VideoComponent';
+import PhotoGrid from '../PhotoGridComponent/PhotoGrid';
+import { deletePost } from '../../redux/features/post/postSlice';
 
 const ShadowSurface = styled(Surface)`
     width: 100%;
@@ -60,7 +66,8 @@ const PostAuthorAvatar = styled.Image`
     height: 40px;
     border-radius: 25px;
     resize-mode: cover;
-    margin-horizontal: 12px;
+    margin-left: 12px;
+    margin-right: 6px;
 `;
 
 const PostTimeContainer = styled.View`
@@ -97,6 +104,8 @@ const PostContent = styled.View`
 const PostContentText = styled.Text`
     font-size: 16px;
     padding: 0 12px;
+    margin-bottom: 8px;
+    margin-top: 8px;
 `;
 
 const Info = styled.View`
@@ -133,6 +142,7 @@ const FooterPost = styled.View`
     align-items: center;
     padding-horizontal: 10px;
     padding-vertical: 2px;
+    background-color: ${Color.white};
 `;
 
 const Description = styled.View`
@@ -152,18 +162,44 @@ const State = styled.Text`
 
 const ButtonIcon = styled(ButtonIconComponent)``;
 
-const PostComponent = ({ item, user, navigation, post, setPost }) => {
-    const [renderPopUpComponent, setRenderPopUpComponent] = useState(false);
-    const [gridImageViewData, setGridImageViewData] = useState(item?.image);
+const SVGSad = styled(SVGSad2)`
+    transform: translateX(4px);
+    z-index: 1;
+`;
+
+const PostVideoComponent = ({ item, user, navigation, post, setPost }) => {
     const dispatch = useDispatch();
+
+    const userSelector = useSelector(selectUser);
+
+    const [renderPopUpComponent, setRenderPopUpComponent] = useState(false);
+    // const [itemPost, setItemPost] = useState(item);
+    const [itemPost, setItemPost] = useState(item);
+    // const [feel, setFeel] = useState(item.feel);
+    // const [felt, setFelt] = useState(item.is_felt);
     const [state, setState] = useState({
         activitie: null,
         feel: null,
     });
 
-    useEffect(() => {
-        console.log('change');
-    }, [item]);
+    const handleRequestFriend = () => {
+        const body = {
+            user_id: itemPost.author.id,
+        };
+
+        setRequestFriendService(body)
+            .then((res) => {
+                if (res.data.code === '1000') {
+                    // setUser({ ...user, is_friend: '2' });
+                } else {
+                    return;
+                }
+            })
+            .catch((err) => {
+                console.log(err);
+                Alert.alert('Lỗi', 'Đã có lỗi xảy ra, vui lòng thử lại sau!', [{ text: 'OK' }]);
+            });
+    };
 
     const handleDeletePost = () => {
         Alert.alert('Thông báo', 'Bạn có chắc chắn muốn xóa bài viết này?', [
@@ -175,23 +211,24 @@ const PostComponent = ({ item, user, navigation, post, setPost }) => {
             {
                 text: 'Xóa',
                 onPress: () => {
-                    deletePost();
+                    deletePost1();
                 },
             },
         ]);
     };
 
-    const deletePost = () => {
+    const deletePost1 = () => {
         const data = {
             id: item.id,
         };
 
         deletePostService(data).then((res) => {
+            setRenderPopUpComponent(false);
             if (res.data.code === '1000') {
                 const newListPost = post.filter((ite) => ite.id !== item.id);
-                mergeUser({ ...user, coins: res.data.data.coins });
-                setPost(newListPost);
-                setRenderPopUpComponent(false);
+                mergeUser({ ...userSelector, coins: res.data.data.coins });
+                // setPost(newListPost);
+                dispatch(deletePost(item.id));
             } else if (res.data.code === '9992') {
                 Alert.alert(
                     'Thông báo',
@@ -210,40 +247,50 @@ const PostComponent = ({ item, user, navigation, post, setPost }) => {
         });
     };
 
+    const handleBlockUser = () => {
+        const body = {
+            user_id: itemPost.author.id,
+        };
+
+        setBlockService(body)
+            .then((res) => {
+                if (res.data.code === '1000') {
+                    const newListPost = post.filter((ite) => ite.author.id !== itemPost.author.id);
+                    setPost(newListPost);
+                } else {
+                    return;
+                }
+            })
+            .catch((err) => {
+                console.log(err);
+                Alert.alert('Lỗi', 'Đã có lỗi xảy ra, vui lòng thử lại sau!', [{ text: 'OK' }]);
+            });
+    };
+
     const listItems = [
         {
-            title: 'Tắt thông báo bài viết này',
-            name: 'bell-off',
-            type: 'Feather',
-            handlePress: () => {
-                console.log(`Tắt thông báo bài viết này ${item.id}`);
-            },
-        },
-        {
-            title: 'Lưu bài viết',
-            name: 'bookmark',
-            type: 'Feather',
-            handlePress: () => {
-                console.log(`Lưu bài viết ${item.id}`);
-            },
-        },
-        {
-            title: 'Xóa bài viết',
-            name: 'delete',
+            title: 'Báo cáo video',
+            name: 'warning',
             type: 'AntDesign',
             handlePress: () => {
-                handleDeletePost();
+                console.log(`Báo cáo video ${item.id}`);
             },
+        },
+        {
+            title: userSelector.id !== item.author.id ? 'Kết bạn với chủ bài viết' : 'Tắt thông báo từ bài viết này',
+            name: userSelector.id !== item.author.id ? 'user-plus' : 'bell-off',
+            type: 'Feather',
+            handlePress: handleRequestFriend,
+        },
+        {
+            title: userSelector.id === item.author.id ? 'Xóa bài viết' : 'Chặn chủ bài viết',
+            name: userSelector.id === item.author.id ? 'delete' : 'block',
+            type: userSelector.id === item.author.id ? 'AntDesign' : 'MaterialIcons',
+            handlePress: userSelector.id === item.author.id ? handleDeletePost : handleBlockUser,
         },
         {
             title: 'Chỉnh sửa bài viết',
             name: 'edit',
-            type: 'Feather',
-            handlePress: () => {},
-        },
-        {
-            title: 'Sao chép liên kết',
-            name: 'link',
             type: 'Feather',
             handlePress: () => {},
         },
@@ -268,18 +315,16 @@ const PostComponent = ({ item, user, navigation, post, setPost }) => {
                 <PostHeader>
                     <Pressable
                         onPress={() => {
-                            navigation.navigate(routes.PROFILE_SCREEN, { user_id: item.author.id });
+                            navigation.navigate(routes.PROFILE_SCREEN, { user_id: itemPost.author.id });
                         }}
                     >
-                        <PostAuthorAvatar
-                            source={item.author?.avatar === '' || item.author?.avatar === '-1' ? images.defaultAvatar : { uri: item.author?.avatar }}
-                        />
+                        <PostAuthorAvatar source={itemPost.author?.avatar === '' ? images.defaultAvatar : { uri: itemPost.author?.avatar }} />
                     </Pressable>
                     <PostAuthor>
                         <Info>
                             <ButtonComponent
-                                title={item.author.name || 'Author'}
-                                onPress={() => navigate(routes.PROFILE_SCREEN, { user_id: item.author.id })}
+                                title={itemPost.author.name || 'Author'}
+                                onPress={() => navigate(routes.PROFILE_SCREEN, { user_id: itemPost.author.id })}
                                 color={Color.black}
                                 fontWeight={'bold'}
                                 size={16}
@@ -307,10 +352,11 @@ const PostComponent = ({ item, user, navigation, post, setPost }) => {
                                 </Description>
                             )}
                         </Info>
+
                         <PostTimeContainer>
-                            <PostTime>{convertTimeAgo(item.created)}</PostTime>
+                            <PostTime>{convertTimeAgo(itemPost.created)}</PostTime>
                             <VectorIcon nameIcon={'dot-single'} typeIcon={'Entypo'} color={Color.gray} size={10} />
-                            {item.state !== 'published' ? (
+                            {itemPost.state !== 'published' ? (
                                 <VectorIcon nameIcon={'public'} typeIcon={'MaterialIcons'} color={Color.gray} size={16} />
                             ) : (
                                 <VectorIcon nameIcon={'user-friends'} typeIcon={'FontAwesome5'} color={Color.gray} size={14} />
@@ -322,59 +368,38 @@ const PostComponent = ({ item, user, navigation, post, setPost }) => {
                     </ThreeDotsContainer>
                 </PostHeader>
                 <PostContent>
-                    <PostContentText>{item?.described}</PostContentText>
-                    <GridImageView renderModalFooter={true} data={gridImageViewData} />
-
-                    <FeelView>
-                        <Feel>
-                            <SVGSad2 width={18} height={18} />
-                            <SVGHaha2 width={18} height={18} />
-                            {(item?.feel !== '0' && item.is_felt === '-1' && <Comment>{item?.feel}</Comment>) ||
-                                (item.is_felt !== '-1' && <Comment>Bạn và {item.feel - 1} người khác</Comment>)}
-                        </Feel>
-                        <CommentView>{item.comment_mark && item.comment_mark !== '0' && <Comment>{item.comment_mark} bình luận</Comment>}</CommentView>
-                    </FeelView>
+                    <PostContentText>{itemPost?.described}</PostContentText>
+                    <PhotoGrid source={itemPost?.image} onPressImage={(source) => this.showImage(source.uri)} />
+                    {itemPost.video && (
+                        <View
+                            style={{
+                                flex: 1,
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                backgroundColor: Color.black,
+                                height: Dimensions.get('window').height * 0.6,
+                            }}
+                        >
+                            <Video
+                                style={{ width: '100%', height: '100%', backgroundColor: Color.black, zIndex: 1000 }}
+                                source={{ uri: item.video.url }}
+                                useNativeControls
+                                resizeMode="contain"
+                                isLooping
+                                shouldPlay={false}
+                            />
+                        </View>
+                    )}
                     <FooterPost>
-                        <ButtonIcon
-                            title={'Thích'}
-                            nameIcon={'like2'}
-                            typeIcon={'AntDesign'}
-                            propsIcon={{ color: Color.gray, size: 24, padding: 1 }}
-                            propsTitle={{ color: Color.gray, size: 13, fontWeight: 600 }}
-                            propsButton={{ backgroundColor: Color.white, width: 'auto', padding: 1, height: 40 }}
-                        />
-                        <ButtonIcon
-                            title={'Bình luận'}
-                            nameIcon={'comment-o'}
-                            typeIcon={'FontAwesome'}
-                            propsIcon={{ color: Color.gray, size: 24, padding: 1 }}
-                            propsTitle={{ color: Color.gray, size: 13, fontWeight: 600 }}
-                            propsButton={{ backgroundColor: Color.white, width: 'auto', padding: 1, height: 40 }}
-                        />
-                        <ButtonIcon
-                            title={'Gửi'}
-                            nameIcon={'message1'}
-                            typeIcon={'AntDesign'}
-                            propsIcon={{ color: Color.gray, size: 24, padding: 1 }}
-                            propsTitle={{ color: Color.gray, size: 13, fontWeight: 600 }}
-                            propsButton={{ backgroundColor: Color.white, width: 'auto', padding: 1, height: 40 }}
-                        />
-                        <ButtonIcon
-                            nameIcon={'sharealt'}
-                            title={'Chia sẻ'}
-                            typeIcon={'AntDesign'}
-                            propsIcon={{ color: Color.gray, size: 24, padding: 1 }}
-                            propsTitle={{ color: Color.gray, size: 13, fontWeight: 600 }}
-                            propsButton={{ backgroundColor: Color.white, width: 'auto', padding: 1, height: 40 }}
-                        />
+                        <FeelComponent data={itemPost} setItemPost={setItemPost} />
                     </FooterPost>
                 </PostContent>
             </PostContainer>
             {renderPopUpComponent && (
                 <PopupComponent renderPopUpComponent={renderPopUpComponent} setRenderPopUpComponent={setRenderPopUpComponent}>
                     {listItems.map((button, index) =>
-                        (button.title === 'Xóa bài viết' && item.author.id === user.id) ||
-                        (button.title === 'Chỉnh sửa bài viết' && item.can_edit === '1') ||
+                        (button.title === 'Xóa bài viết' && itemPost.author.id === userSelector.id) ||
+                        (button.title === 'Chỉnh sửa bài viết' && itemPost.can_edit === '1') ||
                         (button.title !== 'Xóa bài viết' && button.title !== 'Chỉnh sửa bài viết') ? (
                             <ButtonIconComponent
                                 key={index}
@@ -394,4 +419,4 @@ const PostComponent = ({ item, user, navigation, post, setPost }) => {
     );
 };
 
-export default PostComponent;
+export default PostVideoComponent;

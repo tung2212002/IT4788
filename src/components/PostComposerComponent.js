@@ -19,6 +19,7 @@ import { getTokenStorage } from '../utils/userStorage';
 import { BASE_URL } from '@env';
 import { navigate } from '../navigation/RootNavigator';
 import routes from '../constants/route';
+import { addPost } from '../redux/features/post/postSlice';
 
 const Container = styled.View`
     background-color: ${Color.white};
@@ -133,11 +134,14 @@ const PostComposerComponent = ({ navigation, stylesInput, isHeader = false, post
         const formData = new FormData();
         formData.append('described', data.described);
         formData.append('status', data.status);
-        for (let i = 0; i < data.image.length; i++) {
-            formData.append('image', data.image[i].base64);
+        if (data.image) {
+            data.image.forEach((item) => {
+                formData.append('image', item.base64);
+            });
         }
-        formData.append('video', data.video);
-
+        if (data.video) {
+            formData.append('video', data.video, data.video.type);
+        }
         setShowCreatePost(false);
 
         const token = await getTokenStorage();
@@ -158,14 +162,22 @@ const PostComposerComponent = ({ navigation, stylesInput, isHeader = false, post
             .post(url, formData, options)
             .then((res) => {
                 if (res.data.code === '1000') {
-                    console.log(res.data.data);
                     handleRequestNewPost(res.data.data.id);
                 } else {
                     console.log(res);
                 }
             })
             .catch((e) => {
-                console.log(e);
+                if (e.response) {
+                    console.log(e.response.data);
+                    console.log(e.response.status);
+                    console.log(e.response.headers);
+                } else if (e.request) {
+                    console.log(e.request);
+                } else {
+                    console.log('e', e.message);
+                }
+                console.log(e.config);
             });
     };
 
@@ -178,10 +190,13 @@ const PostComposerComponent = ({ navigation, stylesInput, isHeader = false, post
             .then((res) => {
                 if (res.data.code === '1000') {
                     const newPost = res.data.data;
-                    const newListPost = [...post];
-                    newListPost.unshift(newPost);
-                    setPost(newListPost);
-                    setPagination({ ...pagination, lastId: id });
+                    // const newListPost = [...post];
+                    // console.log(newPost);
+                    // newListPost.unshift(newPost);
+                    // setPost(newListPost);
+                    let isVideo = newPost.video ? true : false;
+                    dispatch(addPost({ post: newPost, isVideo }));
+                    setPagination({ ...pagination, index: pagination.index + 1 });
                 } else {
                     console.log(res);
                 }
@@ -235,7 +250,7 @@ const PostComposerComponent = ({ navigation, stylesInput, isHeader = false, post
             ) : null}
             <Content>
                 <TouchableOpacity onPress={() => navigate(routes.PROFILE_SCREEN)}>
-                    <Avatar source={user?.avatar === '' || user?.avatar === '-1' ? images.defaultAvatar : { uri: user?.avatar }} />
+                    <Avatar source={user?.avatar === '' ? images.defaultAvatar : { uri: user?.avatar }} />
                 </TouchableOpacity>
                 <ButtonInput
                     onPress={() => setShowCreatePost(true)}

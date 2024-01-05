@@ -14,26 +14,24 @@ const Container = styled.View`
     align-items: center;
     justify-content: space-between;
     padding-horizontal: 20px;
-    padding-vertical: 50px;
-    padding-top: 10px;
-    background-color: ${Color.mainBackgroundColor};
+    padding-vertical: 10px;
+    background-color: ${Color.grey6};
 `;
 
 const Body = styled.View`
     width: 100%;
-    align-items: center;
 `;
 
 const Title = styled.Text`
-    font-size: 24px;
-    font-family: Roboto-Bold;
+    font-size: 30px;
+    font-family: OpenSans-Bold;
     line-height: 60px;
-    margin-bottom: 20px;
 `;
 
 const TextPara = styled.Text`
-    font-size: 18px;
+    font-size: 16px;
     line-height: 24px;
+    font-family: OpenSans-Medium;
 `;
 
 const Input = styled.View`
@@ -43,21 +41,15 @@ const Input = styled.View`
     justify-content: center;
 `;
 
-const TextPara2 = styled.Text`
-    font-size: 18px;
-    line-height: 24px;
-    font-family: Roboto-Bold;
-`;
-
 const InputValue = styled.TextInput`
     width: 40%;
     height: 60px;
     font-size: 24px;
-    font-family: Roboto-Bold;
+    font-family: OpenSans-Bold;
     text-align: center;
     border: 1px solid ${Color.gray};
     border-radius: 10px;
-    background-color: ${Color.mainBackgroundColor};
+    background-color: ${Color.white};
 `;
 
 const Error = styled.Text`
@@ -74,6 +66,14 @@ const ViewError = styled.View`
 
 const ButtonClick = styled(ButtonComponent)`
     margin-vertical: 10px;
+    border-radius: 30px;
+`;
+
+const ButtonClick2 = styled(ButtonComponent)`
+    margin-vertical: 10px;
+    border-radius: 30px;
+    border-color: ${Color.grey3};
+    border-width: 1px;
 `;
 
 const ViewButton = styled.View`
@@ -134,8 +134,11 @@ function AccountAuthenScreen({ route, navigation }) {
     return (
         <Container>
             <Body>
-                <TextPara>Chúng tôi đã gửi {numberPhone ? ` SMS kèm mã tới ${numberPhone}` : `Email kèm mã tới ${email}`}</TextPara>
-                <TextPara2>Nhập mã gồm 5 chữ số từ {numberPhone ? 'SMS' : 'Email'} của bạn.</TextPara2>
+                <Title>Nhập mã xác nhận</Title>
+                <TextPara>
+                    Để xác nhận tài khoản, hãy nhập mã gồm 5 chữ số được chúng tôi gửi{' '}
+                    {numberPhone ? ` SMS kèm mã tới ${numberPhone}` : `Email kèm mã tới ${email}`}
+                </TextPara>
                 <ViewError>{error !== '' && <Error>{error}</Error>}</ViewError>
                 <Input>
                     <Title>FB- </Title>
@@ -152,13 +155,13 @@ function AccountAuthenScreen({ route, navigation }) {
                 </Input>
             </Body>
             <ViewButton>
-                <ButtonClick onPress={checkCode} title={'Xác nhận'} loading={loading} />
-                <ButtonClick title={'Tôi không nhận được mã'} color={Color.black} style={{ backgroundColor: Color.lightGray }} />
+                <ButtonClick onPress={checkCode} title={'Xác nhận'} loading={loading} disabled={loading} />
+                <ButtonClick2 title={'Tôi không nhận được mã'} color={Color.black} style={{ backgroundColor: Color.grey6 }} />
                 <ButtonClick
                     onPress={() => navigate(routes.AUTHENTICATION_SCREEN)}
                     title={'Đăng xuất'}
                     color={Color.gray}
-                    style={{ backgroundColor: Color.mainBackgroundColor }}
+                    style={{ backgroundColor: Color.grey6 }}
                 />
             </ViewButton>
         </Container>

@@ -14,6 +14,8 @@ import { Alert } from 'react-native';
 import { getUserFriendsService } from '../../services/friendService';
 import { RefreshControl } from 'react-native';
 import { ActivityIndicator } from 'react-native-paper';
+import { useDispatch, useSelector } from 'react-redux';
+import { addFriendSub, addListSuggestFriendSub, selectFriendSub, setFriendSub, setSuggestFriendSub } from '../../redux/features/friend/friendSlice';
 
 const HeaderProfile = styled.View`
     top: 0;
@@ -84,8 +86,11 @@ const ContainerBody = styled.FlatList`
 `;
 
 function UserFriendsScreen() {
+    const dispatch = useDispatch();
     const navigation = useNavigation();
-    const [listFriend, setListFriend] = useState([]);
+
+    const listFriend = useSelector(selectFriendSub);
+    // const [listFriend, setListFriend] = useState([]);
     const [totalUserFriends, setTotalUserFriends] = useState(0);
     const [page, setPage] = useState({
         index: 0,
@@ -119,7 +124,9 @@ function UserFriendsScreen() {
             .then((res) => {
                 if (res.data.code === '1000') {
                     // setTotalUserFriends(res.data.data.friends.length + totalUserFriends);
-                    setListFriend([...listFriend, ...res.data.data.friends]);
+                    // setListFriend([...listFriend, ...res.data.data.friends]);
+                    setTotalUserFriends(res.data.data.total);
+                    dispatch(addFriendSub(res.data.data.friends));
                     setPage({ ...page, index: page.index + res.data.data.friends.length, isLoadMore: false, last_index: page.index });
                 } else {
                     setPage({ ...page, isLoadMore: false });
@@ -143,7 +150,9 @@ function UserFriendsScreen() {
             .then((res) => {
                 if (res.data.code === '1000') {
                     // setTotalUserFriends(res.data.data.friends.length);
-                    setListFriend(res.data.data.friends);
+                    // setListFriend(res.data.data.friends);
+                    setTotalUserFriends(res.data.data.total);
+                    dispatch(setFriendSub(res.data.data.friends));
                     setPage({ ...page, index: res.data.data.friends.length, isRefreshing: false });
                 } else {
                     setPage({ ...page, isRefreshing: false });
@@ -157,7 +166,7 @@ function UserFriendsScreen() {
     };
 
     useEffect(() => {
-        handleGetUserFriends();
+        handleRefreshUserFriends();
     }, []);
 
     useEffect(() => {
@@ -187,6 +196,7 @@ function UserFriendsScreen() {
             </HeaderProfile>
             <Body>
                 <ContainerBody
+                    showsVerticalScrollIndicator={false}
                     refreshing={page.isRefreshing}
                     onRefresh={onRefresh}
                     ListHeaderComponent={
@@ -197,7 +207,13 @@ function UserFriendsScreen() {
                     }
                     data={listFriend}
                     keyExtractor={(item) => item.id}
-                    renderItem={({ item }) => <FriendComponent data={item} listFriend={listFriend} setListFriend={setListFriend} />}
+                    renderItem={({ item }) => (
+                        <FriendComponent
+                            data={item}
+                            listFriend={listFriend}
+                            // setListFriend={setListFriend}
+                        />
+                    )}
                     onEndReached={onLoadMore}
                     onEndReachedThreshold={0}
                     refreshControl={refreshControl}

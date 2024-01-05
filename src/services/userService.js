@@ -34,3 +34,18 @@ export const resetPasswordService = async (body) => {
     const response = await request.api.post('/reset_password', body);
     return response;
 };
+
+export const checkEmailService = async (body) => {
+    const response = await request.api.post('/check_email', body);
+    return response;
+};
+
+export const deactiveUserSerivce = async (body) => {
+    const response = await request.apiAuth.post('/deactive_user', body);
+    return response;
+};
+
+export const restoreUserSerivce = async (body) => {
+    const response = await request.api.post('/restore_user', body);
+    return response;
+};

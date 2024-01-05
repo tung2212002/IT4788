@@ -4,6 +4,7 @@ import styled from 'styled-components/native';
 
 import Color from '../utils/Color';
 import ButtonComponent from './ButtonComponent';
+import VectorIcon from '../utils/VectorIcon';
 
 const Container = styled.View`
     width: 100%;
@@ -13,14 +14,16 @@ const Container = styled.View`
 `;
 
 const InputTextSecure = styled(TextInput)`
-    flex: 9;
+    position: relative;
+    width: 100%;
 `;
 
-const HiddenButton = styled(ButtonComponent)`
-    flex: 3;
+const HiddenButton = styled(VectorIcon)`
+    position: absolute;
+    right: 10px;
 `;
 
-function InputSecure(props) {
+function InputSecure({ mode, placeholder, label, outlineColor, outlineStyle, underlineColor, underlineStyle, topClose, ...props }) {
     const [showClear, setShowClear] = useState(false);
     const [secureTextEntry, setSecureTextEntry] = useState(true);
 
@@ -28,6 +31,13 @@ function InputSecure(props) {
         <Container>
             <InputTextSecure
                 {...props}
+                mode={mode}
+                placeholder={placeholder}
+                label={label}
+                outlineColor={outlineColor}
+                outlineStyle={outlineStyle}
+                underlineColor={underlineColor}
+                underlineStyle={underlineStyle}
                 secureTextEntry={secureTextEntry}
                 onFocus={() => {
                     if (props.value) {
@@ -54,6 +64,7 @@ function InputSecure(props) {
                                 setShowClear(false);
                                 setSecureTextEntry(true);
                             }}
+                            style={{ marginRight: 60, marginTop: topClose ? topClose : 0 }}
                         />
                     )
                 }
@@ -61,9 +72,10 @@ function InputSecure(props) {
             {props.value && (
                 <HiddenButton
                     onPress={() => setSecureTextEntry(!secureTextEntry)}
-                    title={secureTextEntry ? 'HIỂN THỊ' : 'ẨN'}
+                    nameIcon={showClear ? (secureTextEntry ? 'eye-outline' : 'eye-off-outline') : ''}
+                    typeIcon="MaterialCommunityIcons"
+                    size={28}
                     color={Color.black}
-                    style={{ backgroundColor: Color.mainBackgroundColor }}
                 />
             )}
         </Container>

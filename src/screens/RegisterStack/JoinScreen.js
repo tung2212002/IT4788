@@ -9,47 +9,54 @@ import routes from '../../constants/route';
 
 const Container = styled.View`
     flex: 1;
-    background-color: ${Color.mainBackgroundColor};
     align-items: center;
     justify-content: space-between;
     padding-horizontal: 20px;
-    padding-vertical: 50px;
-    background-color: ${Color.mainBackgroundColor};
+    padding-vertical: 20px;
+    background-color: ${Color.grey6};
 `;
 
 const Body = styled.View`
     width: 100%;
-    align-items: center;
 `;
 
 const Logo = styled.Image`
     width: 100%;
     height: 50%;
     border-radius: 20px;
+    margin-top: 20px;
+    margin-bottom: 10px;
 `;
 
 const Title = styled.Text`
-    font-size: 24px;
-    font-family: Roboto-Bold;
-    margin-top: 50px;
+    font-size: 30px;
+    font-family: OpenSans-Bold;
+    margin-bottom: 10px;
 `;
 
 const SubTitle = styled.Text`
-    font-size: 18px;
-    text-align: center;
+    font-size: 16px;
+    text-align: left;
     margin-top: 10px;
-    opacity: 0.5;
+    font-family: OpenSans-SemiBold;
+    color: ${Color.black};
+    opacity: 0.7;
+`;
+
+const ButtonNext = styled(ButtonComponent)`
+    margin-top: 10px;
+    border-radius: 30px;
 `;
 
 function JoinScreen({ navigation }) {
     return (
         <Container>
             <Body>
-                <Logo source={images.logoRegister} />
                 <Title>Tham gia Facebook</Title>
-                <SubTitle>Chúng tôi sẽ giúp bạn tạo tài khoản mới sau vài bước dễ dàng</SubTitle>
+                <Logo source={images.logoRegister} />
+                <SubTitle>Tạo tài khoản kết nối với bạn bè, người thân và cộng đồng có chung sở thích.</SubTitle>
             </Body>
-            <ButtonComponent onPress={() => navigate(routes.NAME_REGISTER_SCREEN)} title={'Tiếp'} />
+            <ButtonNext onPress={() => navigate(routes.NAME_REGISTER_SCREEN)} title={'Bắt đầu'} />
         </Container>
     );
 }

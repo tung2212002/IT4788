@@ -11,6 +11,8 @@ import { useNavigation } from '@react-navigation/native';
 import { navigate } from '../../navigation/RootNavigator';
 import SuggestFriendComponent from '../../components/SuggestFriendComponent';
 import { ActivityIndicator } from 'react-native-paper';
+import { useDispatch, useSelector } from 'react-redux';
+import { addListSuggestFriendSub, selectSuggestFriendSub, setSuggestFriendSub } from '../../redux/features/friend/friendSlice';
 
 const Container = styled.View`
     flex: 1;
@@ -75,8 +77,11 @@ const Body = styled.View`
 `;
 
 function SuggestFriendsScreen() {
+    const dispatch = useDispatch();
     const navigation = useNavigation();
-    const [listSuggestFriend, setListSuggestFriend] = useState([]);
+
+    const listSuggestFriend = useSelector(selectSuggestFriendSub);
+    // const [listSuggestFriend, setListSuggestFriend] = useState([]);
     const [page, setPage] = useState({
         index: 0,
         count: 10,
@@ -90,6 +95,7 @@ function SuggestFriendsScreen() {
     };
 
     const onLoadMore = () => {
+        // console.log(page.last_index, page.index);
         if (page.last_index === page.index && page.index !== 0) {
             return;
         }
@@ -107,7 +113,8 @@ function SuggestFriendsScreen() {
         getSuggestedFriends(body)
             .then((res) => {
                 if (res.data.code === '1000') {
-                    setListSuggestFriend([...listSuggestFriend, ...res.data.data]);
+                    // setListSuggestFriend([...listSuggestFriend, ...res.data.data]);
+                    dispatch(addListSuggestFriendSub(res.data.data));
                     setPage({ ...page, index: page.index + res.data.data.length, isLoadMore: false, last_index: page.index });
                 } else {
                     setPage({ ...page, isLoadMore: false });
@@ -130,7 +137,8 @@ function SuggestFriendsScreen() {
         getSuggestedFriends(body)
             .then((res) => {
                 if (res.data.code === '1000') {
-                    setListSuggestFriend(res.data.data);
+                    // setListSuggestFriend(res.data.data);
+                    dispatch(setSuggestFriendSub(res.data.data));
                     setPage({ ...page, index: res.data.data.length, isRefreshing: false });
                 } else {
                     setPage({ ...page, isRefreshing: false });
@@ -144,10 +152,11 @@ function SuggestFriendsScreen() {
     };
 
     useEffect(() => {
-        handleGetSuggestFriends();
+        handleRefreshSuggestFriends();
     }, []);
 
     useEffect(() => {
+        console.log(page);
         if (page.isLoadMore) {
             handleGetSuggestFriends();
         } else if (page.isRefreshing) {
@@ -170,6 +179,7 @@ function SuggestFriendsScreen() {
             </HeaderProfile>
             <Body>
                 <ContainerBody
+                    showsVerticalScrollIndicator={false}
                     refreshing={page.isRefreshing}
                     onRefresh={onRefresh}
                     data={listSuggestFriend}
@@ -178,12 +188,16 @@ function SuggestFriendsScreen() {
                             <TitleHeaderBody>Những người bạn có thể biết</TitleHeaderBody>
                         </HeaderBody>
                     }
-                    keyExtractor={(item) => item.id + item.created}
+                    keyExtractor={(item, index) => index + item.id + item.created}
                     renderItem={({ item }) => (
-                        <SuggestFriendComponent data={item} listSuggestFriend={listSuggestFriend} setListSuggestFriend={setListSuggestFriend} />
+                        <SuggestFriendComponent
+                            data={item}
+                            listSuggestFriend={listSuggestFriend}
+                            // setListSuggestFriend={setListSuggestFriend}
+                        />
                     )}
                     onEndReached={onLoadMore}
-                    onEndReachedThreshold={1}
+                    onEndReachedThreshold={0}
                     refreshControl={refreshControl}
                     ListFooterComponent={page.isLoadMore && <ActivityIndicator size="small" color={Color.blueButtonColor} style={{ marginVertical: 10 }} />}
                 />

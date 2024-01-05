@@ -1,7 +1,7 @@
 /* eslint-disable react-native/no-inline-styles */
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components/native';
-import { Dimensions, Keyboard } from 'react-native';
+import { Alert, Dimensions, Keyboard } from 'react-native';
 import { View } from 'react-native';
 import { ScrollView } from 'react-native';
 
@@ -26,7 +26,8 @@ import {
 } from '../../assets';
 import ChoiceFeelingComponent from '../components/ChoiceFeelingComponent';
 import { useMediaPicker } from '../hooks/useMediaPicker';
-import GridImageView from '../components/GridImageView ';
+import PhotoGrid from '../components/PhotoGridComponent/PhotoGrid';
+import VideoComponent from '../components/PostComponent/VideoComponent';
 
 const Container = styled(PopupScreenComponent)`
     background-color: ${Color.black};
@@ -191,7 +192,7 @@ function CreatePostScreen({ navigation, setShowCreatePost, showCreatePost, user,
         position: absolute;
         right: 0px;
         top: 0px;
-        background-color: ${input.length > 0 ? Color.blueButtonColor : Color.lightGray};
+        background-color: ${input.length > 0 || allVideo.length > 0 ? Color.blueButtonColor : Color.lightGray};
         border-radius: 5px;
         margin-top: 20px;
         margin-right: 20px;
@@ -367,6 +368,7 @@ function CreatePostScreen({ navigation, setShowCreatePost, showCreatePost, user,
                 image: allImage,
                 video: allVideo?.length > 0 ? allVideo[0].base64 : '',
             };
+            // console.log('data', data);
             handleCreatePost(data);
         }
         return;
@@ -411,28 +413,44 @@ function CreatePostScreen({ navigation, setShowCreatePost, showCreatePost, user,
     }, []);
 
     useEffect(() => {
-        // console.log('allImage', allImage[0]?.base64);
+        setAllImageUrl(allImage.map((item) => ({ url: item.uri })));
     }, [allImage]);
 
     useEffect(() => {
-        // if (allVideo.length > 0) {
-        //     Alert.alert('Thông báo', 'Bạn chỉ được chọn tối đa 1 video');
-        //     return;
-        // } else if (allImage.length >= 4) {
-        //     Alert.alert('Thông báo', 'Bạn chỉ được chọn tối đa 4 ảnh');
-        //     return;
-        // }
+        // if (allVideo.length > 0 && allImage.length > 0) {
+        //     console.log('Bạn chỉ được chọn video hoặc ảnh');
+        //     console.log('allVideo', allVideo?.length);
+        //     console.log('allImage', allImage?.length);
+        //     Alert.alert('Thông báo', 'Bạn chỉ được chọn video hoặc ảnh', [{ text: 'OK' }], { cancelable: false });
+        //     if (mediaFiles.length > 0) {
+        //         clearMedia();
+        //     }
+        // } else {
         if (mediaFiles.length > 0) {
-            if (mediaFiles[0].type === 'mp4') {
-                setAllVideo([...mediaFiles[0]]);
-            } else {
+            console.log('Thành công1');
+            if (mediaFiles[0].type === 'video' && allVideo.length > 0) {
+                console.log('Bạn chỉ được chọn 1 video');
+                Alert.alert('Thông báo', 'Bạn chỉ được chọn 1 video', [{ text: 'OK' }], { cancelable: false });
+                clearMedia();
+                return;
+            } else if (mediaFiles[0].type === 'image' && allVideo.length > 0) {
+                Alert.alert('Thông báo', 'Vui lòng bỏ video trước khi chọn ảnh', [{ text: 'OK' }], { cancelable: false });
+            } else if (mediaFiles[0].type === 'video' && allImage.length > 0) {
+                Alert.alert('Thông báo', 'Vui lòng bỏ ảnh trước khi chọn video', [{ text: 'OK' }], { cancelable: false });
+            } else if (mediaFiles[0].type === 'video' && allImage.length === 0) {
+                console.log('Thành công3');
+                setAllVideo([mediaFiles[0]]);
+            } else if (allVideo.length === 0 && mediaFiles[0].type === 'image') {
+                console.log('Thành công4');
                 setAllImage([...allImage, mediaFiles[0]]);
-                setAllImageUrl([...allImageUrl, { url: mediaFiles[0].uri }]);
             }
             clearMedia();
-        } else if (videoFiles.length > 0) {
-            setAllVideo([...allVideo, videoFiles]);
-            clearMedia();
+            // }
+            // else if (videoFiles.length === 0) {
+            //     console.log('Thành công2');
+            //     setAllVideo([...allVideo, videoFiles]);
+            //     clearMedia();
+            // }
         }
     }, [mediaFiles]);
 
@@ -450,7 +468,8 @@ function CreatePostScreen({ navigation, setShowCreatePost, showCreatePost, user,
                 <ButtonSubmit
                     onPress={handleCreatePost1}
                     title={'Đăng'}
-                    disabled={input.length > 0 ? false : true}
+                    disabled={input.length > 0 || allVideo.length > 0 ? false : true}
+                    size={16}
                     style={{ alignItems: 'center', justifyContent: 'center', height: 40, width: 70 }}
                 />
             </Header>
@@ -458,7 +477,7 @@ function CreatePostScreen({ navigation, setShowCreatePost, showCreatePost, user,
                 <Content>
                     <ContentHeader>
                         <ViewAvatar>
-                            <Avatar source={user?.avatar === '-1' || user?.avatar === '' ? images.defaultAvatar : { uri: user.avatar }} />
+                            <Avatar source={user?.avatar === '' ? images.defaultAvatar : { uri: user.avatar }} />
                         </ViewAvatar>
                         <Info>
                             {!feelings && !activities && <FullName>{user?.username || 'Người dùng'}</FullName>}
@@ -558,19 +577,8 @@ function CreatePostScreen({ navigation, setShowCreatePost, showCreatePost, user,
                         placeholderTextColor={Color.gray}
                         style={{ color: Color.black, zIndex: -1 }}
                     />
-                    {allImageUrl.length > 0 && <GridImageView data={allImageUrl} />}
-                    {/* <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginTop: 10 }}>
-                    {mediaFiles.map((item, index) => (
-                        <View key={index} style={{ width: 100, height: 100, marginRight: 10, marginBottom: 10 }}>
-                            <Image source={{ uri: item.uri }} style={{ width: 100, height: 100 }} />
-                        </View>
-                    ))}
-                    {allImage.map((item, index) => (
-                        <View key={index} style={{ width: 100, height: 100, marginRight: 10, marginBottom: 10 }}>
-                            <Image source={{ uri: item.uri }} style={{ width: 100, height: 100 }} />
-                        </View>
-                    ))}
-                </View> */}
+                    {allImageUrl?.length > 0 && <PhotoGrid source={allImageUrl} canDelete={true} setAllImage={setAllImage} allImage={allImage} />}
+                    {allVideo?.length > 0 && <VideoComponent uri={allVideo[0]?.uri} canDelete={true} setAllVideo={setAllVideo} allVideo={allVideo} />}
                 </Content>
             </ScrollView>
             {renderPopUpComponent && (

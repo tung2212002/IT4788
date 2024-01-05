@@ -1,7 +1,7 @@
 import * as request from '../utils/requestAxios';
 
 export const searchService = async (body) => {
-    const response = await request.apiAuthAttach.post('/search', body);
+    const response = await request.apiAuth.post('/search', body);
     return response;
 };
 

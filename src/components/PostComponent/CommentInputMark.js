@@ -60,7 +60,7 @@ const EmojiIcon = styled.View`
 function CommentInputMatk(props) {
     const user = useSelector(selectUser);
 
-    const { data, setMarkComments, markComments, handleScrollToBottom } = props;
+    const { data, setMarkComments, markComments, handleScrollToBottom, setReactions } = props;
     const [input, setInput] = useState('');
     const [markType, setMarkType] = useState(1);
     const [show, setShow] = useState(false);

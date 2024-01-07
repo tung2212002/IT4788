@@ -1,9 +1,13 @@
 import axios from 'axios';
 
 import { getTokenStorage } from './userStorage';
-import { BASE_URL } from '@env';
+// import { BASE_URL } from '@env';
 import { navigate } from '../navigation/RootNavigator';
 import routes from '../constants/route';
+
+// const BASE_URL = process.env.BASE_URL;
+// console.log('BASE_URL', BASE_URL);
+const BASE_URL = 'https://it4788.catan.io.vn';
 
 const instance = (config = {}, auth = false) => {
     const request = axios.create(config);

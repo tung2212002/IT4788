@@ -249,7 +249,7 @@ const PostComposerComponent = ({ navigation, stylesInput, isHeader = false, post
                 </Header>
             ) : null}
             <Content>
-                <TouchableOpacity onPress={() => navigate(routes.PROFILE_SCREEN)}>
+                <TouchableOpacity onPress={() => navigate(routes.PROFILE_SCREEN, { userId: user?.id })}>
                     <Avatar source={user?.avatar === '' ? images.defaultAvatar : { uri: user?.avatar }} />
                 </TouchableOpacity>
                 <ButtonInput

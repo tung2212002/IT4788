@@ -88,6 +88,7 @@ function SaveAccountScreen({ route, navigation }) {
     const translateY = useRef(new Animated.Value(Dimensions.get('window').height)).current;
     const params = route.params;
     const username = params.user.username;
+    const email = params.user.email;
 
     useEffect(() => {
         Animated.timing(translateY, {
@@ -109,7 +110,7 @@ function SaveAccountScreen({ route, navigation }) {
     };
 
     const handleLogout = () => {
-        removeAccountStorage(username)
+        removeAccountStorage(email)
             .then((res) => {
                 navigation.reset({ index: 0, routes: [{ name: routes.AUTHENTICATION_SCREEN }] });
             })

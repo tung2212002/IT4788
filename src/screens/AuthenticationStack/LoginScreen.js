@@ -91,6 +91,7 @@ function LoginScreen({ navigation }) {
     useEffect(() => {
         getUserStorage()
             .then((data) => {
+                console.log(data);
                 setUser(data);
             })
             .catch((err) => console.log(err));

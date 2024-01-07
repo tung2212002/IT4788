@@ -62,8 +62,9 @@ export const hiddenPost = createAsyncThunk('post/hiddenPost', async ({ id, isVid
     return { id, isVideo };
 });
 
-export const hiddenPostUser = createAsyncThunk('post/hiddenPostUser', async ({ id, isVideo = false }) => {
-    return { id, isVideo };
+export const hiddenPostUser = createAsyncThunk('post/hiddenPostUser', async (id) => {
+    console.log(id);
+    return id;
 });
 
 const postSlice = createSlice({
@@ -215,8 +216,8 @@ const postSlice = createSlice({
             })
             .addCase(hiddenPostUser.fulfilled, (state, action) => {
                 state.loading = false;
-                state.homePost = state.homePost.filter((post) => post.author.id !== action.payload.id);
-                state.videoPost = state.videoPost.filter((post) => post.author.id !== action.payload.id);
+                state.homePost = state.homePost.filter((post) => post.author.id !== action.payload);
+                state.videoPost = state.videoPost.filter((post) => post.author.id !== action.payload);
             });
     },
 });

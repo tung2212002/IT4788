@@ -29,6 +29,7 @@ import { getLocationStorage } from '../../utils/locationStorage';
 import PostComponent from '../../components/PostComponent/PostComponent';
 import ButtonComponent from '../../components/ButtonComponent';
 import { addListPostHomeEnd, addListPostUserEnd, addPost, selectUserPost, setListUserPost } from '../../redux/features/post/postSlice';
+import { deleteRequestFriendMain, deleteSuggestFriendMain } from '../../redux/features/friend/friendSlice';
 
 const Container = styled.View`
     flex: 1;
@@ -524,6 +525,7 @@ function ProfileScreen({ route, navigation, props }) {
             .then((res) => {
                 if (res.data.code === '1000') {
                     setUser({ ...user, is_friend: '2' });
+                    dispatch(deleteSuggestFriendMain(user_id));
                 } else {
                     return;
                 }
@@ -564,6 +566,7 @@ function ProfileScreen({ route, navigation, props }) {
                 if (res.data.code === '1000') {
                     setUser({ ...user, is_friend: '1' });
                     setRenderPopUpComponent3(false);
+                    dispatch(deleteRequestFriendMain(user_id));
                 } else {
                     setRenderPopUpComponent3(false);
                 }
@@ -608,6 +611,7 @@ function ProfileScreen({ route, navigation, props }) {
                 if (res.data.code === '1000') {
                     setUser({ ...user, is_friend: '0' });
                     setRenderPopUpComponent3(false);
+                    dispatch(deleteRequestFriendMain(user_id));
                 } else {
                     setRenderPopUpComponent3(false);
                 }

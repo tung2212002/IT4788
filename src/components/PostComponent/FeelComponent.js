@@ -149,7 +149,16 @@ function FeelComponent({ data, setItemPost }) {
             </FooterPost>
 
             {/* <PopupComponent renderPopUpComponent={show} setRenderPopUpComponent={setShow} disableHandleSwipeMoveBottom={true}> */}
-            {show && <ListMarkComponent renderPopUpComponent={show} setRenderPopUpComponent={setShow} data={data} reacttions={reacttions} felt={felt} />}
+            {show && (
+                <ListMarkComponent
+                    renderPopUpComponent={show}
+                    setRenderPopUpComponent={setShow}
+                    data={data}
+                    reacttions={reacttions}
+                    felt={felt}
+                    setReactions={setReactions}
+                />
+            )}
             {/* </PopupComponent> */}
         </View>
     );

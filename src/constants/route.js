@@ -49,12 +49,17 @@ const routes = {
     SUB_SETTING_SCREEN: 'SubSettingScreen',
     CHANGE_AVATAR_SCREEN: 'ChangeAvatarScreen',
     CHANGE_INFO_AFTER_SIGN_UP: 'ChangInfoAfterSignUp',
+    SETTING_NOTIFICATION_SCREEN: 'SettingNotificationScreen',
+    SETTING_NOTIFICATION_DETAIL_SCREEN: 'SettingNotificationDetailScreen',
+    SETTING_PUSH_NOTIFICATION_SCREEN: 'SettinhPushNotificationScreen',
+    BLOCK_USER_SCREEN: 'BlockUserScreen',
 
     // LoadingScreen
     LOADING_SCREEN: 'LoadingScreen',
     LOGOUT: 'Logout',
 
     CREATE_POST_SCREEN: 'CreatePostScreen',
+    POST_DETAIL_SCREEN: 'PostDetailScreen',
 };
 
 export default routes;

@@ -3,7 +3,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { useSelector } from 'react-redux';
 
 import Color from '../utils/Color';
-import { HomeScreen, Logout, ProfileScreen, SearchLogScreen, SearchResultScreen } from '../screens';
+import { HomeScreen, Logout, PostDetailScreen, ProfileScreen, SearchLogScreen, SearchResultScreen } from '../screens';
 import { selectUser } from '../redux/features/auth/authSlice';
 import routes from '../constants/route';
 
@@ -48,6 +48,14 @@ const HomeStack = () => {
         {
             name: routes.SEARCH_LOG_SCREEN,
             component: SearchLogScreen,
+            options: {
+                title: '',
+                headerShown: false,
+            },
+        },
+        {
+            name: routes.POST_DETAIL_SCREEN,
+            component: PostDetailScreen,
             options: {
                 title: '',
                 headerShown: false,

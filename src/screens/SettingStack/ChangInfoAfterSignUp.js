@@ -13,7 +13,8 @@ import VectorIcon from '../../utils/VectorIcon';
 import { useMediaPicker } from '../../hooks/useMediaPicker';
 import { changeProfileAfterSignupService } from '../../services/profileService';
 import { useDispatch } from 'react-redux';
-import { logout } from '../../redux/features/auth/authSlice';
+import { logout, mergeUser } from '../../redux/features/auth/authSlice';
+import { mergeUserStorage } from '../../utils/userStorage';
 
 const Container = styled.Modal`
     flex: 1;
@@ -154,8 +155,15 @@ function ChangInfoAfterSignUp() {
         }
         changeProfileAfterSignupService(formData)
             .then((res) => {
-                if (res.data.data.code === '1000') {
+                if (res.data.code === '1000') {
+                    let userInfo = res.data.data;
+                    userInfo.active = '1';
+                    dispatch(mergeUser(userInfo));
+                    mergeUserStorage(userInfo);
                     navigate(routes.HOME_STACK);
+                    setLoading({ ...loading, changeProfile: false });
+                } else {
+                    setError('Cập nhật thông tin thất bại');
                     setLoading({ ...loading, changeProfile: false });
                 }
             })
@@ -199,7 +207,7 @@ function ChangInfoAfterSignUp() {
                     outlineStyle={{ borderRadius: 0, borderTopLeftRadius: 20, borderTopRightRadius: 20, borderWidth: 2 }}
                     underlineColor={Color.grey4}
                     underlineStyle={{ borderRadius: 20 }}
-                    topClose={8}
+                    topClose={28}
                     style={{ paddingTop: 12 }}
                     value={firstName}
                     onChangeText={(text) => {
@@ -216,7 +224,7 @@ function ChangInfoAfterSignUp() {
                     outlineStyle={{ borderRadius: 0, borderWidth: 2 }}
                     underlineColor={Color.grey4}
                     underlineStyle={{ borderRadius: 10 }}
-                    topClose={8}
+                    topClose={28}
                     style={{ marginTop: -7, paddingTop: 12 }}
                     value={middleName}
                     onChangeText={(text) => {
@@ -233,7 +241,7 @@ function ChangInfoAfterSignUp() {
                     outlineStyle={{ borderRadius: 0, borderBottomLeftRadius: 20, borderBottomRightRadius: 20, borderWidth: 2 }}
                     underlineColor={Color.grey4}
                     underlineStyle={{ borderRadius: 10 }}
-                    topClose={8}
+                    topClose={28}
                     style={{ marginTop: -6, paddingTop: 12 }}
                     value={lastName}
                     onChangeText={(text) => {

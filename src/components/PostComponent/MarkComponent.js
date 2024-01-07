@@ -15,7 +15,7 @@ import { selectUser } from '../../redux/features/auth/authSlice';
 import PopupComponent from '../PopupComponent';
 import ButtonIconComponent from '../ButtonIconComponent';
 
-const Container = styled.View`
+const Container = styled.Pressable`
     flex: 1;
     background-color: ${Color.white};
     flex-direction: row;
@@ -87,7 +87,7 @@ const ListItem = styled.View`
     padding-horizontal: 10px;
 `;
 
-function MarkComponent({ data, renderPopUpComponent, setRenderPopUpComponent, setMarkComments }) {
+function MarkComponent({ data, renderPopUpComponent, setRenderPopUpComponent, setMarkComments, setReactions }) {
     const navigation = useNavigation();
 
     const user = useSelector(selectUser);
@@ -143,7 +143,7 @@ function MarkComponent({ data, renderPopUpComponent, setRenderPopUpComponent, se
                     coverScreen={true}
                     hasBackdrop={false}
                 >
-                    <CommentPopup setRenderPopupComment={setRenderPopupComment} setMarkComments={setMarkComments} data={data} />
+                    <CommentPopup setRenderPopupComment={setRenderPopupComment} setMarkComments={setMarkComments} data={data} setReactions={setReactions} />
                 </PopupScreenComponent>
             )}
             {renderPopupChangeMark && (

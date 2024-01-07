@@ -11,6 +11,6 @@ export const getUserInfoService = async (body) => {
 };
 
 export const setUserInfoService = async (body) => {
-    const response = await request.apiAuth.post('/set_user_info', body);
+    const response = await request.apiAuthAttach.post('/set_user_info', body);
     return response;
 };

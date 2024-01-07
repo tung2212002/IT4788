@@ -3,26 +3,21 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { useSelector } from 'react-redux';
 
 import Color from '../utils/Color';
-import { SettingScreen, ProfileScreen, SubSettingScreen, ChangeAvatarScreen, ChangInfoAfterSignUp } from '../screens';
+import {
+    SettingScreen,
+    ProfileScreen,
+    SubSettingScreen,
+    ChangeAvatarScreen,
+    ChangInfoAfterSignUp,
+    SettingNotificationScreen,
+    SettingNotificationDetailScreen,
+    SettingPushNotificationScreen,
+} from '../screens';
 import { selectUser } from '../redux/features/auth/authSlice';
 import routes from '../constants/route';
+import BlockUserScreen from '../screens/SettingStack/BlockUserScreen';
 
 const StackSetting = createStackNavigator();
-
-// const itemsHeaderProfileRight = [
-//     {
-//         nameIcon: 'pencil',
-//         typeIcon: 'FontAwesome',
-//     },
-//     {
-//         nameIcon: 'search',
-//         typeIcon: 'FontAwesome',
-//     },
-// ];
-
-// const headerRight = () => {
-//     return <ItemRightComponent items={itemsHeaderProfileRight} />;
-// };
 
 const SettingStack = ({ route, navigation }) => {
     const user = useSelector(selectUser);
@@ -51,14 +46,40 @@ const SettingStack = ({ route, navigation }) => {
             name: routes.SUB_SETTING_SCREEN,
             component: SubSettingScreen,
             options: {
-                headerShown: user.active === '-1' ? true : true,
-                headerBackTitle: 'Cài đặt ',
-                headerTitleAlign: 'center',
+                headerShown: false,
             },
         },
         {
             name: routes.CHANGE_AVATAR_SCREEN,
             component: ChangeAvatarScreen,
+            options: {
+                headerShown: false,
+            },
+        },
+        {
+            name: routes.SETTING_NOTIFICATION_SCREEN,
+            component: SettingNotificationScreen,
+            options: {
+                headerShown: false,
+            },
+        },
+        {
+            name: routes.SETTING_NOTIFICATION_DETAIL_SCREEN,
+            component: SettingNotificationDetailScreen,
+            options: {
+                headerShown: false,
+            },
+        },
+        {
+            name: routes.SETTING_PUSH_NOTIFICATION_SCREEN,
+            component: SettingPushNotificationScreen,
+            options: {
+                headerShown: false,
+            },
+        },
+        {
+            name: routes.BLOCK_USER_SCREEN,
+            component: BlockUserScreen,
             options: {
                 headerShown: false,
             },
@@ -74,7 +95,7 @@ const SettingStack = ({ route, navigation }) => {
 
     return (
         <StackSetting.Navigator
-            initialRouteName={user.active === '-1' ? routes.CHANGE_INFO_AFTER_SIGN_UP : routes.SETTING_SCREEN}
+            initialRouteName={routes.SETTING_SCREEN}
             // initialRouteName={routes.SETTING_SCREEN}
             screenOptions={{
                 headerStyle: {

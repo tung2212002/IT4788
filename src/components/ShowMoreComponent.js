@@ -56,6 +56,7 @@ function ShowMoreComponent({ items, showMore, maxHeight }) {
                             propsIcon={{ width: 30, height: 30 }}
                             propsTitle={{ fontWeight: '500', size: 17 }}
                             isShadow={true}
+                            onPress={item.onPress ? item.onPress : () => {}}
                         />
                     </ItemContainer>
                 ))}

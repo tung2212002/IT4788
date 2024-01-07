@@ -4,7 +4,7 @@
     "slug": "RNProject",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/facebook.jpg",
+    "icon": "./assets/facebookIcon.jpg",
     "userInterfaceStyle": "light",
     "splash": {
       "image": "./assets/Facebook1.png",

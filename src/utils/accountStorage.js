@@ -18,23 +18,33 @@ const removeAccountStorage = async (email) => {
 };
 
 const setAccountsStorage = async (data) => {
-    const accounts = await getAccounstStorage();
+    let accounts = await getAccounstStorage();
+
     if (!accounts) {
+        // If no accounts exist, store the new account as an array
         await Storage.storeObjectItem('accounts', [data]);
         return;
     }
-    accounts.map(async (account) => {
+
+    let accountIndex = -1;
+
+    // Find the index of the account with the same email
+    accounts.forEach((account, index) => {
         if (account.email === data.email) {
-            accounts.shift(account);
-            accounts.push(data);
-            await Storage.storeObjectItem('accounts', accounts);
-            return;
+            accountIndex = index;
         }
     });
-    if (accounts.length === 2) {
+
+    if (accountIndex !== -1) {
+        accounts[accountIndex] = data;
+    } else {
+        accounts.push(data);
+    }
+
+    if (accounts.length > 2) {
         accounts.shift();
     }
-    accounts.push(data);
+
     await Storage.storeObjectItem('accounts', accounts);
 };
 

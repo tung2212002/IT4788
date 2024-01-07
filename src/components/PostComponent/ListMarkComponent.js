@@ -123,7 +123,7 @@ const TextLoadMore = styled.Text`
     padding-vertical: 20px;
 `;
 
-function ListMarkComponent({ renderPopUpComponent, setRenderPopUpComponent, onBackdropPress, reacttions, felt, data }) {
+function ListMarkComponent({ renderPopUpComponent, setRenderPopUpComponent, onBackdropPress, reacttions, felt, data, setReactions }) {
     const [page, setPage] = useState({
         index: -1,
         count: 10,
@@ -210,7 +210,13 @@ function ListMarkComponent({ renderPopUpComponent, setRenderPopUpComponent, onBa
                     )}
                 </ScrollAbleModal>
             )}
-            <CommentInputMatk data={data} setMarkComments={setMarkComments} markComments={markComments} handleScrollToBottom={handleScrollToBottom} />
+            <CommentInputMatk
+                data={data}
+                setMarkComments={setMarkComments}
+                markComments={markComments}
+                handleScrollToBottom={handleScrollToBottom}
+                setReactions={setReactions}
+            />
         </ModalContainer>
     );
 }

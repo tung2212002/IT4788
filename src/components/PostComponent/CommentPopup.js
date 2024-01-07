@@ -5,7 +5,6 @@ import CommentInputPost from './CommentInputPost';
 import { getMarkCommentService } from '../../services/commentService';
 import { Dimensions, Pressable } from 'react-native';
 import CommentComponent from './CommentComponent';
-import MarkComponent from './MarkComponent';
 import { SVGMultiply, SVGYes, images } from '../../../assets';
 import { convertTimeDif } from '../../utils/convertTimeAgo';
 
@@ -17,10 +16,6 @@ const Container = styled.Pressable`
 const ScrollAbleModal = styled.ScrollView`
     height: auto;
     background-color: ${Color.white};
-    padding-horizontal: 15px;
-`;
-
-const ScrollViewContainer = styled.Pressable`
     padding-horizontal: 15px;
 `;
 

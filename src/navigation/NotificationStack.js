@@ -2,7 +2,7 @@ import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 
 import Color from '../utils/Color';
-import { NotificationScreen, ProfileScreen, UserFriendsScreen } from '../screens';
+import { NotificationScreen, PostDetailScreen, ProfileScreen, UserFriendsScreen } from '../screens';
 import routes from '../constants/route';
 
 const StackSetting = createStackNavigator();
@@ -27,6 +27,14 @@ const NotificationStack = () => {
             name: routes.PROFILE_SCREEN,
             component: ProfileScreen,
             options: {
+                headerShown: false,
+            },
+        },
+        {
+            name: routes.POST_DETAIL_SCREEN,
+            component: PostDetailScreen,
+            options: {
+                title: '',
                 headerShown: false,
             },
         },

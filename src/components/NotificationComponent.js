@@ -120,42 +120,70 @@ function NotificationComponent({ navigation, item }) {
             description: ' đã đăng một bài viết mới.',
             type: '3',
             icon: <SVGGroups width={28} height={28} />,
+            onPress: () => {
+                setRead('0');
+                navigation.push(routes.POST_DETAIL_SCREEN, { id: item.object_id });
+            },
         },
         {
             name: 'PostUpdated',
             description: ' đã cập nhật một bài viết.',
             type: '4',
             icon: <SVGEditPost width={28} height={28} />,
+            onPress: () => {
+                setRead('0');
+                navigation.push(routes.POST_DETAIL_SCREEN, { id: item.object_id });
+            },
         },
         {
             name: 'PostFelt',
             description: ' đã bày tỏ cảm xúc về bài viết của bạn.',
             type: '5',
             icon: item.feel && (item.feel === '1' ? <SVGSad2 width={28} height={28} /> : <SVGHaha2 width={28} height={28} />),
+            onPress: () => {
+                setRead('0');
+                navigation.push(routes.POST_DETAIL_SCREEN, { id: item.object_id });
+            },
         },
         {
             name: 'PostMarked',
             description: ' đã đánh giá bài viết của bạn.',
             type: '6',
             icon: item.mark && (item.mark === '1' ? <SVGCheck width={28} height={28} /> : <SVGExclamationMark width={28} height={28} />),
+            onPress: () => {
+                setRead('0');
+                navigation.push(routes.POST_DETAIL_SCREEN, { id: item.object_id });
+            },
         },
         {
             name: 'MarkCommented',
             description: ' đã bình luận về bài viết của bạn.',
             type: '7',
             icon: <SVGCommentMark width={28} height={28} />,
+            onPress: () => {
+                setRead('0');
+                navigation.push(routes.POST_DETAIL_SCREEN, { id: item.object_id });
+            },
         },
         {
             name: 'VideoAdded',
             description: ' đã đăng một video mới.',
             type: '8',
             icon: <SVGMonitor width={28} height={28} style={{ backgroundColor: Color.white, borderRadius: 14 }} />,
+            onPress: () => {
+                setRead('0');
+                navigation.push(routes.POST_DETAIL_SCREEN, { id: item.object_id });
+            },
         },
         {
             name: 'PostCommented',
             description: ' đã bình luận về bài viết của bạn.',
             type: '9',
             icon: <SVGChat width={28} height={28} />,
+            onPress: () => {
+                setRead('0');
+                navigation.push(routes.POST_DETAIL_SCREEN, { id: item.object_id });
+            },
         },
     ];
 

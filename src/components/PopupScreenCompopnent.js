@@ -21,7 +21,7 @@ const CloseButton = styled.TouchableOpacity`
     z-index: 1;
 `;
 
-function PopupScreenComponent({ renderPopUpComponent, setRenderPopUpComponent, onBackdropPress, children, handleClose }) {
+function PopupScreenComponent({ renderPopUpComponent, setRenderPopUpComponent, onBackdropPress, children, handleClose, isClose = true }) {
     const [state, setState] = useState({
         scrollOffset: null,
         scrollViewRef: null,
@@ -49,9 +49,11 @@ function PopupScreenComponent({ renderPopUpComponent, setRenderPopUpComponent, o
             // onSwipeMove={(percentageShown) => handleSwipeMove(percentageShown)}
             onModalHide={() => setRenderPopUpComponent(false)}
         >
-            <CloseButton onPress={() => (handleClose ? handleClose() : setIsVisible(false))}>
-                <VectorIcon nameIcon="close" size={32} color={Color.black} typeIcon={'MaterialCommunityIcons'} />
-            </CloseButton>
+            {isClose && (
+                <CloseButton onPress={() => (handleClose ? handleClose() : setIsVisible(false))}>
+                    <VectorIcon nameIcon="close" size={32} color={Color.black} typeIcon={'MaterialCommunityIcons'} />
+                </CloseButton>
+            )}
             {children}
         </ModalContainer>
     );

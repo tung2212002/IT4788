@@ -34,6 +34,7 @@ import { navigate } from '../../navigation/RootNavigator';
 import routes from '../../constants/route';
 import VectorIcon from '../../utils/VectorIcon';
 import { buyCoinsService } from '../../services/settingService';
+import ChangInfoAfterSignUp from './ChangInfoAfterSignUp';
 
 const ContainerScrollView = styled.ScrollView`
     flex: 1;
@@ -109,6 +110,9 @@ const ButtonProfile = styled(ButtonIconComponent)``;
 function SettingScreen({ route, navigation }) {
     const user = useSelector(selectUser);
 
+    const isChangeInfo = user?.active;
+    console.log(isChangeInfo);
+
     const dispatch = useDispatch();
 
     const itemsSetting = [
@@ -175,6 +179,7 @@ function SettingScreen({ route, navigation }) {
         {
             title: 'Cài đặt',
             SVGIcon: SVGProfile,
+            onPress: () => navigate(routes.SUB_SETTING_SCREEN),
         },
         {
             title: 'Điều khoản & chính sách',
@@ -186,6 +191,7 @@ function SettingScreen({ route, navigation }) {
         {
             title: 'Cài đặt',
             SVGIcon: SVGProfile,
+            onPress: () => navigate(routes.SUB_SETTING_SCREEN),
         },
     ];
 
@@ -212,7 +218,7 @@ function SettingScreen({ route, navigation }) {
     };
 
     const redirectProfile = () => {
-        navigate(routes.PROFILE_SCREEN);
+        navigate(routes.PROFILE_SCREEN, { user_id: user.id });
     };
 
     const handleGetCoin = () => {
@@ -327,7 +333,7 @@ function SettingScreen({ route, navigation }) {
                     style={{
                         backgroundColor: Color.grayButton,
                         width: '90%',
-                        height: 38,
+                        height: 40,
                         borderRadius: 1,
                         marginBottom: 30,
                     }}
@@ -335,6 +341,7 @@ function SettingScreen({ route, navigation }) {
                     fontWeight={'600'}
                 />
             </ContainerView>
+            {(isChangeInfo === '-1' || !isChangeInfo) && <ChangInfoAfterSignUp />}
         </ContainerScrollView>
     );
 }

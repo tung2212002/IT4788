@@ -37,11 +37,16 @@ import ProfileScreen from './SettingStack/ProfileScreen';
 import SubSettingScreen from './SettingStack/SubSettingScreen';
 import ChangeAvatarScreen from './SettingStack/ChangeAvatarScreen';
 import ChangInfoAfterSignUp from './SettingStack/ChangInfoAfterSignUp';
+import SettingNotificationScreen from './SettingStack/SettingNotificationScreen';
+import SettingNotificationDetailScreen from './SettingStack/SettingNotificationDetailScreen';
+import SettingPushNotificationScreen from './SettingStack/SettinhPushNotificationScreen';
+import BlockUserScreen from './SettingStack/BlockUserScreen';
 
 // LoadingScreen
 import LoadingScreen from './LoadingScreen';
 import Logout from './HomeStack/Logout';
 
+import PostDetailScreen from './PostDetailScreen';
 export {
     // RegisterScreens
     AccountAuthenScreen,
@@ -79,8 +84,13 @@ export {
     SubSettingScreen,
     ChangeAvatarScreen,
     ChangInfoAfterSignUp,
+    SettingNotificationScreen,
+    SettingNotificationDetailScreen,
+    SettingPushNotificationScreen,
 
     // LoadingScreen
     LoadingScreen,
     Logout,
+    BlockUserScreen,
+    PostDetailScreen,
 };

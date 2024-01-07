@@ -167,7 +167,8 @@ const State = styled.Text`
     margin-left: -2px;
 `;
 
-const PostComponent = ({ item, user, navigation, post, setPost, handleRequestNewPost }) => {
+const PostDetailComponent = ({ item, user, navigation, post, setPost, handleRequestNewPost }) => {
+    console.log('item', item);
     const dispatch = useDispatch();
 
     const userSelector = useSelector(selectUser);
@@ -293,6 +294,15 @@ const PostComponent = ({ item, user, navigation, post, setPost, handleRequestNew
         },
     ];
 
+    console.log('itemPost1', itemPost);
+
+    useEffect(() => {
+        if (itemPost?.image) {
+            console.log('itemPost?.image', [itemPost?.image[0]]);
+            console.log('itemPost', itemPost);
+        }
+    }, [itemPost]);
+
     useEffect(() => {
         try {
             const json = JSON.parse(item.state);
@@ -306,7 +316,7 @@ const PostComponent = ({ item, user, navigation, post, setPost, handleRequestNew
         }
     }, []);
 
-    return itemPost.is_blocked === '0' ? (
+    return (
         <ShadowSurface>
             <PostContainer>
                 <PostHeader>
@@ -315,7 +325,7 @@ const PostComponent = ({ item, user, navigation, post, setPost, handleRequestNew
                             navigation.navigate(routes.PROFILE_SCREEN, { user_id: itemPost.author.id });
                         }}
                     >
-                        <PostAuthorAvatar source={itemPost.author?.avatar === '' ? images.defaultAvatar : { uri: itemPost.author?.avatar }} />
+                        <PostAuthorAvatar source={itemPost.author?.avatar === '' ? image.defaultAvatar : { uri: itemPost.author?.avatar }} />
                     </Pressable>
                     <PostAuthor>
                         <Info>
@@ -366,13 +376,24 @@ const PostComponent = ({ item, user, navigation, post, setPost, handleRequestNew
                 </PostHeader>
                 <PostContent>
                     <PostContentText>{itemPost?.described}</PostContentText>
-                    <PhotoGrid
+                    {itemPost?.image?.length > 0 &&
+                        itemPost.image.map((it, index) => (
+                            <PhotoGrid
+                                key={index}
+                                source={[it]}
+                                onPressImage={(source) => this.showImage(source.uri)}
+                                renderModalFooter={true}
+                                renderMFooter={itemPost}
+                                setItemPost={setItemPost}
+                            />
+                        ))}
+                    {/* <PhotoGrid
                         source={itemPost?.image}
                         onPressImage={(source) => this.showImage(source.uri)}
                         renderModalFooter={true}
                         renderMFooter={itemPost}
                         setItemPost={setItemPost}
-                    />
+                    /> */}
                     {itemPost.video && (
                         <View
                             style={{
@@ -431,7 +452,7 @@ const PostComponent = ({ item, user, navigation, post, setPost, handleRequestNew
                 />
             )}
         </ShadowSurface>
-    ) : null;
+    );
 };
 
-export default PostComponent;
+export default PostDetailComponent;

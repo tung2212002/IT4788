@@ -334,7 +334,7 @@ function AuthenticationScreen() {
                                             },
                                         }}
                                     >
-                                        <MenuOption text="Gỡ tài khoản khỏi thiết bị" onSelect={() => handleRemoveAccount(user[0].username)} />
+                                        <MenuOption text="Gỡ tài khoản khỏi thiết bị" onSelect={() => handleRemoveAccount(user[0].email)} />
                                         <MenuOption onSelect={handleTurnOffNotification} text="Tắt thông báo đẩy" />
                                     </MenuOptions>
                                 </MenuComponent>
@@ -394,7 +394,7 @@ function AuthenticationScreen() {
                                                 },
                                             }}
                                         >
-                                            <MenuOption text="Gỡ tài khoản khỏi thiết bị" onSelect={() => handleRemoveAccount(item.username)} />
+                                            <MenuOption text="Gỡ tài khoản khỏi thiết bị" onSelect={() => handleRemoveAccount(item.email)} />
                                             <MenuOption onSelect={handleTurnOffNotification} text="Tắt thông báo đẩy" />
                                         </MenuOptions>
                                     </MenuComponent>

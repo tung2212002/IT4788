@@ -4,6 +4,7 @@ import styled from 'styled-components/native';
 import { Alert, Dimensions, Keyboard } from 'react-native';
 import { View } from 'react-native';
 import { ScrollView } from 'react-native';
+import * as FileSystem from 'expo-file-system';
 
 import Color from '../utils/Color';
 import PopupScreenComponent from '../components/PopupScreenCompopnent';
@@ -28,6 +29,9 @@ import ChoiceFeelingComponent from '../components/ChoiceFeelingComponent';
 import { useMediaPicker } from '../hooks/useMediaPicker';
 import PhotoGrid from '../components/PhotoGridComponent/PhotoGrid';
 import VideoComponent from '../components/PostComponent/VideoComponent';
+import { getAsyncStorage, setAsyncStorage } from '../utils/asyncCacheStorage';
+import { useDispatch } from 'react-redux';
+import { setNoti } from '../redux/features/noti/notiSlice';
 
 const Container = styled(PopupScreenComponent)`
     background-color: ${Color.black};
@@ -172,7 +176,11 @@ const InputText = styled.TextInput`
     margin-top: 10px;
 `;
 
+const fileCacheName = FileSystem.cacheDirectory + 'ImagePicker';
+
 function CreatePostScreen({ navigation, setShowCreatePost, showCreatePost, user, imageFilesPostComposer = [], clearImagesPostComposer, handleCreatePost }) {
+    const dispatch = useDispatch();
+
     const [input, setInput] = useState('');
     const [scope, setScope] = useState('Công khai');
     const [showScope, setShowScope] = useState(false);
@@ -197,6 +205,27 @@ function CreatePostScreen({ navigation, setShowCreatePost, showCreatePost, user,
         margin-top: 20px;
         margin-right: 20px;
     `;
+
+    const handleSaveDraft = () => {
+        let data = {
+            activities: activities,
+            allImage: allImage,
+            allVideo: allVideo,
+            input: input,
+            scope: scope,
+            feelings: feelings,
+        };
+
+        console.log('save data', data);
+        setAsyncStorage('draft', JSON.stringify(data));
+        clearMedia();
+        clearImagesPostComposer();
+        setShowCreatePost(false);
+    };
+
+    const handleClearDraft = () => {
+        setAsyncStorage('draft', null);
+    };
 
     const itemsScope = [
         {
@@ -246,6 +275,10 @@ function CreatePostScreen({ navigation, setShowCreatePost, showCreatePost, user,
         {
             title: 'Gắn thẻ người khác',
             SVGIcon: SVGTagUser,
+            handlePress: () => {
+                setInput(input + '@');
+                console.log('input', input);
+            },
         },
         {
             title: 'Check in',
@@ -283,7 +316,21 @@ function CreatePostScreen({ navigation, setShowCreatePost, showCreatePost, user,
             message: 'Bạn sẽ nhận được thông báo về bản nháp',
             nameIcon: 'bookmark-outline',
             typeIcon: 'Ionicons',
-            onPress: () => {},
+            onPress: () => {
+                handleSaveDraft();
+                setShowCreatePost(false);
+                dispatch(
+                    setNoti({
+                        show: true,
+                        title: 'Đã lưu bản nháp',
+                        iconName: 'bookmark',
+                        iconType: 'MaterialCommunityIcons',
+                        propsButton: { backgroundColor: Color.green, width: 95, marginRight: 10, marginLeft: 10, position: 'absolute', bottom: 50 },
+                        propsIcon: { color: Color.white, size: 16, backgroundColor: Color.green, padding: 1 },
+                        propsTitle: { color: Color.white, size: 16 },
+                    }),
+                );
+            },
             colorStyle: Color.black,
         },
         {
@@ -292,6 +339,7 @@ function CreatePostScreen({ navigation, setShowCreatePost, showCreatePost, user,
             typeIcon: 'Ionicons',
             onPress: () => {
                 setShowCreatePost(false);
+                handleClearDraft();
             },
             colorStyle: Color.black,
         },
@@ -369,6 +417,7 @@ function CreatePostScreen({ navigation, setShowCreatePost, showCreatePost, user,
                 video: allVideo?.length > 0 ? allVideo[0].base64 : '',
             };
             // console.log('data', data);
+            Alert.alert('Thông báo', `Chuẩn bị tạo ${data.described}`);
             handleCreatePost(data);
         }
         return;
@@ -453,6 +502,18 @@ function CreatePostScreen({ navigation, setShowCreatePost, showCreatePost, user,
             // }
         }
     }, [mediaFiles]);
+
+    useEffect(() => {
+        getAsyncStorage('draft').then((data) => {
+            if (data) {
+                console.log('data', data);
+                const dataDraft = JSON.parse(data);
+                setInput(dataDraft.input);
+                setScope(dataDraft.scope);
+                setAllImage(dataDraft.allImage);
+            }
+        });
+    }, []);
 
     return (
         <Container
@@ -576,6 +637,8 @@ function CreatePostScreen({ navigation, setShowCreatePost, showCreatePost, user,
                         onChangeText={(text) => handleInput(text)}
                         placeholderTextColor={Color.gray}
                         style={{ color: Color.black, zIndex: -1 }}
+                        multiline={true}
+                        value={input}
                     />
                     {allImageUrl?.length > 0 && <PhotoGrid source={allImageUrl} canDelete={true} setAllImage={setAllImage} allImage={allImage} />}
                     {allVideo?.length > 0 && <VideoComponent uri={allVideo[0]?.uri} canDelete={true} setAllVideo={setAllVideo} allVideo={allVideo} />}

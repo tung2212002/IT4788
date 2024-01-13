@@ -7,7 +7,7 @@ import routes from '../constants/route';
 
 // const BASE_URL = process.env.BASE_URL;
 // console.log('BASE_URL', BASE_URL);
-const BASE_URL = 'https://it4788.catan.io.vn';
+export const BASE_URL = 'https://it4788.catan.io.vn';
 
 const instance = (config = {}, auth = false) => {
     const request = axios.create(config);
@@ -21,6 +21,7 @@ const instance = (config = {}, auth = false) => {
                     navigate(routes.LOGOUT);
                 }
             }
+            requestConfig.timeout = 10000;
             return requestConfig;
         },
         (error) => {
@@ -44,6 +45,16 @@ const instance = (config = {}, auth = false) => {
                     }
                 }
             } catch (e) {
+                if (e.code === 'ECONNABORTED' && e.message.includes('timeout')) {
+                    return Promise.resolve({
+                        status: 408,
+                        data: {
+                            code: '408',
+                            message: 'Request timeout',
+                        },
+                    });
+                }
+
                 Promise.reject(error);
             }
         },

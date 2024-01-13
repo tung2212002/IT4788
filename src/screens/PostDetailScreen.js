@@ -7,6 +7,8 @@ import PostDetailComponent from '../components/PostComponent/PostDetailComponent
 import { useSelector } from 'react-redux';
 import { selectUser } from '../redux/features/auth/authSlice';
 import VectorIcon from '../utils/VectorIcon';
+import { View } from 'moti';
+import FakePostComponent from '../components/Skeletion/FakePostComponent';
 
 const Container = styled.View`
     flex: 1;
@@ -14,11 +16,13 @@ const Container = styled.View`
 `;
 
 const Body = styled.ScrollView`
-    margin-top: 50px;
+    margin-top: 150px;
     flex: 1;
     flex-direction: column;
     background-color: ${Color.white};
     width: 100%;
+    align-self: center;
+    padding: 50px;
 `;
 
 const Header = styled.View`
@@ -98,12 +102,14 @@ function PostDetailScreen({ navigation, route }) {
                 />
                 <Title>Chi tiết bài viết</Title>
             </Header>
-            {postDetail && <PostDetailComponent item={postDetail} user={user} navigation={navigation} />}
+            {postDetail ? <PostDetailComponent item={postDetail} user={user} navigation={navigation} cacheFolder="homePost" /> : <FakePostComponent />}
+            {/* <FakePostComponent /> */}
             {notFound && (
                 <Body>
                     <TitleBody>KHÔNG TÌM THẤY DỮ LIỆU</TitleBody>
                 </Body>
             )}
+            <View style={{ height: 1500, width: '100%', paddingBottom: 100 }} />
         </Container>
     );
 }

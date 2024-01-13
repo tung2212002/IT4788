@@ -12,6 +12,7 @@ import { navigate } from '../navigation/RootNavigator';
 import routes from '../constants/route';
 import { useDispatch } from 'react-redux';
 import { deleteRequestFriendMain, deleteSuggestFriendMain, deleteSuggestFriendSub } from '../redux/features/friend/friendSlice';
+import CachedImage from './CachedImage';
 
 const Container = styled.View`
     flex-direction: row;
@@ -72,7 +73,7 @@ const ContainerNext = styled.View`
     width: 100%;
 `;
 
-function SuggestFriendComponent({ data, listSuggestFriend }) {
+function SuggestFriendComponent({ data, listSuggestFriend, cacheFolder = '' }) {
     const dispatch = useDispatch();
 
     const [isRequest, setIsRequest] = useState(-1);
@@ -125,7 +126,19 @@ function SuggestFriendComponent({ data, listSuggestFriend }) {
     return (
         <Container>
             <ContainerAvatar onPress={() => navigate(routes.PROFILE_SCREEN, { user_id: data.id })}>
-                <Avatar source={data.avatar === '' ? images.defaultAvatar : { uri: data.avatar }} />
+                {cacheFolder === '' ? (
+                    <Avatar source={data.avatar === '' ? images.defaultAvatar : { uri: data.avatar }} />
+                ) : data.avatar === '' ? (
+                    <Avatar source={images.defaultAvatar} />
+                ) : (
+                    <CachedImage
+                        source={{ uri: data.avatar }}
+                        imageStyle={{ width: 100, height: 100, borderRadius: 50 }}
+                        resizeMode="cover"
+                        cacheFolder={cacheFolder}
+                        cacheKey={data.avatar.split('/').pop()}
+                    />
+                )}
             </ContainerAvatar>
             <Info>
                 <ContainerText>

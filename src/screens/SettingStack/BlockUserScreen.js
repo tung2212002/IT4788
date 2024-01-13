@@ -110,22 +110,12 @@ const PaddingBottom = styled.View`
 
 function BlockUserScreen({ navigation }) {
     const [isFocused, setIsFocused] = useState(false);
-    const [renderPopUpComponent, setRenderPopUpComponent] = useState(false);
     const [blockUser, setBlockUser] = useState([]);
     const [page, setPage] = useState({
         index: 0,
         count: 10,
         hasNextPage: true,
     });
-    const items = [
-        {
-            nameIcon: 'block',
-            typeIcon: 'Entypo',
-            title: 'Bỏ chặn',
-            message: 'Bạn có chắc chắn muốn bỏ chặn người này?',
-            onPress: () => {},
-        },
-    ];
 
     const handleGetListBlock = () => {
         const body = {
@@ -221,14 +211,7 @@ function BlockUserScreen({ navigation }) {
             </Pressable>
             <Body showsVerticalScrollIndicator={false}>
                 {blockUser.map((item, index) => (
-                    <BlockUserComponent
-                        key={index + item.id}
-                        item={item}
-                        renderPopUpComponent={renderPopUpComponent}
-                        setRenderPopUpComponent={setRenderPopUpComponent}
-                        setBlockUser={setBlockUser}
-                        blockUser={blockUser}
-                    />
+                    <BlockUserComponent key={item.id} item={item} setBlockUser={setBlockUser} blockUser={blockUser} />
                 ))}
 
                 {page.hasNextPage && (

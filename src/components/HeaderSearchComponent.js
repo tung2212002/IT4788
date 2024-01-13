@@ -32,6 +32,7 @@ import { useNavigation } from '@react-navigation/native';
 import { setBlockService } from '../services/blockService';
 import { useDispatch } from 'react-redux';
 import { hiddenPostUser } from '../redux/features/post/postSlice';
+import useDebounce from '../hooks/useDebounce';
 
 const { Value, timing } = Animated;
 const { width, height } = Dimensions.get('window');
@@ -130,8 +131,11 @@ const HeaderSearchComponent = ({ opacity, isFocused, setIsFocused, setBlockUser 
             });
     };
 
-    const handleGetUser = () => {
-        if (keyWord.trim() === '') {
+    const debounceValue = useDebounce(keyWord, 500);
+
+    useEffect(() => {
+        if (!debounceValue.trim()) {
+            setResultSearch([]);
             return;
         }
         setIsLoading(true);
@@ -157,7 +161,36 @@ const HeaderSearchComponent = ({ opacity, isFocused, setIsFocused, setBlockUser 
                 setIsLoading(false);
                 setResultSearch([]);
             });
-    };
+    }, [debounceValue]);
+
+    // const handleGetUser = () => {
+    //     if (keyWord.trim() === '') {
+    //         return;
+    //     }
+    //     setIsLoading(true);
+    //     const body = {
+    //         keyword: keyWord,
+    //         index: 0,
+    //         count: 10,
+    //     };
+
+    //     searchUserService(body)
+    //         .then((response) => {
+    //             if (response.data.code === '1000') {
+    //                 setIsLoading(false);
+    //                 console.log('response', response.data.data);
+    //                 setResultSearch(response.data.data);
+    //             } else {
+    //                 setIsLoading(false);
+    //                 setResultSearch([]);
+    //             }
+    //         })
+    //         .catch((error) => {
+    //             console.log('error', error);
+    //             setIsLoading(false);
+    //             setResultSearch([]);
+    //         });
+    // };
 
     const handleBlock = (item) => {
         const body = {
@@ -211,16 +244,22 @@ const HeaderSearchComponent = ({ opacity, isFocused, setIsFocused, setBlockUser 
         }
     }, [isFocused]);
 
-    useEffect(() => {
-        if (keyWord.trim() === '') {
-            setResultSearch([]);
-        } else {
-            if (isLoading) {
-                return;
-            }
-            handleGetUser();
+    // useEffect(() => {
+    //     if (keyWord.trim() === '') {
+    //         setResultSearch([]);
+    //     } else {
+    //         if (isLoading) {
+    //             return;
+    //         }
+    //         handleGetUser();
+    //     }
+    // }, [keyWord]);
+    const handleInputChange = (e) => {
+        const valueInput = e.nativeEvent.text;
+        if (!valueInput.startsWith(' ')) {
+            setKeyWord(valueInput);
         }
-    }, [keyWord]);
+    };
 
     return (
         <View style={{ opacity: opacity }}>
@@ -250,7 +289,11 @@ const HeaderSearchComponent = ({ opacity, isFocused, setIsFocused, setBlockUser 
                             value={keyWord}
                             onChangeText={(text) => {
                                 setKeyWord(text);
+                                if (text === '') {
+                                    setResultSearch([]);
+                                }
                             }}
+                            // onChangeText={handleInputChange}
                             style={styles.input}
                             onSubmitEditing={handleSearch}
                         />
@@ -289,7 +332,7 @@ const HeaderSearchComponent = ({ opacity, isFocused, setIsFocused, setBlockUser 
                                     title={item.username}
                                     message={item.email}
                                     propsButton={{ width: 90, height: 70, backgroundColor: Color.white, alignItems: 'center', padding: '0 20' }}
-                                    propsIcon={{ size: 24, color: Color.black, backgroundColor: Color.lightGray, padding: 8, width: 50, height: 50 }}
+                                    propsIcon={{ backgroundColor: Color.lightGray, padding: 8, width: 50, height: 50, borderRadius: 10 }}
                                     propsTitle={{ color: Color.black, fontWeight: '500' }}
                                     onPress={() => {
                                         handleBlock(item);

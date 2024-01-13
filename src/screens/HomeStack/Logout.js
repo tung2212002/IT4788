@@ -7,6 +7,7 @@ import { useDispatch } from 'react-redux';
 import { useEffect } from 'react';
 import { logout } from '../../redux/features/auth/authSlice';
 import { Alert, Modal } from 'react-native';
+import { removeAsyncStorage } from '../../utils/asyncCacheStorage';
 
 const Container = styled.View`
     flex: 1;

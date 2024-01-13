@@ -25,7 +25,7 @@ const FeelView = styled.View`
     padding: 10px;
 `;
 
-const CommentView = styled.View`
+const CommentView = styled.Pressable`
     flex: 1;
     align-items: flex-end;
 `;
@@ -117,7 +117,9 @@ function FeelComponent({ data, setItemPost }) {
             <FeelView>
                 <ReactPostComponent reacttions={reacttions} felt={felt} />
 
-                <CommentView>{data.comment_mark && data.comment_mark !== '0' && <Comment>{data.comment_mark} mark và bình luận</Comment>}</CommentView>
+                <CommentView onPress={() => setShow(true)}>
+                    {data.comment_mark && data.comment_mark !== '0' && <Comment>{data.comment_mark} mark và bình luận</Comment>}
+                </CommentView>
             </FeelView>
             <FooterPost>
                 <ReactionBox setCurrent={setFelt} current={felt} />

@@ -2,6 +2,8 @@ import React from 'react';
 import styled from 'styled-components/native';
 import { SVGHaha2, SVGSad2 } from '../../../assets';
 import Color from '../../utils/Color';
+import { useSelector } from 'react-redux';
+import { selectUser } from '../../redux/features/auth/authSlice';
 
 const Container = styled.View`
     flex-direction: row;
@@ -62,6 +64,9 @@ function ReactPostComponent(props) {
                     <SVGHaha width={18} height={18} />
                     {felt !== '-1' && reacttions.kudos > '1' ? (
                         <Reactions>Bạn và {reacttions.kudos - 1} người khác</Reactions>
+                    ) : // <Reactions>{reacttions.kudos}</Reactions>
+                    felt !== '-1' && reacttions.kudos === '1' ? (
+                        <Reactions>Bạn</Reactions>
                     ) : (
                         <Reactions>{reacttions.kudos}</Reactions>
                     )}
@@ -72,6 +77,8 @@ function ReactPostComponent(props) {
                     <SVGSad width={18} height={18} />
                     {felt !== '-1' && reacttions.disappointed > '1' ? (
                         <Reactions>Bạn và {reacttions.disappointed - 1} người khác</Reactions>
+                    ) : felt !== '-1' && reacttions.disappointed === '1' ? (
+                        <Reactions>Bạn</Reactions>
                     ) : (
                         <Reactions>{reacttions.disappointed}</Reactions>
                     )}

@@ -9,6 +9,7 @@ import useCustomFonts from './src/hooks/useCustomFonts';
 import store from './src/redux/store';
 import ProviderScreen from './src/app/ProviderScreen';
 import Color from './src/utils/Color';
+import TestScreen from './src/screens/PersionalStack/TestScreen';
 
 const SafeAreaView = Platform.OS === 'ios' ? SafeAreaViewIOS : SafeAreaViewAndroid;
 
@@ -26,6 +27,8 @@ export default function App() {
                 <SafeAreaView style={styles.container} onLayout={onLayoutRootView}>
                     <StatusBar StatusBarStyle="dark-content" backgroundColor={Color.mainBackgroundColor} />
                     <ProviderScreen onLayout={onLayoutRootView} />
+
+                    {/* <TestScreen /> */}
                 </SafeAreaView>
             </Provider>
         </GestureHandlerRootView>

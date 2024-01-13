@@ -34,7 +34,7 @@
 
 // export default ListMarkComponent;
 
-import React, { createRef, useEffect, useState } from 'react';
+import React, { createRef, useEffect, useRef, useState } from 'react';
 import { Dimensions, Pressable, Text } from 'react-native';
 import Modal from 'react-native-modal';
 import styled from 'styled-components/native';
@@ -132,10 +132,10 @@ function ListMarkComponent({ renderPopUpComponent, setRenderPopUpComponent, onBa
         isLoadMore: false,
     });
     const [markComments, setMarkComments] = useState([]);
-    const ref = createRef();
+    const ref = useRef(null);
 
     const handleScrollToBottom = () => {
-        ref.current.scrollToEnd({ animated: true });
+        ref.current.scrollTo({ y: 0, animated: true });
     };
 
     const close = () => {

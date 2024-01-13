@@ -30,6 +30,12 @@ import PostComponent from '../../components/PostComponent/PostComponent';
 import ButtonComponent from '../../components/ButtonComponent';
 import { addListPostHomeEnd, addListPostUserEnd, addPost, selectUserPost, setListUserPost } from '../../redux/features/post/postSlice';
 import { deleteRequestFriendMain, deleteSuggestFriendMain } from '../../redux/features/friend/friendSlice';
+import { selectNetwork } from '../../redux/features/network/networkSlice';
+import CachedImage from '../../components/CachedImage';
+import FakePostComponent from '../../components/Skeletion/FakePostComponent';
+import FakeInfoComponent from '../../components/Skeletion/FakeInfoComponent';
+import FakeListFriendInfoComponent from '../../components/Skeletion/FakeListFriendInfoComponent';
+import SkeletonComponent from '../../components/Skeletion/SkeletonComponent';
 
 const Container = styled.View`
     flex: 1;
@@ -189,7 +195,7 @@ const FriendContainer = styled.Pressable`
 
 const FriendImage = styled.View`
     width: ${(Dimensions.get('window').width - 30) / 3}px;
-    height: ${(Dimensions.get('window').width - 30) / 3}px;
+    height: ${Dimensions.get('window').width / 3}px;
     overflow: hidden;
 `;
 
@@ -216,10 +222,10 @@ const ItemSeparatorView = styled.View`
 `;
 
 const Footer = styled.View`
-    height: 50px;
     width: 100%;
     justify-content: center;
     align-items: center;
+    margin-bottom: 50px;
 `;
 const ActivityIndicatorIcon = styled(ActivityIndicator)``;
 
@@ -238,6 +244,7 @@ function ProfileScreen({ route, navigation, props }) {
 
     const post = useSelector(selectUserPost);
     const userSelect = useSelector(selectUser);
+    const isConnected = useSelector(selectNetwork);
 
     const [user, setUser] = useState({});
     const user_id = route.params?.user_id;
@@ -255,12 +262,15 @@ function ProfileScreen({ route, navigation, props }) {
     const [friends, setFriends] = useState({
         total: 0,
         friends: [],
+        isLoaded: false,
     });
     const [pagination, setPagination] = useState({
         index: 0,
         lastId: 0,
         isRefreshing: false,
         isLoadMore: false,
+        firstLoad: true,
+        hasLoadMore: true,
     });
 
     const HeaderTitle = styled.Text`
@@ -337,6 +347,7 @@ function ProfileScreen({ route, navigation, props }) {
                     setFriends({
                         total: response.data.data.total,
                         friends: response.data.data.friends,
+                        isLoaded: true,
                     });
                 } else {
                     Alert.alert('Thông báo', 'Lỗi, thử lại sau', [{ text: 'OK', onPress: () => navigation.goBack() }], {
@@ -434,16 +445,19 @@ function ProfileScreen({ route, navigation, props }) {
     };
 
     const onRefresh = () => {
-        console.log('refresh....');
+        if (pagination.isRefreshing || pagination.isLoadMore) {
+            return;
+        }
         setPagination({ ...pagination, isRefreshing: true, index: 0 });
     };
 
     const onLoadMore = () => {
         console.log('load more....');
-        if (!pagination.lastId || pagination.isRefreshing) {
+        if (!pagination.lastId || pagination.isRefreshing || pagination.isLoadMore || !pagination.hasLoadMore) {
+            console.log('cant load more');
             return;
         }
-        console.log('load more....');
+        console.log('can load more');
         setPagination({ ...pagination, isLoadMore: true });
     };
 
@@ -461,7 +475,10 @@ function ProfileScreen({ route, navigation, props }) {
         getListPostsService(data)
             .then((response) => {
                 if (response.data.code === '1000') {
-                    if (response.data.data.post?.length !== 0 && response.data.data?.last_id !== pagination.lastId) {
+                    console.log(response.data.data.last_id);
+                    console.log(pagination.lastId);
+                    if (response.data.data.post?.length !== 0 && response.data.data?.last_id !== pagination.lastId && response.data.data.post.last_id) {
+                        console.log('can load more');
                         setPagination({
                             ...pagination,
                             lastId: response.data.data.last_id,
@@ -470,8 +487,12 @@ function ProfileScreen({ route, navigation, props }) {
                         });
                         // setPost((prev) => [...prev, ...response.data.data.post]);
                         dispatch(addListPostUserEnd(response.data.data.post));
+                    } else if (!response.data.data.last_id) {
+                        console.log('no more');
+                        setPagination({ ...pagination, isLoadMore: false, hasLoadMore: false });
                     } else {
-                        setPagination({ ...pagination, isLoadMore: false });
+                        console.log('no more2');
+                        setPagination({ ...pagination, isLoadMore: false, hasLoadMore: false });
                     }
                 }
             })
@@ -651,9 +672,17 @@ function ProfileScreen({ route, navigation, props }) {
                         .then((response) => {
                             if (response.data.code === '1000') {
                                 if (response.data.data.post.length !== 0) {
-                                    setPagination({ ...pagination, lastId: response.data.data.last_id, index: response.data.data.post.length });
+                                    setPagination({
+                                        ...pagination,
+                                        lastId: response.data.data.last_id,
+                                        index: response.data.data.post.length,
+                                        firstLoad: false,
+                                    });
                                     // setPost(response.data.data.post);
                                     dispatch(setListUserPost(response.data.data.post));
+                                } else if (response.data.data.post.length === 0) {
+                                    setPagination({ ...pagination, isRefreshing: false });
+                                    dispatch(setListUserPost([]));
                                 } else {
                                     setPagination({ ...pagination, isRefreshing: false });
                                 }
@@ -670,6 +699,8 @@ function ProfileScreen({ route, navigation, props }) {
                 Alert.alert('Have error, please try again');
             });
     }, []);
+
+    console.log('user', user);
 
     return (
         <Container>
@@ -704,252 +735,324 @@ function ProfileScreen({ route, navigation, props }) {
                 }}
                 scrollEventThrottle={16}
             >
-                <ProfileContainer>
-                    <BackGround source={user.cover_image === '' || !user.cover_image ? images.defaultBackground : { uri: user.cover_image }}>
-                        <AvatarContainer>
-                            <Avatar
-                                source={
-                                    user_id === userSelect.id || !user_id
-                                        ? userSelect.avatar === ''
-                                            ? images.defaultAvatar
-                                            : { uri: userSelect.avatar }
-                                        : user.avatar === ''
-                                        ? images.defaultAvatar
-                                        : { uri: user.avatar }
-                                }
-                            />
-                            {userSelect.id === user_id || !user_id ? (
-                                <AvatarIcon onPress={() => setRenderPopUpComponent(true)}>
-                                    <VectorIcon nameIcon="camera" typeIcon="FontAwesome5" size={22} color={Color.black} />
-                                </AvatarIcon>
-                            ) : null}
-                        </AvatarContainer>
+                {user.id ? (
+                    <ProfileContainer>
+                        {user.cover_image === '' || !user.cover_image ? (
+                            <BackGround source={images.defaultBackground}>
+                                <AvatarContainer>
+                                    {userSelect.id === user_id || !user_id ? (
+                                        userSelect.avatar === '' ? (
+                                            <Avatar source={images.defaultAvatar} />
+                                        ) : (
+                                            <CachedImage
+                                                image={true}
+                                                source={{ uri: userSelect.avatar }}
+                                                style={{ width: '100%', height: '100%', resizeMode: 'cover', borderRadius: 100 }}
+                                                cacheFolder={'avatar'}
+                                                cacheKey={userSelect.avatar.split('/').pop()}
+                                                placeholderContent={<SkeletonComponent width={200} height={200} style={{ borderRadius: 100 }} />}
+                                            />
+                                        )
+                                    ) : user.avatar !== '' ? (
+                                        user.avatar && (
+                                            <CachedImage
+                                                image={true}
+                                                source={{ uri: user.avatar }}
+                                                style={{ width: '100%', height: '100%', resizeMode: 'cover', borderRadius: 100 }}
+                                                cacheFolder={'avatar'}
+                                                cacheKey={user.avatar.split('/').pop()}
+                                                placeholderContent={<SkeletonComponent width={200} height={200} style={{ borderRadius: 100 }} />}
+                                            />
+                                        )
+                                    ) : (
+                                        <Avatar source={images.defaultAvatar} />
+                                    )}
+                                    {userSelect.id === user_id || !user_id ? (
+                                        <AvatarIcon onPress={() => setRenderPopUpComponent(true)}>
+                                            <VectorIcon nameIcon="camera" typeIcon="FontAwesome5" size={22} color={Color.black} />
+                                        </AvatarIcon>
+                                    ) : null}
+                                </AvatarContainer>
 
-                        <FullName>{user_id === userSelect.id || !user_id ? userSelect.username : user.username}</FullName>
-                    </BackGround>
-                    <Bio user={user} friends={friends} />
+                                <FullName>{user_id === userSelect.id || !user_id ? userSelect.username : user.username}</FullName>
+                            </BackGround>
+                        ) : (
+                            <CachedImage
+                                source={{ uri: user.cover_image }}
+                                image={false}
+                                cacheKey={user.cover_image.split('/').pop()}
+                                cacheFolder={'avatar'}
+                                style={{ height: Dimensions.get('window').height * 0.3, alignItems: 'flex-start', justifyContent: 'flex-end' }}
+                            >
+                                <AvatarContainer>
+                                    {userSelect.id === user_id || !user_id ? (
+                                        userSelect.avatar === '' ? (
+                                            <Avatar source={images.defaultAvatar} />
+                                        ) : (
+                                            <CachedImage
+                                                image={true}
+                                                source={{ uri: userSelect.avatar }}
+                                                style={{ width: '100%', height: '100%', resizeMode: 'cover', borderRadius: 100 }}
+                                                cacheFolder={'avatar'}
+                                                cacheKey={userSelect.avatar.split('/').pop()}
+                                                placeholderContent={<SkeletonComponent width={200} height={200} style={{ borderRadius: 100 }} />}
+                                            />
+                                        )
+                                    ) : user.avatar !== '' ? (
+                                        user.avatar && (
+                                            <CachedImage
+                                                image={true}
+                                                source={{ uri: user.avatar }}
+                                                style={{ width: '100%', height: '100%', resizeMode: 'cover', borderRadius: 100 }}
+                                                cacheFolder={'avatar'}
+                                                cacheKey={user.avatar.split('/').pop()}
+                                                placeholderContent={<SkeletonComponent width={200} height={200} style={{ borderRadius: 100 }} />}
+                                            />
+                                        )
+                                    ) : (
+                                        <Avatar source={images.defaultAvatar} />
+                                    )}
+                                    {userSelect.id === user_id || !user_id ? (
+                                        <AvatarIcon onPress={() => setRenderPopUpComponent(true)}>
+                                            <VectorIcon nameIcon="camera" typeIcon="FontAwesome5" size={22} color={Color.black} />
+                                        </AvatarIcon>
+                                    ) : null}
+                                </AvatarContainer>
 
-                    {userSelect.id === user_id || !user_id ? (
-                        <ButtonView>
-                            <ButtonIconComponent
-                                nameIcon={'plus'}
-                                typeIcon={'Feather'}
-                                title={'Thêm vào tin'}
-                                propsButton={{
-                                    justifyContent: 'center',
-                                    width: '95',
-                                    padding: 1,
-                                    height: 40,
-                                    backgroundColor: Color.blueButtonColor,
-                                    borderRadius: 8,
-                                    marginBottom: 20,
+                                <FullName>{user_id === userSelect.id || !user_id ? userSelect.username : user.username}</FullName>
+                            </CachedImage>
+                        )}
+                        <Bio user={user} friends={friends} />
+
+                        {userSelect.id === user_id || !user_id ? (
+                            <ButtonView>
+                                <ButtonIconComponent
+                                    nameIcon={'plus'}
+                                    typeIcon={'Feather'}
+                                    title={'Thêm vào tin'}
+                                    propsButton={{
+                                        justifyContent: 'center',
+                                        width: '95',
+                                        padding: 1,
+                                        height: 40,
+                                        backgroundColor: Color.blueButtonColor,
+                                        borderRadius: 8,
+                                        marginBottom: 20,
+                                    }}
+                                    propsIcon={{ color: Color.white, size: 24, backgroundColor: Color.blueButtonColor, padding: 1 }}
+                                    propsTitle={{ color: Color.white, size: 16, fontWeight: 600, padding: 1 }}
+                                />
+                                <ButtonIconComponent
+                                    nameIcon={'pencil'}
+                                    typeIcon={'FontAwesome'}
+                                    title={'Chỉnh sửa trang cá nhân'}
+                                    propsButton={{
+                                        justifyContent: 'center',
+                                        width: '82',
+                                        padding: 1,
+                                        height: 40,
+                                        backgroundColor: Color.lightGray,
+                                        borderRadius: 8,
+                                    }}
+                                    propsIcon={{ color: Color.black, size: 20, backgroundColor: Color.lightGray, padding: 1 }}
+                                    propsTitle={{ color: Color.black, size: 16, fontWeight: 600, padding: 1 }}
+                                />
+                                <ButtonDot nameIcon={'ellipsis-horizontal'} typeIcon={'Ionicons'} size={20} color={Color.black} />
+                            </ButtonView>
+                        ) : user.is_friend === '1' ? (
+                            <ButtonView>
+                                <ButtonIconComponent
+                                    onPress={() => setRenderPopUpComponent3(true)}
+                                    nameIcon={'user-check'}
+                                    typeIcon={'FontAwesome5'}
+                                    title={'Bạn bè'}
+                                    propsButton={{
+                                        justifyContent: 'center',
+                                        width: '40',
+                                        padding: 1,
+                                        height: 40,
+                                        backgroundColor: Color.lightGray,
+                                        borderRadius: 8,
+                                        marginBottom: 20,
+                                    }}
+                                    propsIcon={{ color: Color.black, size: 20, backgroundColor: Color.lightGray, padding: 1 }}
+                                    propsTitle={{ color: Color.black, size: 16, fontWeight: 600, padding: 1 }}
+                                />
+                                <ButtonIconComponent
+                                    nameIcon={'facebook-messenger'}
+                                    typeIcon={'FontAwesome5'}
+                                    title={'Nhắn tin'}
+                                    propsButton={{
+                                        justifyContent: 'center',
+                                        width: '40',
+                                        padding: 1,
+                                        height: 40,
+                                        backgroundColor: Color.blueButtonColor,
+                                        borderRadius: 8,
+                                        marginLeft: 10,
+                                    }}
+                                    propsIcon={{ color: Color.white, size: 20, backgroundColor: Color.blueButtonColor, padding: 1 }}
+                                    propsTitle={{ color: Color.white, size: 16, fontWeight: 600, padding: 1 }}
+                                />
+                                <ButtonDot nameIcon={'ellipsis-horizontal'} typeIcon={'Ionicons'} size={20} color={Color.black} />
+                            </ButtonView>
+                        ) : user.is_friend === '2' ? (
+                            <ButtonView>
+                                <ButtonIconComponent
+                                    onPress={handleDelRequestFriend}
+                                    nameIcon={'user-minus'}
+                                    typeIcon={'FontAwesome5'}
+                                    title={'Hủy yêu cầu'}
+                                    propsButton={{
+                                        justifyContent: 'center',
+                                        width: '40',
+                                        padding: 1,
+                                        height: 40,
+                                        backgroundColor: Color.lightGray,
+                                        borderRadius: 8,
+                                        marginBottom: 20,
+                                    }}
+                                    propsIcon={{ color: Color.black, size: 20, backgroundColor: Color.lightGray, padding: 1 }}
+                                    propsTitle={{ color: Color.black, size: 16, fontWeight: 600, padding: 1 }}
+                                />
+                                <ButtonIconComponent
+                                    nameIcon={'facebook-messenger'}
+                                    typeIcon={'FontAwesome5'}
+                                    title={'Nhắn tin'}
+                                    propsButton={{
+                                        justifyContent: 'center',
+                                        width: '40',
+                                        padding: 1,
+                                        height: 40,
+                                        backgroundColor: Color.blueButtonColor,
+                                        borderRadius: 8,
+                                        marginLeft: 10,
+                                    }}
+                                    propsIcon={{ color: Color.white, size: 20, backgroundColor: Color.blueButtonColor, padding: 1 }}
+                                    propsTitle={{ color: Color.white, size: 16, fontWeight: 600, padding: 1 }}
+                                />
+                                <ButtonDot nameIcon={'ellipsis-horizontal'} typeIcon={'Ionicons'} size={20} color={Color.black} />
+                            </ButtonView>
+                        ) : user.is_friend === '3' ? (
+                            <ButtonView>
+                                <ButtonIconComponent
+                                    onPress={() => setRenderPopUpComponent3(true)}
+                                    nameIcon={'user-check'}
+                                    typeIcon={'FontAwesome5'}
+                                    title={'Phản hồi'}
+                                    propsButton={{
+                                        justifyContent: 'center',
+                                        width: '40',
+                                        padding: 1,
+                                        height: 40,
+                                        backgroundColor: Color.lightGray,
+                                        borderRadius: 8,
+                                        marginBottom: 20,
+                                    }}
+                                    propsIcon={{ color: Color.black, size: 20, backgroundColor: Color.lightGray, padding: 1 }}
+                                    propsTitle={{ color: Color.black, size: 16, fontWeight: 600, padding: 1 }}
+                                />
+                                <ButtonIconComponent
+                                    nameIcon={'facebook-messenger'}
+                                    typeIcon={'FontAwesome5'}
+                                    title={'Nhắn tin'}
+                                    propsButton={{
+                                        justifyContent: 'center',
+                                        width: '40',
+                                        padding: 1,
+                                        height: 40,
+                                        backgroundColor: Color.blueButtonColor,
+                                        borderRadius: 8,
+                                        marginLeft: 10,
+                                    }}
+                                    propsIcon={{ color: Color.white, size: 20, backgroundColor: Color.blueButtonColor, padding: 1 }}
+                                    propsTitle={{ color: Color.white, size: 16, fontWeight: 600, padding: 1 }}
+                                />
+                                <ButtonDot nameIcon={'ellipsis-horizontal'} typeIcon={'Ionicons'} size={20} color={Color.black} />
+                            </ButtonView>
+                        ) : (
+                            <ButtonView>
+                                <ButtonIconComponent
+                                    onPress={handleRequestFriend}
+                                    nameIcon={'user-plus'}
+                                    typeIcon={'FontAwesome5'}
+                                    title={'Thêm bạn bè'}
+                                    propsButton={{
+                                        justifyContent: 'center',
+                                        width: '40',
+                                        padding: 1,
+                                        height: 40,
+                                        backgroundColor: Color.blueButtonColor,
+                                        borderRadius: 8,
+                                        marginBottom: 20,
+                                    }}
+                                    propsIcon={{ color: Color.white, size: 20, backgroundColor: Color.blueButtonColor, padding: 1 }}
+                                    propsTitle={{ color: Color.white, size: 16, fontWeight: 600, padding: 1 }}
+                                />
+                                <ButtonIconComponent
+                                    nameIcon={'facebook-messenger'}
+                                    typeIcon={'FontAwesome5'}
+                                    title={'Nhắn tin'}
+                                    propsButton={{
+                                        justifyContent: 'center',
+                                        width: '40',
+                                        padding: 1,
+                                        height: 40,
+                                        backgroundColor: Color.lightGray,
+                                        borderRadius: 8,
+                                        marginLeft: 10,
+                                    }}
+                                    propsIcon={{ color: Color.black, size: 20, backgroundColor: Color.lightGray, padding: 1 }}
+                                    propsTitle={{ color: Color.black, size: 16, fontWeight: 600, padding: 1 }}
+                                />
+                                <ButtonDot nameIcon={'ellipsis-horizontal'} typeIcon={'Ionicons'} size={20} color={Color.black} />
+                            </ButtonView>
+                        )}
+                    </ProfileContainer>
+                ) : (
+                    <FakeInfoComponent />
+                )}
+                {friends.isLoaded && (
+                    <FriendLabelContainer>
+                        <LabelFriend>Bạn bè</LabelFriend>
+                        <Friend>{friends.total} người bạn</Friend>
+                        <Pressable onPress={() => navigate(routes.FRIEND_STACK)} style={{ position: 'absolute', right: 10, top: 10 }}>
+                            <SeeAll>Xem tất cả</SeeAll>
+                        </Pressable>
+                    </FriendLabelContainer>
+                )}
+                {friends.isLoaded ? (
+                    <ListFriend>
+                        {friends.friends.map((item, index) => (
+                            <FriendContainer
+                                key={index}
+                                style={[generateBoxShadowStyle()]}
+                                onPress={() => {
+                                    navigation.push(routes.PROFILE_SCREEN, { user_id: item.id });
                                 }}
-                                propsIcon={{ color: Color.white, size: 24, backgroundColor: Color.blueButtonColor, padding: 1 }}
-                                propsTitle={{ color: Color.white, size: 16, fontWeight: 600, padding: 1 }}
+                            >
+                                <FriendImage>
+                                    <FriendAvatar source={item.avatar === '' ? images.defaultAvatar : { uri: item.avatar }} />
+                                </FriendImage>
+                                <FriendName>{item.username}</FriendName>
+                            </FriendContainer>
+                        ))}
+                        {friends.total > 5 && (
+                            <ButtonComponent
+                                onPress={() => navigate(routes.FRIEND_STACK)}
+                                color={Color.black}
+                                title={'Xem tất cả'}
+                                backgroundColor={Color.grey5}
+                                width={'96'}
+                                height={'40'}
+                                size={15}
+                                style={{ borderRadius: 8, marginTop: 30, marginLeft: 'auto', marginRight: 'auto' }}
                             />
-                            <ButtonIconComponent
-                                nameIcon={'pencil'}
-                                typeIcon={'FontAwesome'}
-                                title={'Chỉnh sửa trang cá nhân'}
-                                propsButton={{
-                                    justifyContent: 'center',
-                                    width: '82',
-                                    padding: 1,
-                                    height: 40,
-                                    backgroundColor: Color.lightGray,
-                                    borderRadius: 8,
-                                }}
-                                propsIcon={{ color: Color.black, size: 20, backgroundColor: Color.lightGray, padding: 1 }}
-                                propsTitle={{ color: Color.black, size: 16, fontWeight: 600, padding: 1 }}
-                            />
-                            <ButtonDot nameIcon={'ellipsis-horizontal'} typeIcon={'Ionicons'} size={20} color={Color.black} />
-                        </ButtonView>
-                    ) : user.is_friend === '1' ? (
-                        <ButtonView>
-                            <ButtonIconComponent
-                                onPress={() => setRenderPopUpComponent3(true)}
-                                nameIcon={'user-check'}
-                                typeIcon={'FontAwesome5'}
-                                title={'Bạn bè'}
-                                propsButton={{
-                                    justifyContent: 'center',
-                                    width: '40',
-                                    padding: 1,
-                                    height: 40,
-                                    backgroundColor: Color.lightGray,
-                                    borderRadius: 8,
-                                    marginBottom: 20,
-                                }}
-                                propsIcon={{ color: Color.black, size: 20, backgroundColor: Color.lightGray, padding: 1 }}
-                                propsTitle={{ color: Color.black, size: 16, fontWeight: 600, padding: 1 }}
-                            />
-                            <ButtonIconComponent
-                                nameIcon={'facebook-messenger'}
-                                typeIcon={'FontAwesome5'}
-                                title={'Nhắn tin'}
-                                propsButton={{
-                                    justifyContent: 'center',
-                                    width: '40',
-                                    padding: 1,
-                                    height: 40,
-                                    backgroundColor: Color.blueButtonColor,
-                                    borderRadius: 8,
-                                    marginLeft: 10,
-                                }}
-                                propsIcon={{ color: Color.white, size: 20, backgroundColor: Color.blueButtonColor, padding: 1 }}
-                                propsTitle={{ color: Color.white, size: 16, fontWeight: 600, padding: 1 }}
-                            />
-                            <ButtonDot nameIcon={'ellipsis-horizontal'} typeIcon={'Ionicons'} size={20} color={Color.black} />
-                        </ButtonView>
-                    ) : user.is_friend === '2' ? (
-                        <ButtonView>
-                            <ButtonIconComponent
-                                onPress={handleDelRequestFriend}
-                                nameIcon={'user-minus'}
-                                typeIcon={'FontAwesome5'}
-                                title={'Hủy yêu cầu'}
-                                propsButton={{
-                                    justifyContent: 'center',
-                                    width: '40',
-                                    padding: 1,
-                                    height: 40,
-                                    backgroundColor: Color.lightGray,
-                                    borderRadius: 8,
-                                    marginBottom: 20,
-                                }}
-                                propsIcon={{ color: Color.black, size: 20, backgroundColor: Color.lightGray, padding: 1 }}
-                                propsTitle={{ color: Color.black, size: 16, fontWeight: 600, padding: 1 }}
-                            />
-                            <ButtonIconComponent
-                                nameIcon={'facebook-messenger'}
-                                typeIcon={'FontAwesome5'}
-                                title={'Nhắn tin'}
-                                propsButton={{
-                                    justifyContent: 'center',
-                                    width: '40',
-                                    padding: 1,
-                                    height: 40,
-                                    backgroundColor: Color.blueButtonColor,
-                                    borderRadius: 8,
-                                    marginLeft: 10,
-                                }}
-                                propsIcon={{ color: Color.white, size: 20, backgroundColor: Color.blueButtonColor, padding: 1 }}
-                                propsTitle={{ color: Color.white, size: 16, fontWeight: 600, padding: 1 }}
-                            />
-                            <ButtonDot nameIcon={'ellipsis-horizontal'} typeIcon={'Ionicons'} size={20} color={Color.black} />
-                        </ButtonView>
-                    ) : user.is_friend === '3' ? (
-                        <ButtonView>
-                            <ButtonIconComponent
-                                onPress={() => setRenderPopUpComponent3(true)}
-                                nameIcon={'user-check'}
-                                typeIcon={'FontAwesome5'}
-                                title={'Phản hồi'}
-                                propsButton={{
-                                    justifyContent: 'center',
-                                    width: '40',
-                                    padding: 1,
-                                    height: 40,
-                                    backgroundColor: Color.lightGray,
-                                    borderRadius: 8,
-                                    marginBottom: 20,
-                                }}
-                                propsIcon={{ color: Color.black, size: 20, backgroundColor: Color.lightGray, padding: 1 }}
-                                propsTitle={{ color: Color.black, size: 16, fontWeight: 600, padding: 1 }}
-                            />
-                            <ButtonIconComponent
-                                nameIcon={'facebook-messenger'}
-                                typeIcon={'FontAwesome5'}
-                                title={'Nhắn tin'}
-                                propsButton={{
-                                    justifyContent: 'center',
-                                    width: '40',
-                                    padding: 1,
-                                    height: 40,
-                                    backgroundColor: Color.blueButtonColor,
-                                    borderRadius: 8,
-                                    marginLeft: 10,
-                                }}
-                                propsIcon={{ color: Color.white, size: 20, backgroundColor: Color.blueButtonColor, padding: 1 }}
-                                propsTitle={{ color: Color.white, size: 16, fontWeight: 600, padding: 1 }}
-                            />
-                            <ButtonDot nameIcon={'ellipsis-horizontal'} typeIcon={'Ionicons'} size={20} color={Color.black} />
-                        </ButtonView>
-                    ) : (
-                        <ButtonView>
-                            <ButtonIconComponent
-                                onPress={handleRequestFriend}
-                                nameIcon={'user-plus'}
-                                typeIcon={'FontAwesome5'}
-                                title={'Thêm bạn bè'}
-                                propsButton={{
-                                    justifyContent: 'center',
-                                    width: '40',
-                                    padding: 1,
-                                    height: 40,
-                                    backgroundColor: Color.blueButtonColor,
-                                    borderRadius: 8,
-                                    marginBottom: 20,
-                                }}
-                                propsIcon={{ color: Color.white, size: 20, backgroundColor: Color.blueButtonColor, padding: 1 }}
-                                propsTitle={{ color: Color.white, size: 16, fontWeight: 600, padding: 1 }}
-                            />
-                            <ButtonIconComponent
-                                nameIcon={'facebook-messenger'}
-                                typeIcon={'FontAwesome5'}
-                                title={'Nhắn tin'}
-                                propsButton={{
-                                    justifyContent: 'center',
-                                    width: '40',
-                                    padding: 1,
-                                    height: 40,
-                                    backgroundColor: Color.lightGray,
-                                    borderRadius: 8,
-                                    marginLeft: 10,
-                                }}
-                                propsIcon={{ color: Color.black, size: 20, backgroundColor: Color.lightGray, padding: 1 }}
-                                propsTitle={{ color: Color.black, size: 16, fontWeight: 600, padding: 1 }}
-                            />
-                            <ButtonDot nameIcon={'ellipsis-horizontal'} typeIcon={'Ionicons'} size={20} color={Color.black} />
-                        </ButtonView>
-                    )}
-                </ProfileContainer>
-                <FriendLabelContainer>
-                    <LabelFriend>Bạn bè</LabelFriend>
-                    <Friend>{friends.total} người bạn</Friend>
-                    <Pressable onPress={() => navigate(routes.FRIEND_STACK)} style={{ position: 'absolute', right: 10, top: 10 }}>
-                        <SeeAll>Xem tất cả</SeeAll>
-                    </Pressable>
-                </FriendLabelContainer>
-                <ListFriend>
-                    {friends.friends.map((item, index) => (
-                        <FriendContainer
-                            key={index}
-                            style={[generateBoxShadowStyle()]}
-                            onPress={() => {
-                                navigation.push(routes.PROFILE_SCREEN, { user_id: item.id });
-                            }}
-                        >
-                            <FriendImage>
-                                <FriendAvatar source={item.avatar === '' ? images.defaultAvatar : { uri: item.avatar }} />
-                            </FriendImage>
-                            <FriendName>{item.username}</FriendName>
-                        </FriendContainer>
-                    ))}
-                    {friends.total > 5 && (
-                        <ButtonComponent
-                            onPress={() => navigate(routes.FRIEND_STACK)}
-                            color={Color.black}
-                            title={'Xem tất cả'}
-                            backgroundColor={Color.grey5}
-                            width={'96'}
-                            height={'40'}
-                            size={15}
-                            style={{ borderRadius: 8, marginTop: 30, marginLeft: 'auto', marginRight: 'auto' }}
-                        />
-                    )}
-                </ListFriend>
-                <ItemSeparatorView />
+                        )}
+                    </ListFriend>
+                ) : (
+                    <FakeListFriendInfoComponent />
+                )}
 
                 {userSelect.id === user_id || !user_id ? (
                     <PostComposerComponent
@@ -963,7 +1066,7 @@ function ProfileScreen({ route, navigation, props }) {
                     />
                 ) : null}
                 <ItemSeparatorView />
-                {post &&
+                {post ? (
                     post.map((item, index) => (
                         <View key={item.id}>
                             <PostComponent
@@ -977,8 +1080,23 @@ function ProfileScreen({ route, navigation, props }) {
                             />
                             <ItemSeparatorView />
                         </View>
-                    ))}
-                <Footer>{pagination.isLoadMore && <ActivityIndicatorIcon size={30} color={Color.blueButtonColor} />}</Footer>
+                    ))
+                ) : (
+                    <>
+                        <ItemSeparatorView />
+                        <FakePostComponent />
+                        <ItemSeparatorView />
+                        <FakePostComponent />
+                        <ItemSeparatorView />
+                    </>
+                )}
+
+                <Footer>
+                    <ItemSeparatorView />
+                    {pagination.isLoadMore && <FakePostComponent />}
+                    <ItemSeparatorView />
+                    {pagination.isLoadMore && <FakePostComponent />}
+                </Footer>
             </ScrollView>
             {renderPopUpComponent && (
                 <PopupComponent renderPopUpComponent={renderPopUpComponent} setRenderPopUpComponent={setRenderPopUpComponent}>

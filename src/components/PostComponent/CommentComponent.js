@@ -73,8 +73,6 @@ const ListItem = styled.View`
 `;
 
 function CommentComponent({ data, setMarkComments, canEvent = true }) {
-    const user = useSelector(selectUser);
-
     const handleNaviagteProfile = () => {
         // setRenderPopUpComponent(false);
         navigate(routes.PROFILE_SCREEN, { userId: data.poster.id });

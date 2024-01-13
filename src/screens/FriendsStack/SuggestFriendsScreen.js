@@ -123,7 +123,7 @@ function SuggestFriendsScreen() {
             .catch((err) => {
                 setPage({ ...page, isLoadMore: false });
 
-                console.log(err);
+                console.log('handleGetSuggestFriends', err);
                 Alert.alert('Lỗi', 'Vui lòng thử lại sau !');
             });
     };
@@ -146,7 +146,7 @@ function SuggestFriendsScreen() {
             })
             .catch((err) => {
                 setPage({ ...page, isRefreshing: false });
-                console.log(err);
+                console.log('handleRefreshSuggestFriends', err);
                 Alert.alert('Lỗi', 'Vui lòng thử lại sau !');
             });
     };

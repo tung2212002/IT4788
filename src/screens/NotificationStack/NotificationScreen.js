@@ -1,7 +1,8 @@
+/* eslint-disable react-native/no-inline-styles */
 import React, { useRef } from 'react';
 import styled from 'styled-components/native';
 import { useState } from 'react';
-import { Text, View } from 'react-native';
+import { Dimensions, Text, TouchableOpacity, View } from 'react-native';
 import { useEffect } from 'react';
 import { RefreshControl } from 'react-native';
 import { ScrollView } from 'react-native';
@@ -14,6 +15,10 @@ import { checkTime } from '../../utils/convertTimeAgo';
 import NotificationComponent from '../../components/NotificationComponent';
 import { getNotificationService } from '../../services/notificationService';
 import { useScrollToTop } from '@react-navigation/native';
+import { selectNetwork } from '../../redux/features/network/networkSlice';
+import { useSelector } from 'react-redux';
+import { addDataTailAsyncStorage, getAsyncStorage, setAsyncStorage } from '../../utils/asyncCacheStorage';
+import ButtonIconComponent from '../../components/ButtonIconComponent';
 
 const Container = styled.View`
     flex: 1;
@@ -66,9 +71,19 @@ const NotNotification = styled.Text`
 `;
 
 function NotificationScreen({ navigation }) {
+    const isConnected = useSelector(selectNetwork);
+
     const [newNotification, setNewNotification] = useState([]);
     const [lastNotification, setLastNotification] = useState([]);
     const [previousNotification, setPreviousNotification] = useState([]);
+    const [backupNotifications, setBackupNotifications] = useState({
+        backup: [],
+        index: 0,
+        list: '',
+    });
+    const [show, setShow] = useState(false);
+    const [timeoutId, setTimeoutId] = useState(null);
+
     const ref = useRef(null);
 
     const [page, setPage] = useState({
@@ -76,16 +91,16 @@ function NotificationScreen({ navigation }) {
         count: 10,
         isRefreshing: false,
         isLoadMore: false,
-        firstLoad: false,
+        firstLoad: true,
         canGetMore: true,
     });
 
     const onRefresh = () => {
-        setPage({ ...page, isRefreshing: true, index: 0, canGetMore: true });
+        setPage({ ...page, isRefreshing: true, index: 0, canGetMore: true, firstLoad: false });
     };
 
     const onLoadMore = () => {
-        setPage({ ...page, isLoadMore: true });
+        setPage({ ...page, isLoadMore: true, firstLoad: false });
     };
 
     const refreshControl = <RefreshControl refreshing={page.isRefreshing} onRefresh={onRefresh} />;
@@ -100,9 +115,12 @@ function NotificationScreen({ navigation }) {
             .then((res) => {
                 if (res.data.code === '1000') {
                     if (res.data.data.length === 0) {
-                        setPage({ ...page, isLoadMore: false, firstLoad: true, canGetMore: false });
+                        setPage({ ...page, isLoadMore: false, firstLoad: false, canGetMore: false });
                         return;
                     }
+
+                    addDataTailAsyncStorage('notification', res.data.data);
+
                     const newNotif = [];
                     const lastNotif = [];
                     const previousNotif = [];
@@ -120,14 +138,14 @@ function NotificationScreen({ navigation }) {
                     setLastNotification((prev) => [...prev, ...lastNotif]);
                     setPreviousNotification((prev) => [...prev, ...previousNotif]);
 
-                    setPage({ ...page, index: page.index + res.data.data.length + 1, isLoadMore: false, firstLoad: true });
+                    setPage({ ...page, index: page.index + res.data.data.length + 1, isLoadMore: false, firstLoad: false });
                 } else {
-                    setPage({ ...page, isLoadMore: false, firstLoad: true });
+                    setPage({ ...page, isLoadMore: false, firstLoad: false });
                 }
             })
             .catch((error) => {
                 console.log(error);
-                setPage({ ...page, isLoadMore: false, firstLoad: true });
+                setPage({ ...page, isLoadMore: false });
             });
     };
 
@@ -141,9 +159,12 @@ function NotificationScreen({ navigation }) {
             .then((res) => {
                 if (res.data.code === '1000') {
                     if (res.data.data.length === 0) {
-                        setPage({ ...page, isRefreshing: false });
+                        setPage({ ...page, isRefreshing: false, firstLoad: false });
+                        setNewNotification([]);
                         return;
                     }
+
+                    setAsyncStorage('notification', res.data.data);
 
                     const newNotif = [];
                     const lastNotif = [];
@@ -163,7 +184,7 @@ function NotificationScreen({ navigation }) {
                     setLastNotification(lastNotif);
                     setPreviousNotification(previousNotif);
 
-                    setPage({ ...page, index: res.data.data.length, isRefreshing: false });
+                    setPage({ ...page, index: res.data.data.length, isRefreshing: false, firstLoad: false });
                 } else {
                     setPage({ ...page, isRefreshing: false });
                 }
@@ -174,18 +195,75 @@ function NotificationScreen({ navigation }) {
             });
     };
 
+    const handleUndo = () => {
+        if (backupNotifications.list === 'new') {
+            setNewNotification(backupNotifications.backup);
+        }
+        if (backupNotifications.list === 'last') {
+            setLastNotification(backupNotifications.backup);
+        }
+        if (backupNotifications.list === 'previous') {
+            setPreviousNotification(backupNotifications.backup);
+        }
+        setShow(false);
+    };
+
     useEffect(() => {
-        if (page.isRefreshing && page.firstLoad) {
+        if (page.isRefreshing && !page.firstLoad) {
             handleRefreshNotification();
         }
     }, [page.isRefreshing]);
 
     useEffect(() => {
-        if (page.isLoadMore || !page.firstLoad) {
+        if ((page.isLoadMore || page.firstLoad) && isConnected) {
             handleGetMoreNotification();
+        }
+        if (!isConnected) {
+            getAsyncStorage('notification').then((res) => {
+                if (res) {
+                    const newNotif = [];
+                    const lastNotif = [];
+                    const previousNotif = [];
+
+                    res.forEach((item, index) => {
+                        if (checkTime(item.created) === 'now') {
+                            newNotif.push(item);
+                        } else if (checkTime(item.created) === 'today') {
+                            lastNotif.push(item);
+                        } else {
+                            previousNotif.push(item);
+                        }
+                    });
+
+                    setNewNotification(newNotif);
+                    setLastNotification(lastNotif);
+                    setPreviousNotification(previousNotif);
+                }
+            });
         }
     }, [page.isLoadMore]);
 
+    useEffect(() => {
+        return () => {
+            if (timeoutId) {
+                clearTimeout(timeoutId);
+            }
+        };
+    }, [show]);
+
+    const handleShow = () => {
+        if (timeoutId) {
+            clearTimeout(timeoutId);
+        }
+
+        const newTimeoutId = setTimeout(() => {
+            setShow(false);
+        }, 3000);
+
+        setTimeoutId(newTimeoutId);
+
+        setShow(true);
+    };
     useScrollToTop(ref);
 
     return (
@@ -198,15 +276,51 @@ function NotificationScreen({ navigation }) {
             <Body refreshControl={refreshControl} showsVerticalScrollIndicator={false} ref={ref}>
                 {newNotification.length > 0 && <Subtitle>Mới</Subtitle>}
                 {newNotification.map((item, index) => {
-                    return <NotificationComponent key={index} item={item} navigation={navigation} />;
+                    return (
+                        <NotificationComponent
+                            key={item.notification_id}
+                            item={item}
+                            navigation={navigation}
+                            show={show}
+                            setShow={handleShow}
+                            newNotification={newNotification}
+                            setNewNotification={setNewNotification}
+                            backupNotifications={backupNotifications}
+                            setBackupNotifications={setBackupNotifications}
+                        />
+                    );
                 })}
                 {lastNotification.length > 0 && <Subtitle>Hôm nay</Subtitle>}
                 {lastNotification.map((item, index) => {
-                    return <NotificationComponent key={index} item={item} navigation={navigation} />;
+                    return (
+                        <NotificationComponent
+                            key={item.notification_id}
+                            item={item}
+                            navigation={navigation}
+                            show={show}
+                            setShow={handleShow}
+                            lastNotification={lastNotification}
+                            setLastNotification={setLastNotification}
+                            backupNotifications={backupNotifications}
+                            setBackupNotifications={setBackupNotifications}
+                        />
+                    );
                 })}
                 {previousNotification.length > 0 && <Subtitle>Trước đó</Subtitle>}
                 {previousNotification.map((item, index) => {
-                    return <NotificationComponent key={index} item={item} navigation={navigation} />;
+                    return (
+                        <NotificationComponent
+                            key={item.notification_id}
+                            item={item}
+                            navigation={navigation}
+                            show={show}
+                            setShow={handleShow}
+                            previousNotification={previousNotification}
+                            setPreviousNotification={setPreviousNotification}
+                            backupNotifications={backupNotifications}
+                            setBackupNotifications={setBackupNotifications}
+                        />
+                    );
                 })}
                 {page.isLoadMore && <ActivityIndicator size="small" color={Color.blueButtonColor} style={{ marginTop: 10 }} />}
                 {!page.canGetMore && <NotNotification>Không còn thông báo</NotNotification>}
@@ -222,6 +336,35 @@ function NotificationScreen({ navigation }) {
                     />
                 )}
             </Body>
+            {show && (
+                <TouchableOpacity
+                    style={{
+                        position: 'absolute',
+                        bottom: 10,
+                        width: Dimensions.get('window').width - 20,
+                        height: 50,
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        justifyContent: 'flex-start',
+                        marginLeft: 10,
+                        backgroundColor: Color.grey3,
+                        borderRadius: 10,
+                    }}
+                    onPress={() => {
+                        setShow(false);
+                    }}
+                >
+                    <Text style={{ fontSize: 20, color: Color.white, backgroundColor: Color.grey3, padding: 10 }}>Đã gỡ thông báo</Text>
+                    <TouchableOpacity
+                        style={{ position: 'absolute', right: 10 }}
+                        onPress={() => {
+                            handleUndo();
+                        }}
+                    >
+                        <Text style={{ fontSize: 20, color: Color.white, backgroundColor: Color.grey3, padding: 10 }}>HOÀN TÁC</Text>
+                    </TouchableOpacity>
+                </TouchableOpacity>
+            )}
         </Container>
     );
 }

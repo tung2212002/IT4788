@@ -296,17 +296,9 @@ function EditPostScreen({
 
     const listItems2 = [
         {
-            title: 'Lưu làm bản nháp',
-            message: 'Bạn sẽ nhận được thông báo về bản nháp',
-            nameIcon: 'bookmark-outline',
-            typeIcon: 'Ionicons',
-            onPress: () => {},
-            colorStyle: Color.black,
-        },
-        {
-            title: 'Bỏ bài viết',
-            nameIcon: 'trash-outline',
-            typeIcon: 'Ionicons',
+            title: 'Thoát',
+            nameIcon: 'close',
+            typeIcon: 'MaterialCommunityIcons',
             onPress: () => {
                 setShowEditPost(false);
             },
@@ -696,7 +688,7 @@ function EditPostScreen({
                     renderPopUpComponent={renderPopUpComponent2}
                     setRenderPopUpComponent={setRenderPopUpComponent2}
                     onBackdropPress={() => true}
-                    headerItem={headerPopup2}
+                    // headerItem={headerPopup2}
                 >
                     {listItems2.map((item, index) => (
                         <ButtonIconComponent

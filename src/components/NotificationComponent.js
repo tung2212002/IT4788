@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import styled from 'styled-components/native';
 import { useState } from 'react';
 import { Dimensions, Text } from 'react-native';
@@ -11,6 +11,10 @@ import PopupComponent from './PopupComponent';
 import { SVGHaha2, SVGSad2 } from '../../assets';
 import { navigate } from '../navigation/RootNavigator';
 import routes from '../constants/route';
+import CachedImage from './CachedImage';
+import ButtonIconComponent from './ButtonIconComponent';
+import { useDispatch, useSelector } from 'react-redux';
+import { selectNoti, setNoti } from '../redux/features/noti/notiSlice';
 
 const Container = styled.Pressable`
     flex: 1;
@@ -90,9 +94,27 @@ const IconDescription = styled.View`
     bottom: 0;
 `;
 
-function NotificationComponent({ navigation, item }) {
+function NotificationComponent({
+    navigation,
+    item,
+    lastNotification,
+    setLastNotification,
+    newNotification,
+    setNewNotification,
+    previousNotification,
+    setPreviousNotification,
+    show,
+    setShow,
+    backupNotifications,
+    setBackupNotifications,
+}) {
     const [read, setRead] = useState(item.read);
     const [renderPopUpComponent, setRenderPopUpComponent] = useState(false);
+    const [defaultNotification, setDefaultNotification] = useState(
+        lastNotification ? lastNotification : newNotification ? newNotification : previousNotification,
+    );
+    // const [backupNotifications, setBackupNotifications] = useState([]);
+    const setNotifications = setNewNotification ? setNewNotification : setLastNotification ? setLastNotification : setPreviousNotification;
 
     const notificationType = [
         {
@@ -102,7 +124,7 @@ function NotificationComponent({ navigation, item }) {
             icon: <SVGUser width={28} height={28} />,
             onPress: () => {
                 setRead('0');
-                navigate(routes.PROFILE_SCREEN, { user_id: item.object_id });
+                navigate(routes.FRIENDS_SCREEN);
             },
         },
         {
@@ -169,7 +191,7 @@ function NotificationComponent({ navigation, item }) {
             name: 'VideoAdded',
             description: ' đã đăng một video mới.',
             type: '8',
-            icon: <SVGMonitor width={28} height={28} style={{ backgroundColor: Color.white, borderRadius: 14 }} />,
+            icon: <SVGMonitor width={28} height={28} style={{ backgroundColor: Color.lightBlue1, borderRadius: 28 }} />,
             onPress: () => {
                 setRead('0');
                 navigation.push(routes.POST_DETAIL_SCREEN, { id: item.object_id });
@@ -187,13 +209,54 @@ function NotificationComponent({ navigation, item }) {
         },
     ];
 
+    const handleUndo = (id) => {
+        const newNotifications = defaultNotification.map((ite) =>
+            ite.notification_id === id ? backupNotifications.find((backup) => backup.notification_id === id) : ite,
+        );
+        setNotifications(newNotifications);
+    };
+
+    const handleBackup = (id) => {
+        const newBackup = defaultNotification.map((ite) => (ite.notification_id === id ? { ...ite } : ite));
+        setBackupNotifications(newBackup);
+    };
+
+    const handleDelete = (id) => {
+        const updatedNotifications = defaultNotification.filter((ite) => ite.notification_id !== id);
+        setBackupNotifications({
+            backup: defaultNotification,
+            index: defaultNotification.findIndex((ite) => ite.notification_id === id),
+            list: newNotification ? 'new' : lastNotification ? 'last' : 'previous',
+        });
+        setNotifications(updatedNotifications);
+        setRenderPopUpComponent(false);
+        setShow(true);
+    };
+
+    useEffect(() => {
+        setDefaultNotification(lastNotification ? lastNotification : newNotification ? newNotification : previousNotification);
+    }, [lastNotification, newNotification, previousNotification]);
+
     return (
         <Container
             style={{ backgroundColor: read === '1' ? Color.lightBlue1 : Color.white }}
             onPress={item.group === '1' && notificationType.find((type) => type.type === item.type).onPress}
         >
             <AvatarContainer>
-                <Avatar source={item.avatar === '' ? images.defaultAvatar : { uri: item.avatar }} />
+                {/* <Avatar source={item.avatar === '' ? images.defaultAvatar : { uri: item.avatar }} /> */}
+                {item.avatar === '' ? (
+                    <Avatar source={images.defaultAvatar} />
+                ) : (
+                    <CachedImage
+                        source={{ uri: item.avatar }}
+                        cacheKey={item.avatar.split('/').pop()}
+                        resizeMode="cover"
+                        style={{ width: 80, height: 80, borderRadius: 40 }}
+                        image={true}
+                        cacheFolder="avatar"
+                    />
+                )}
+
                 <IconDescription>{notificationType.find((type) => type.type === item.type).icon}</IconDescription>
             </AvatarContainer>
             <Content>
@@ -209,8 +272,15 @@ function NotificationComponent({ navigation, item }) {
                 </DotButton>
             </Content>
             <Modal renderPopUpComponent={renderPopUpComponent} setRenderPopUpComponent={setRenderPopUpComponent}>
-                <Text>Mark as read</Text>
-                <Text>Delete</Text>
+                <ButtonIconComponent
+                    title={'Gỡ thông báo'}
+                    message={'Bạn có chắc chắn muốn gỡ thông báo này?'}
+                    onPress={() => {
+                        handleDelete(item.notification_id);
+                        setRenderPopUpComponent(false);
+                    }}
+                    propsButton={{ width: 90, height: 70, backgroundColor: Color.white, alignItems: 'center', padding: '0 20', marginBottom: 10 }}
+                />
             </Modal>
         </Container>
     );

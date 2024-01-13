@@ -1,9 +1,9 @@
 /* eslint-disable react-native/no-inline-styles */
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { useEffect, useRef, useState } from 'react';
-import { Animated } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { Animated, ScrollView } from 'react-native';
 import styled from 'styled-components/native';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { Alert } from 'react-native';
 import { ActivityIndicator, List } from 'react-native-paper';
 
@@ -13,8 +13,10 @@ import { selectUser } from '../../redux/features/auth/authSlice';
 import { getListPostsService } from '../../services/postService';
 import SearchInputComponent from '../../components/SearchComponent.js/SearchInputComponent';
 import { searchService } from '../../services/searchService';
-import { View } from 'moti';
+import { Text, View } from 'moti';
 import VectorIcon from '../../utils/VectorIcon';
+import { updateHistorySearch } from '../../redux/features/history/searchSlice';
+import FakePostComponent from '../../components/Skeletion/FakePostComponent';
 
 const Container = styled.View`
     flex: 1;
@@ -50,6 +52,7 @@ const ContainerListItem = styled.ScrollView`
     background-color: ${Color.white};
     border-bottom-width: 2px;
     border-bottom-color: ${Color.grey5};
+    max-height: 70px;
 `;
 
 const Item = styled.TouchableOpacity`
@@ -66,6 +69,15 @@ const ItemText = styled.Text`
 `;
 
 const CONTAINER_HEIGHT = 60;
+
+const fakePost = [
+    {
+        id: 1,
+    },
+    {
+        id: 2,
+    },
+];
 
 const listItem = [
     {
@@ -95,8 +107,9 @@ const listItem = [
 ];
 
 function SearchResultScreen({ route, navigation }) {
-    const { keyword, refreshHistory } = route.params;
+    const { keyword } = route.params;
     const count = 10;
+    const dispatch = useDispatch();
 
     const user = useSelector(selectUser);
     const [post, setPost] = useState([]);
@@ -104,13 +117,14 @@ function SearchResultScreen({ route, navigation }) {
         index: 0,
         isLoadMore: false,
         canLoadMore: true,
-        isLoaded: false,
+        firstLoad: true,
     });
 
-    const ref = useRef(null);
-
     const onLoadMore = () => {
-        setPagination({ ...pagination, isLoadMore: true });
+        if (!pagination.canLoadMore || pagination.isLoadMore) {
+            return;
+        }
+        setPagination({ ...pagination, isLoadMore: true, firstLoad: false });
     };
 
     const handleLoadMore = () => {
@@ -134,6 +148,7 @@ function SearchResultScreen({ route, navigation }) {
                             ...pagination,
                             index: response.data.data.length + pagination.index,
                             isLoadMore: false,
+
                             canLoadMore: false,
                         });
                         setPost((prev) => [...prev, ...response.data.data]);
@@ -167,44 +182,55 @@ function SearchResultScreen({ route, navigation }) {
         searchService(body)
             .then((response) => {
                 if (response.data.code === '1000') {
-                    refreshHistory();
+                    console.log(response.data.data);
+                    // refreshHistory();
                     if (response.data.data?.length !== 0 && response.data.data?.length === count) {
+                        setPost(response.data.data);
                         setPagination({
                             ...pagination,
                             index: response.data.data.length + pagination.index,
                             isLoadMore: false,
-                            isLoaded: true,
+                            firstLoad: false,
                         });
-                        setPost(response.data.data);
+                        console.log('firstLoad1', pagination.firstLoad);
+                        dispatch(updateHistorySearch());
                     } else if (response.data.data?.length !== 0 && response.data.data?.length < count) {
                         setPagination({
                             ...pagination,
                             index: response.data.data.length + pagination.index,
                             isLoadMore: false,
                             canLoadMore: false,
-                            isLoaded: true,
+                            firstLoad: false,
                         });
+                        console.log('firstLoad2', pagination.firstLoad);
                         setPost(response.data.data);
+                        dispatch(updateHistorySearch());
                     } else {
+                        console.log('firstLoad3', pagination.firstLoad);
                         setPagination({
                             ...pagination,
                             isLoadMore: false,
                             canLoadMore: false,
-                            isLoaded: true,
+                            firstLoad: false,
                         });
+                        dispatch(updateHistorySearch());
                     }
                 }
             })
             .catch((e) => {
-                setPagination({ ...pagination, isLoadMore: false });
+                setPagination({ ...pagination, isLoadMore: false, firstLoad: false });
                 console.log(e);
             });
     }, []);
 
+    useEffect(() => {
+        console.log('firstLoad', pagination.firstLoad);
+    }, [pagination]);
+
     return (
         <Container>
-            <SearchInputComponent navigation={navigation} style={{ zIndex: 100 }} keyword={keyword} refreshHistory={refreshHistory} />
-            {pagination.isLoaded ? (
+            <SearchInputComponent navigation={navigation} style={{ zIndex: 100 }} keyword={keyword} />
+            {!pagination.firstLoad ? (
                 post.length > 0 ? (
                     <ContainerListItem
                         horizontal={true}
@@ -224,35 +250,75 @@ function SearchResultScreen({ route, navigation }) {
                         ))}
                     </ContainerListItem>
                 ) : (
-                    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', zIndex: -1 }}>
-                        <VectorIcon nameIcon={'magnify-close'} typeIcon={'MaterialCommunityIcons'} size={50} color={Color.grey5} />
-                        <List.Subheader style={{ fontSize: 20 }}>Không có kết quả</List.Subheader>
-                    </View>
+                    !pagination.firstLoad && (
+                        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', zIndex: -1 }}>
+                            <VectorIcon nameIcon={'magnify-close'} typeIcon={'MaterialCommunityIcons'} size={50} color={Color.grey5} />
+                            <List.Subheader style={{ fontSize: 20 }}>Không có kết quả</List.Subheader>
+                        </View>
+                    )
                 )
             ) : null}
 
-            {pagination.isLoaded ? (
-                <Animated.FlatList
-                    ref={ref}
-                    data={post}
+            {!pagination.firstLoad ? (
+                // <Animated.FlatList
+                //     data={post}
+                //     showsVerticalScrollIndicator={false}
+                //     keyExtractor={(item, index) => item.id.toString()}
+                //     renderItem={({ item }) => (
+                //         <PostComponent item={item} user={user} navigation={navigation} post={post} setPost={setPost} style={{ zIndex: -10 }} />
+                //         // <Text>{item.described}</Text>
+                //     )}
+                //     onEndReached={onLoadMore}
+                //     ItemSeparatorComponent={ItemSeparatorView}
+                //     onEndReachedThreshold={1}
+                //     initialNumToRender={10}
+                //     contentContainerStyle={{ paddingBottom: CONTAINER_HEIGHT }}
+                //     scrollEventThrottle={1}
+                //     ListFooterComponent={
+                //         <Footer>
+                //             <ItemSeparatorView />
+                //             {pagination.isLoadMore && <FakePostComponent />}
+                //             <ItemSeparatorView />
+                //             {pagination.isLoadMore && <FakePostComponent />}
+                //             <ItemSeparatorView />
+                //         </Footer>
+                //     }
+                //     ListFooterComponentStyle={{ marginVertical: 15 }}
+                // />
+                <ScrollView
+                    style={{ flex: 1, backgroundColor: Color.white }}
                     showsVerticalScrollIndicator={false}
-                    keyExtractor={(item, index) => item.id.toString()}
-                    renderItem={({ item }) => (
-                        <PostComponent item={item} user={user} navigation={navigation} post={post} setPost={setPost} style={{ zIndex: -10 }} />
-                    )}
-                    onEndReached={onLoadMore}
-                    ItemSeparatorComponent={ItemSeparatorView}
-                    onEndReachedThreshold={0}
-                    initialNumToRender={10}
                     contentContainerStyle={{ paddingBottom: CONTAINER_HEIGHT }}
-                    scrollEventThrottle={1}
-                    ListFooterComponent={
-                        <Footer>{pagination.isLoadMore && pagination.canLoadMore && <ActivityIndicatorIcon size={30} color={Color.blueButtonColor} />}</Footer>
-                    }
-                    ListFooterComponentStyle={{ marginVertical: 15 }}
-                />
+                    onScroll={({ nativeEvent }) => {
+                        const { layoutMeasurement, contentOffset, contentSize } = nativeEvent;
+                        if (layoutMeasurement.height + contentOffset.y >= contentSize.height - 20) {
+                            onLoadMore();
+                        }
+                    }}
+                    scrollEventThrottle={16}
+                >
+                    {post.map((item, index) => (
+                        <View key={index} style={{ zIndex: -10 }}>
+                            <PostComponent key={index} item={item} user={user} navigation={navigation} post={post} setPost={setPost} style={{ zIndex: -10 }} />
+                            <ItemSeparatorView />
+                        </View>
+                    ))}
+                    <Footer>
+                        <ItemSeparatorView />
+                        {pagination.isLoadMore && <FakePostComponent />}
+                        <ItemSeparatorView />
+                        {pagination.isLoadMore && <FakePostComponent />}
+                        <ItemSeparatorView />
+                    </Footer>
+                </ScrollView>
             ) : (
-                <ActivityIndicatorIcon size={30} color={Color.blueButtonColor} />
+                <ScrollView style={{ flex: 1, backgroundColor: Color.white }} showsVerticalScrollIndicator={false}>
+                    <FakePostComponent />
+                    <ItemSeparatorView />
+                    <FakePostComponent />
+                    <ItemSeparatorView />
+                    <FakePostComponent />
+                </ScrollView>
             )}
         </Container>
     );

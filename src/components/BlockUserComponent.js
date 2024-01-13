@@ -9,6 +9,7 @@ import { images } from '../../assets';
 import { unblockService } from '../services/blockService';
 import { useDispatch } from 'react-redux';
 import { hiddenPostUser } from '../redux/features/post/postSlice';
+import CachedImage from './CachedImage';
 
 const BlockUser = styled.View`
     flex-direction: row;
@@ -52,14 +53,13 @@ const Modal = styled(PopupComponent)`
     paddiing-bottom: 20px;
 `;
 
-function BlockUserComponent({ item, renderPopUpComponent, setRenderPopUpComponent, setBlockUser, blockUser }) {
-    console.log('item1', item);
+function BlockUserComponent({ item, setBlockUser, blockUser }) {
+    const [renderPopUpComponent, setRenderPopUpComponent] = useState(false);
+
     const handleUnBlock = () => {
         const body = {
             user_id: item.id,
         };
-        console.log('item', item);
-        console.log('body', body);
 
         unblockService(body)
             .then((response) => {
@@ -73,17 +73,30 @@ function BlockUserComponent({ item, renderPopUpComponent, setRenderPopUpComponen
                 console.log(error);
             });
     };
-
     return (
         <BlockUser>
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <Avatar source={item.avatar ? { uri: item.avatar } : images.defaultAvatar} />
+                {/* <Avatar source={item.avatar ? { uri: item.avatar } : images.defaultAvatar} /> */}
+                {item.avatar === '' ? (
+                    <Avatar source={images.defaultAvatar} />
+                ) : (
+                    <CachedImage
+                        source={{ uri: item.avatar }}
+                        cacheKey={item.avatar.split('/').pop()}
+                        resizeMode="cover"
+                        style={{ width: 50, height: 50, borderRadius: 10, marginRight: 10 }}
+                        image={true}
+                        cacheFolder="avatar"
+                        placeholderContent={<Avatar source={images.defaultAvatar} />}
+                    />
+                )}
                 <Name>{item.name ? item.name : item.username}</Name>
             </View>
             <Pressable
                 onPress={() => {
                     console.log(item);
                     setRenderPopUpComponent(true);
+                    // handleUnBlock();
                 }}
             >
                 <TextBlock>BỎ CHẶN</TextBlock>

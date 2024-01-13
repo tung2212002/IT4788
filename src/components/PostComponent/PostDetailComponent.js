@@ -1,9 +1,10 @@
 /* eslint-disable react-native/no-inline-styles */
-import React, { useEffect, useMemo, useRef } from 'react';
+import React, { useEffect } from 'react';
 import styled from 'styled-components/native';
 import { Surface } from 'react-native-paper';
 // import Video, { VideoRef } from 'react-native-video';
 import { Video } from 'expo-av';
+import * as Clipboard from 'expo-clipboard';
 
 import convertTimeAgo from '../../utils/convertTimeAgo';
 import VectorIcon from '../../utils/VectorIcon';
@@ -31,6 +32,9 @@ import PhotoGrid from '../PhotoGridComponent/PhotoGrid';
 import { StatusBar } from 'expo-status-bar';
 import EditPostScreen from '../../screens/EditPostScreen';
 import { deletePost, updatePost } from '../../redux/features/post/postSlice';
+import { removeDataByIdAsyncStorage } from '../../utils/asyncCacheStorage';
+import { setNoti } from '../../redux/features/noti/notiSlice';
+import CachedImage from '../CachedImage';
 // import VideoPlayer from 'react-native-video-player';
 // import PhotoGrid from './PhotoGridComponent2/PhotoGrid';
 // import GridImageView from './GridImageView';
@@ -40,12 +44,18 @@ const ShadowSurface = styled(Surface)`
     elevation: 4;
 `;
 
-const PostContainer = styled.View`
+// align-items: center;
+const PostContainer = styled.ScrollView`
     width: 100%;
     display: flex;
     flex-direction: column;
-    align-items: center;
     padding-top: 8px;
+    background-color: ${Color.white};
+`;
+
+const PaddingBottom = styled.View`
+    width: 100%;
+    height: 80px;
     background-color: ${Color.white};
 `;
 
@@ -122,34 +132,15 @@ const Info = styled.View`
     align-items: flex-end;
 `;
 
-const FeelView = styled.View`
-    flex-direction: row;
-    padding: 10px;
-    margin-top: 10px;
-`;
-
-const Feel = styled.View`
-    flex-direction: row;
-    flex: 1;
-`;
-
-const CommentView = styled.View``;
-
-const Comment = styled.Text`
-    font-size: 14px;
-    font-weight: 500;
-    color: ${Color.gray};
-`;
-
 const FooterPost = styled.View`
-    border-top-width: 1px;
-    border-color: ${Color.lightGray};
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
     padding-horizontal: 10px;
     padding-vertical: 2px;
     background-color: ${Color.white};
+    border-bottom-width: 1px;
+    border-bottom-color: ${Color.lightGray};
 `;
 
 const Description = styled.View`
@@ -167,7 +158,7 @@ const State = styled.Text`
     margin-left: -2px;
 `;
 
-const PostDetailComponent = ({ item, user, navigation, post, setPost, handleRequestNewPost }) => {
+const PostDetailComponent = ({ item, user, navigation, post, setPost, handleRequestNewPost, cacheFolder = '' }) => {
     console.log('item', item);
     const dispatch = useDispatch();
 
@@ -212,6 +203,18 @@ const PostDetailComponent = ({ item, user, navigation, post, setPost, handleRequ
                 mergeUser({ ...userSelector, coins: res.data.data.coins });
                 // setPost(newListPost);
                 dispatch(deletePost(item.id));
+                dispatch(
+                    setNoti({
+                        show: true,
+                        title: 'Xóa bài viết thành công',
+                        iconName: 'check-circle',
+                        iconType: 'Feather',
+                        propsButton: { backgroundColor: Color.green, width: 95, marginRight: 10, marginLeft: 10, position: 'absolute', bottom: 50 },
+                        propsIcon: { color: Color.white, size: 16, backgroundColor: Color.green, padding: 1 },
+                        propsTitle: { color: Color.white, size: 16 },
+                    }),
+                );
+                removeDataByIdAsyncStorage('homePosts', item.id);
             } else if (res.data.code === '9992') {
                 Alert.alert(
                     'Thông báo',
@@ -243,6 +246,17 @@ const PostDetailComponent = ({ item, user, navigation, post, setPost, handleRequ
                     // const newPost = res.data.data;
                     // const newL
                     dispatch(updatePost({ post: res.data.data, isVideo: res.data.data.video ? true : false }));
+                    dispatch(
+                        setNoti({
+                            show: true,
+                            title: 'Cập nhật bài viết thành công',
+                            iconName: 'check-circle',
+                            iconType: 'Feather',
+                            propsButton: { backgroundColor: Color.green, width: 95, marginRight: 10, marginLeft: 10, position: 'absolute', bottom: 50 },
+                            propsIcon: { color: Color.white, size: 16, backgroundColor: Color.green, padding: 1 },
+                            propsTitle: { color: Color.white, size: 16 },
+                        }),
+                    );
                 } else {
                     console.log(res);
                 }
@@ -290,19 +304,12 @@ const PostDetailComponent = ({ item, user, navigation, post, setPost, handleRequ
             title: 'Sao chép liên kết',
             name: 'link',
             type: 'Feather',
-            handlePress: () => {},
+            handlePress: () => {
+                Clipboard.setStringAsync(`https://www.facebook.com/${item.id}`);
+                setRenderPopUpComponent(false);
+            },
         },
     ];
-
-    console.log('itemPost1', itemPost);
-
-    useEffect(() => {
-        if (itemPost?.image) {
-            console.log('itemPost?.image', [itemPost?.image[0]]);
-            console.log('itemPost', itemPost);
-        }
-    }, [itemPost]);
-
     useEffect(() => {
         try {
             const json = JSON.parse(item.state);
@@ -325,7 +332,19 @@ const PostDetailComponent = ({ item, user, navigation, post, setPost, handleRequ
                             navigation.navigate(routes.PROFILE_SCREEN, { user_id: itemPost.author.id });
                         }}
                     >
-                        <PostAuthorAvatar source={itemPost.author?.avatar === '' ? image.defaultAvatar : { uri: itemPost.author?.avatar }} />
+                        {/* <PostAuthorAvatar source={itemPost.author?.avatar === '' ? images.defaultAvatar : { uri: itemPost.author?.avatar }} /> */}
+                        {itemPost.author?.avatar === '' ? (
+                            <PostAuthorAvatar source={images.defaultAvatar} />
+                        ) : (
+                            <CachedImage
+                                image={true}
+                                source={{ uri: itemPost.author?.avatar }}
+                                style={{ width: 40, height: 40, borderRadius: 25, marginLeft: 12, marginRight: 6 }}
+                                resizeMode="cover"
+                                cacheFolder={'avatar'}
+                                cacheKey={itemPost.author?.avatar.split('/').pop()}
+                            />
+                        )}
                     </Pressable>
                     <PostAuthor>
                         <Info>
@@ -376,6 +395,7 @@ const PostDetailComponent = ({ item, user, navigation, post, setPost, handleRequ
                 </PostHeader>
                 <PostContent>
                     <PostContentText>{itemPost?.described}</PostContentText>
+
                     {itemPost?.image?.length > 0 &&
                         itemPost.image.map((it, index) => (
                             <PhotoGrid
@@ -385,6 +405,7 @@ const PostDetailComponent = ({ item, user, navigation, post, setPost, handleRequ
                                 renderModalFooter={true}
                                 renderMFooter={itemPost}
                                 setItemPost={setItemPost}
+                                cacheFolder={cacheFolder}
                             />
                         ))}
                     {/* <PhotoGrid
@@ -417,6 +438,7 @@ const PostDetailComponent = ({ item, user, navigation, post, setPost, handleRequ
                     <FooterPost>
                         <FeelComponent data={itemPost} setItemPost={setItemPost} />
                     </FooterPost>
+                    {(itemPost.video || itemPost.image.length > 0) && <PaddingBottom />}
                 </PostContent>
             </PostContainer>
             {renderPopUpComponent && (

@@ -1,9 +1,10 @@
 /* eslint-disable react-native/no-inline-styles */
-import React, { useEffect, useMemo, useRef } from 'react';
+import React, { useEffect } from 'react';
 import styled from 'styled-components/native';
 import { Surface } from 'react-native-paper';
 // import Video, { VideoRef } from 'react-native-video';
 import { Video } from 'expo-av';
+import * as Clipboard from 'expo-clipboard';
 
 import convertTimeAgo from '../../utils/convertTimeAgo';
 import VectorIcon from '../../utils/VectorIcon';
@@ -31,6 +32,10 @@ import PhotoGrid from '../PhotoGridComponent/PhotoGrid';
 import { StatusBar } from 'expo-status-bar';
 import EditPostScreen from '../../screens/EditPostScreen';
 import { deletePost, updatePost } from '../../redux/features/post/postSlice';
+import CachedImage from '../CachedImage';
+import { removeDataByIdAsyncStorage } from '../../utils/asyncCacheStorage';
+import { setNoti } from '../../redux/features/noti/notiSlice';
+import ReportPostScreen from '../../screens/ReportPostScreen';
 // import VideoPlayer from 'react-native-video-player';
 // import PhotoGrid from './PhotoGridComponent2/PhotoGrid';
 // import GridImageView from './GridImageView';
@@ -40,7 +45,7 @@ const ShadowSurface = styled(Surface)`
     elevation: 4;
 `;
 
-const PostContainer = styled.View`
+const PostContainer = styled.Pressable`
     width: 100%;
     display: flex;
     flex-direction: column;
@@ -142,8 +147,6 @@ const Comment = styled.Text`
 `;
 
 const FooterPost = styled.View`
-    border-top-width: 1px;
-    border-color: ${Color.lightGray};
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
@@ -167,13 +170,14 @@ const State = styled.Text`
     margin-left: -2px;
 `;
 
-const PostComponent = ({ item, user, navigation, post, setPost, handleRequestNewPost }) => {
+const PostComponent = ({ item, user, navigation, post, setPost, handleRequestNewPost, cacheFolder = '', canNavigate = false }) => {
     const dispatch = useDispatch();
 
     const userSelector = useSelector(selectUser);
 
     const [renderPopUpComponent, setRenderPopUpComponent] = useState(false);
     const [showEditPost, setShowEditPost] = useState(false);
+    const [showReportPost, setShowReportPost] = useState(false);
     // const [itemPost, setItemPost] = useState(item);
     const [itemPost, setItemPost] = useState(item);
     // const [feel, setFeel] = useState(item.feel);
@@ -211,6 +215,19 @@ const PostComponent = ({ item, user, navigation, post, setPost, handleRequestNew
                 mergeUser({ ...userSelector, coins: res.data.data.coins });
                 // setPost(newListPost);
                 dispatch(deletePost(item.id));
+                dispatch(
+                    setNoti({
+                        show: true,
+                        title: 'Xóa bài viết thành công',
+                        iconName: 'check-circle',
+                        iconType: 'Feather',
+                        propsButton: { backgroundColor: Color.green, width: 95, marginRight: 10, marginLeft: 10, position: 'absolute', bottom: 50 },
+                        propsIcon: { color: Color.white, size: 16, backgroundColor: Color.green, padding: 1 },
+                        propsTitle: { color: Color.white, size: 16 },
+                    }),
+                );
+
+                removeDataByIdAsyncStorage('homePosts', item.id);
             } else if (res.data.code === '9992') {
                 Alert.alert(
                     'Thông báo',
@@ -242,6 +259,17 @@ const PostComponent = ({ item, user, navigation, post, setPost, handleRequestNew
                     // const newPost = res.data.data;
                     // const newL
                     dispatch(updatePost({ post: res.data.data, isVideo: res.data.data.video ? true : false }));
+                    dispatch(
+                        setNoti({
+                            show: true,
+                            title: 'Cập nhật bài viết thành công',
+                            iconName: 'check-circle',
+                            iconType: 'Feather',
+                            propsButton: { backgroundColor: Color.green, width: 95, marginRight: 10, marginLeft: 10, position: 'absolute', bottom: 50 },
+                            propsIcon: { color: Color.white, size: 16, backgroundColor: Color.green, padding: 1 },
+                            propsTitle: { color: Color.white, size: 16 },
+                        }),
+                    );
                 } else {
                     console.log(res);
                 }
@@ -289,7 +317,10 @@ const PostComponent = ({ item, user, navigation, post, setPost, handleRequestNew
             title: 'Sao chép liên kết',
             name: 'link',
             type: 'Feather',
-            handlePress: () => {},
+            handlePress: () => {
+                Clipboard.setStringAsync(`https://www.facebook.com/${item.id}`);
+                setRenderPopUpComponent(false);
+            },
         },
     ];
 
@@ -306,16 +337,35 @@ const PostComponent = ({ item, user, navigation, post, setPost, handleRequestNew
         }
     }, []);
 
-    return itemPost.is_blocked === '0' ? (
+    return itemPost ? (
         <ShadowSurface>
-            <PostContainer>
+            <PostContainer
+                onPress={() =>
+                    canNavigate
+                        ? navigation.push(routes.POST_DETAIL_SCREEN, {
+                              id: itemPost.id,
+                          })
+                        : null
+                }
+            >
                 <PostHeader>
                     <Pressable
                         onPress={() => {
                             navigation.navigate(routes.PROFILE_SCREEN, { user_id: itemPost.author.id });
                         }}
                     >
-                        <PostAuthorAvatar source={itemPost.author?.avatar === '' ? images.defaultAvatar : { uri: itemPost.author?.avatar }} />
+                        {/* <PostAuthorAvatar source={itemPost.author?.avatar === '' ? images.defaultAvatar : { uri: itemPost.author?.avatar }} /> */}
+                        {itemPost.author?.avatar === '' ? (
+                            <PostAuthorAvatar source={images.defaultAvatar} />
+                        ) : (
+                            <CachedImage
+                                image={true}
+                                source={{ uri: itemPost.author?.avatar }}
+                                style={{ width: 40, height: 40, borderRadius: 25, marginLeft: 12, marginRight: 6, resizeMode: 'cover' }}
+                                cacheFolder={'avatar'}
+                                cacheKey={itemPost.author?.avatar.split('/').pop()}
+                            />
+                        )}
                     </Pressable>
                     <PostAuthor>
                         <Info>
@@ -372,9 +422,10 @@ const PostComponent = ({ item, user, navigation, post, setPost, handleRequestNew
                         renderModalFooter={true}
                         renderMFooter={itemPost}
                         setItemPost={setItemPost}
+                        cacheFolder={cacheFolder}
                     />
                     {itemPost.video && (
-                        <View
+                        <Pressable
                             style={{
                                 flex: 1,
                                 alignItems: 'center',
@@ -391,7 +442,7 @@ const PostComponent = ({ item, user, navigation, post, setPost, handleRequestNew
                                 isLooping
                                 shouldPlay={false}
                             />
-                        </View>
+                        </Pressable>
                     )}
                     <FooterPost>
                         <FeelComponent data={itemPost} setItemPost={setItemPost} />
@@ -416,6 +467,20 @@ const PostComponent = ({ item, user, navigation, post, setPost, handleRequestNew
                             />
                         ) : null,
                     )}
+                    {itemPost.author.id !== userSelector.id && (
+                        <ButtonIconComponent
+                            title={'Báo cáo bài viết'}
+                            nameIcon={'report'}
+                            typeIcon={'Octicons'}
+                            propsButton={{ height: 64 }}
+                            propsIcon={{ size: 24, color: Color.black }}
+                            propsTitle={{ size: 16, color: Color.black, fontWeight: 'normal' }}
+                            onPress={() => {
+                                setRenderPopUpComponent(false);
+                                setShowReportPost(true);
+                            }}
+                        />
+                    )}
                 </PopupComponent>
             )}
             {showEditPost && (
@@ -425,9 +490,19 @@ const PostComponent = ({ item, user, navigation, post, setPost, handleRequestNew
                     navigation={navigation}
                     user={user}
                     post={itemPost}
-                    setPost={setPost}
                     handleRequestNewPost={handleRequestNewPost}
                     handleUpdatePost={handleUpdatePost}
+                />
+            )}
+
+            {showReportPost && (
+                <ReportPostScreen
+                    item={itemPost}
+                    setShowReportPost={setShowReportPost}
+                    navigation={navigation}
+                    user={user}
+                    post={itemPost}
+                    showReportPost={showReportPost}
                 />
             )}
         </ShadowSurface>

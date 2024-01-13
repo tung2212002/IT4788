@@ -7,14 +7,11 @@ import ButtonIconComponent from '../ButtonIconComponent';
 import { View } from 'moti';
 import routes from '../../constants/route';
 
-const SearchHistoryComponent = ({ item, navigation, handleDeleteHistorySearch, refreshHistory }) => {
+const SearchHistoryComponent = ({ item, navigation, handleDeleteHistorySearch }) => {
     const [renderPopUpComponent, setRenderPopUpComponent] = useState(false);
 
     return (
-        <Pressable
-            style={styles.search_item}
-            onPress={() => navigation.push(routes.SEARCH_RESULT_SCREEN, { keyword: item.keyword, refreshHistory: refreshHistory })}
-        >
+        <Pressable style={styles.search_item} onPress={() => navigation.push(routes.SEARCH_RESULT_SCREEN, { keyword: item.keyword })}>
             <VectorIcon nameIcon={'clock'} typeIcon={'Feather'} size={24} color={Color.gray} style={styles.item_icon} />
             <Text style={styles.image_placeholder_text}>{item.keyword}</Text>
             <VectorIcon nameIcon={'dots-three-horizontal'} typeIcon={'Entypo'} size={20} color={Color.black} onPress={() => setRenderPopUpComponent(true)} />

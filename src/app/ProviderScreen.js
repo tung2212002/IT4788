@@ -7,6 +7,7 @@ import 'react-native-gesture-handler';
 import styled from 'styled-components/native';
 import { Modal } from 'react-native';
 import { useState } from 'react';
+import * as FileSystem from 'expo-file-system';
 // import messaging from '@react-native-firebase/messaging';
 
 import Color from '../utils/Color';
@@ -21,6 +22,8 @@ import { setLocationStorage } from '../utils/locationStorage';
 import { NavigationContainer } from '@react-navigation/native';
 import { navigationRef } from '../navigation/RootNavigator';
 import { getUserStorage } from '../utils/userStorage';
+import { hiddenNoti, selectNoti } from '../redux/features/noti/notiSlice';
+import { selectNetwork, setNetwork } from '../redux/features/network/networkSlice';
 
 const Container = styled.KeyboardAvoidingView`
     flex: 1;
@@ -29,20 +32,34 @@ const Container = styled.KeyboardAvoidingView`
 
 const ButtonIconComponentStyled = styled(ButtonIconComponent)``;
 
+const IMAGE_CACHE_FOLDER = `${FileSystem.cacheDirectory}`;
+
 function ProviderScreen() {
     const dispatch = useDispatch();
     const isAuth = useSelector(selectIsAuth);
     const loading = useSelector(selectLoading);
-    const [isConnected, setIsConnected] = useState(true);
+    const noti = useSelector(selectNoti);
+    const isConnected = useSelector(selectNetwork);
+
     const [showPopup, setShowPopup] = useState(false);
     const [loadingAuth, setLoadingAuth] = useState(false);
+
+    const listCache = ['homePost', 'avatar'];
+
+    listCache.forEach((item) => {
+        const info = FileSystem.getInfoAsync(`${IMAGE_CACHE_FOLDER}${item}`);
+        if (!info.exists) {
+            FileSystem.makeDirectoryAsync(`${IMAGE_CACHE_FOLDER}${item}`, { intermediates: true });
+        }
+    });
 
     useEffect(() => {
         const unsubscribe = NetInfo.addEventListener((state) => {
             if (!state.isConnected && !showPopup) {
                 setShowPopup(true);
             }
-            setIsConnected(state.isConnected);
+            // setIsConnected(state.isConnected);
+            dispatch(setNetwork(state.isConnected));
         });
 
         getLocation()
@@ -151,6 +168,20 @@ function ProviderScreen() {
                     />
                 )
             ) : null}
+
+            {noti.show && (
+                <ButtonIconComponentStyled
+                    title={noti.title}
+                    nameIcon={noti.iconName}
+                    typeIcon={noti.iconType}
+                    propsIcon={noti.propsIcon}
+                    propsTitle={noti.propsTitle}
+                    onPress={() => {
+                        dispatch(hiddenNoti());
+                    }}
+                    propsButton={noti.propsButton}
+                />
+            )}
         </Container>
     );
 }

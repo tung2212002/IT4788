@@ -9,6 +9,8 @@ import routes from '../../constants/route';
 import SearchHistoryComponent from '../../components/SearchComponent.js/SearchHistoryComponent';
 import SearchLogComponent from '../../components/SearchComponent.js/SearchLogComponent';
 import { ScrollView } from 'react-native-gesture-handler';
+import { useDispatch } from 'react-redux';
+import { updateHistorySearch } from '../../redux/features/history/searchSlice';
 
 const Container = styled.View`
     flex: 1;
@@ -75,7 +77,8 @@ const TextEmpty = styled.Text`
 `;
 
 function SearchLogScreen({ navigation, route }) {
-    const { refreshHistory } = route.params;
+    const dispatch = useDispatch();
+
     const [historySearch, setHistorySearch] = useState([]);
     const [isLoadHistory, setIsLoadHistory] = useState(false);
     const [pageHistory, setPageHistory] = useState({
@@ -199,7 +202,8 @@ function SearchLogScreen({ navigation, route }) {
         delSavedSearchService(body)
             .then((response) => {
                 if (response.data.code === '1000') {
-                    refreshHistory();
+                    // refreshHistory();
+                    dispatch(updateHistorySearch());
                     if (all) {
                         setPageHistory({
                             ...pageHistory,

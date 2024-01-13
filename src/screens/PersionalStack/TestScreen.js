@@ -1,40 +1,151 @@
-/* eslint-disable react-native/no-inline-styles */
-/* eslint-disable react-hooks/exhaustive-deps */
-import React, { useEffect, useRef, useState } from 'react';
-import { RefreshControl, Animated, Alert } from 'react-native';
+import React from 'react';
 import styled from 'styled-components/native';
-// import debounce from 'lodash.debounce';
-
-import HeaderApp from '../../components/HeaderApp';
-import PostComponent from '../../components/PostComponent';
-import PostComposerComponent from '../../components/PostComposerComponent';
 import Color from '../../utils/Color';
-import { getLocationStorage } from '../../utils/locationStorage';
-import { getListPostsService } from '../../services/postService';
-import { selectUser } from '../../redux/features/auth/authSlice';
-import { useSelector } from 'react-redux';
-import StoryComponent from '../../components/StoryComponent';
-import LoadingComponent from '../../components/LoadingComponent';
-import { Modal } from 'react-native-paper';
-import { Text } from 'react-native';
+import { Dimensions, StatusBar, Text } from 'react-native';
+import { Image } from 'react-native-expo-image-cache';
+import { ScrollView } from 'react-native-gesture-handler';
+import SkeletonComponent from '../../components/Skeletion/SkeletonComponent';
+import VectorIcon from '../../utils/VectorIcon';
+import FakePostComponent from '../../components/Skeletion/FakePostComponent';
+
+const cardWidth = Dimensions.get('window').width * 0.8;
 
 const Container = styled.View`
     flex: 1;
     width: 100%;
+    height: 100%;
+    background-color: ${Color.grey4};
+`;
+
+const HeaderProfile = styled.View`
+    position: absolute;
+    z-index: 100;
+    width: 100%;
+    height: 50px;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 10px;
     background-color: ${Color.white};
 `;
 
-const ActivityIndicatorIcon = styled.ActivityIndicator`
+const ItemRightComponent = styled.View`
+    flex-direction: row;
+    align-items: center;
+`;
+
+const PressItem = styled.Pressable`
+    margin-horizontal: 10px;
+`;
+
+const ProfileContainer = styled.View`
+    margin-top: 50px;
+    flex: 1;
+    width: 100%;
+    height: 100%;
     background-color: ${Color.white};
+`;
+
+const BackGround = styled.View`
+    height: ${Dimensions.get('window').height * 0.3}px;
+    align-items: flex-start;
+    justify-content: flex-end;
+`;
+
+const AvatarContainer = styled.View`
+    border-radius: 100px;
+    border-width: 5px;
+    border-color: ${Color.white};
+    margin-left: 20px;
+    background-color: ${Color.white};
+    position: absolute;
+    bottom: -50px;
+`;
+
+const AvatarIcon = styled.TouchableOpacity`
+    border-radius: 20px;
+    background-color: ${Color.lightGray};
+    z-index: 1;
+    width: 40px;
+    height: 40px;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    bottom: 0px;
+    right: 10px;
+`;
+
+const Avatar = styled.Image`
+    width: 100%;
+    height: 100%;
+    resize-mode: cover;
+    border-radius: 100px;
+`;
+
+const FullName = styled.View`
+    margin-top: 10px;
+    margin-left: 15px;
+    position: absolute;
+    bottom: -100px;
+`;
+
+const ButtonView = styled.View`
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
     padding: 10px;
 `;
 
-const AnimatedHeader = styled(Animated.View)`
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    z-index: 100;
+const ButtonDot = styled(VectorIcon)`
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    justify-content: center;
+    align-items: center;
+    background-color: ${Color.lightGray};
+    margin-left: ${Dimensions.get('window').width * 0.08 - 20}px;
+`;
+
+const FriendLabelContainer = styled.View`
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+    padding: 10px;
+    width: 100%;
+    background-color: ${Color.white};
+    margin-top: 10px;
+`;
+
+const LabelFriend = styled.Text`
+    font-size: 20px;
+    color: ${Color.black};
+    font-family: 'Roboto-Bold';
+    margin-left: 10px;
+`;
+
+const Friend = styled.Text`
+    font-size: 16px;
+    color: ${Color.gray};
+    margin-left: 10px;
+    font-family: 'Roboto-Medium';
+`;
+
+const SeeAll = styled.Text`
+    font-size: 16px;
+    color: ${Color.blueButtonColor};
+    font-family: 'Roboto-Medium';
+`;
+
+const ListFriend = styled.View`
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    background-color: ${Color.white};
+    padding: 10px 5px;
 `;
 
 const ItemSeparatorView = styled.View`
@@ -42,390 +153,161 @@ const ItemSeparatorView = styled.View`
     background-color: ${Color.mainBackgroundHome};
 `;
 
+const FriendContainer = styled.Pressable`
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    width: ${(Dimensions.get('window').width - 30) / 3}px;
+    height: ${Dimensions.get('window').width * 0.45}px;
+    background-color: ${Color.white};
+    border-radius: 8px;
+    margin-bottom: 20px;
+`;
+
+const FriendImage = styled.View`
+    width: ${(Dimensions.get('window').width - 30) / 3}px;
+    height: ${Dimensions.get('window').width / 3}px;
+    overflow: hidden;
+`;
+
+const FriendAvatar = styled.Image`
+    width: 100%;
+    height: 100%;
+    resize-mode: cover;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+`;
+
+const FriendName = styled.Text`
+    font-size: 15px;
+    font-family: Roboto-Bold;
+    color: ${Color.black};
+    margin-top: 5px;
+    margin-left: 5px;
+    flex-wrap: wrap;
+`;
+
+const Footer = styled.View`
+    width: 100%;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 50px;
+`;
+
+const Bio = styled.View`
+    flex: 1;
+    padding-horizontal: 15px;
+    margin-top: ${Dimensions.get('window').height * 0.15}px;
+`;
+
 const CONTAINER_HEIGHT = 60;
 
-const postFake = [
-    {
-        id: 1,
-        name: 'Nguyen Van A',
-        created: '2021-05-20 10:00:00',
-        described:
-            'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec euismod, nisl eget ullamcorper ultricies, nunc libero aliquam nunc, eu aliquet nisl nisl nec nunc. Sed vitae nisl eget nisl aliquet aliquet. Donec euismod, nisl eget ullamcorper ultricies, nunc libero aliquam nunc, eu aliquet nisl nisl nec nunc. Sed vitae nisl eget nisl aliquet aliquet.',
-        modified: '2021-05-20 10:00:00',
-        fake: 0,
-        trust: 0,
-        kudos: 10,
-        disappointed: 10,
-        is_rate: 0,
-        is_marked: 0,
-        image: [
-            {
-                id: 1,
-                url: 'https://picsum.photos/200/300',
-            },
-            {
-                id: 2,
-                url: 'https://picsum.photos/200/300',
-            },
-            {
-                id: 3,
-                url: 'https://picsum.photos/200/300',
-            },
-        ],
-        author: {
-            id: 1,
-            name: 'Nguyen Van A',
-            avatar: 'https://picsum.photos/200/300',
-            coins: 100,
-        },
-        category: {
-            id: 1,
-            name: 'Thể thao',
-            has_name: 1,
-        },
-        state: 0,
-        is_blocked: 0,
-        can_edit: 0,
-        banned: 0,
-        can_mark: 0,
-        can_rate: 0,
-        url: 'https://picsum.photos/200/300',
-        message:
-            'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec euismod, nisl eget ullamcorper ultricies, nunc libero aliquam nunc, eu aliquet nisl nisl nec nunc. Sed vitae nisl eget nisl aliquet aliquet. Donec euismod, nisl eget ullamcorper ultricies, nunc libero aliquam nunc, eu aliquet nisl nisl nec nunc. Sed vitae nisl eget nisl aliquet aliquet.',
-    },
-    {
-        id: 2,
-        name: 'Nguyen Van A',
-        created: '2021-05-20 10:00:00',
-        described:
-            'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec euismod, nisl eget ullamcorper ultricies, nunc libero aliquam nunc, eu aliquet nisl nisl nec nunc. Sed vitae nisl eget nisl aliquet aliquet. Donec euismod, nisl eget ullamcorper ultricies, nunc libero aliquam nunc, eu aliquet nisl nisl nec nunc. Sed vitae nisl eget nisl aliquet aliquet.',
-        modified: '2021-05-20 10:00:00',
-        fake: 0,
-        trust: 0,
-        kudos: 10,
-        disappointed: 10,
-        is_rate: 0,
-        is_marked: 0,
-        image: [
-            {
-                id: 1,
-                url: 'https://picsum.photos/200/300',
-            },
-            {
-                id: 2,
-                url: 'https://picsum.photos/200/300',
-            },
-            {
-                id: 3,
-                url: 'https://picsum.photos/200/300',
-            },
-        ],
-        author: {
-            id: 1,
-            name: 'Nguyen Van A',
-            avatar: 'https://picsum.photos/200/300',
-            coins: 100,
-        },
-        category: {
-            id: 1,
-            name: 'Thể thao',
-            has_name: 1,
-        },
-        state: 0,
-        is_blocked: 0,
-        can_edit: 0,
-        banned: 0,
-        can_mark: 0,
-        can_rate: 0,
-        url: 'https://picsum.photos/200/300',
-        message:
-            'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec euismod, nisl eget ullamcorper ultricies, nunc libero aliquam nunc, eu aliquet nisl nisl nec nunc. Sed vitae nisl eget nisl aliquet aliquet. Donec euismod, nisl eget ullamcorper ultricies, nunc libero aliquam nunc, eu aliquet nisl nisl nec nunc. Sed vitae nisl eget nisl aliquet aliquet.',
-    },
-    {
-        id: 3,
-        name: 'Nguyen Van A',
-        created: '2021-05-20 10:00:00',
-        described:
-            'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec euismod, nisl eget ullamcorper ultricies, nunc libero aliquam nunc, eu aliquet nisl nisl nec nunc. Sed vitae nisl eget nisl aliquet aliquet. Donec euismod, nisl eget ullamcorper ultricies, nunc libero aliquam nunc, eu aliquet nisl nisl nec nunc. Sed vitae nisl eget nisl aliquet aliquet.',
-        modified: '2021-05-20 10:00:00',
-        fake: 0,
-        trust: 0,
-        kudos: 10,
-        disappointed: 10,
-        is_rate: 0,
-        is_marked: 0,
-        image: [
-            {
-                id: 1,
-                url: 'https://picsum.photos/200/300',
-            },
-            {
-                id: 2,
-                url: 'https://picsum.photos/200/300',
-            },
-            {
-                id: 3,
-                url: 'https://picsum.photos/200/300',
-            },
-        ],
-        author: {
-            id: 1,
-            name: 'Nguyen Van A',
-            avatar: 'https://picsum.photos/200/300',
-            coins: 100,
-        },
-        category: {
-            id: 1,
-            name: 'Thể thao',
-            has_name: 1,
-        },
-        state: 0,
-        is_blocked: 0,
-        can_edit: 0,
-        banned: 0,
-        can_mark: 0,
-        can_rate: 0,
-        url: 'https://picsum.photos/200/300',
-        message:
-            'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec euismod, nisl eget ullamcorper ultricies, nunc libero aliquam nunc, eu aliquet nisl nisl nec nunc. Sed vitae nisl eget nisl aliquet aliquet. Donec euismod, nisl eget ullamcorper ultricies, nunc libero aliquam nunc, eu aliquet nisl nisl nec nunc. Sed vitae nisl eget nisl aliquet aliquet.',
-    },
-];
-
-function TestScreen() {
-    const count = 10;
-
-    const user = useSelector(selectUser);
-    const [location, setLocation] = useState(null);
-    const [post, setPost] = useState(postFake);
-    const [pagination, setPagination] = useState({
-        index: 0,
-        lastId: 0,
-        isRefreshing: false,
-        isLoadMore: false,
-    });
-
-    const scrollY = useRef(new Animated.Value(0)).current;
-    const offsetAnim = useRef(new Animated.Value(0)).current;
-
-    const onRefresh = () => {
-        setPagination({ ...pagination, isRefreshing: true, index: 0 });
-    };
-
-    const onLoadMore = () => {
-        if (!pagination.lastId) {
-            return;
-        }
-        setPagination({ ...pagination, isLoadMore: true });
-    };
-
-    const handleLoadMore = () => {
-        const data = {
-            user_id: user?.id,
-            in_campaign: '1',
-            campaign_id: '1',
-            latitude: location.latitude,
-            longitude: location.longitude,
-            last_id: pagination.lastId,
-            index: pagination.index,
-            count: count,
-        };
-        getListPostsService(data)
-            .then((response) => {
-                if (response.data.code === '1000') {
-                    if (response.data.data.post.length !== 0 && response.data.data.last_id !== pagination.lastId) {
-                        setPost([...post, ...response.data.data.post]);
-                        setPagination({
-                            ...pagination,
-                            lastId: response.data.data.last_id,
-                            index: response.data.data.post.length + pagination.index,
-                            isLoadMore: false,
-                        });
-                    } else {
-                        setPagination({ ...pagination, isLoadMore: false });
-                    }
-                }
-            })
-            .catch((e) => {
-                setPagination({ ...pagination, isLoadMore: false });
-                console.log(e);
-            });
-    };
-    const refreshControl = <RefreshControl refreshing={pagination.isRefreshing} onRefresh={onRefresh} progressViewOffset={CONTAINER_HEIGHT} />;
-
-    const refreshData = () => {
-        const data = {
-            user_id: user?.id,
-            in_campaign: '1',
-            campaign_id: '1',
-            latitude: location.latitude,
-            longitude: location.longitude,
-            index: pagination.index,
-            count: count,
-        };
-        getListPostsService(data)
-            .then((response) => {
-                if (response.data.code === '1000') {
-                    if (response.data.data.post.length !== 0 && response.data.data.last_id !== pagination.lastId) {
-                        setPost(response.data.data.post);
-                        setPagination({ ...pagination, lastId: response.data.data.last_id, index: response.data.data.post.length, isRefreshing: false });
-                    } else {
-                        setPagination({ ...pagination, isRefreshing: false });
-                    }
-                }
-            })
-            .catch((e) => {
-                setPagination({ ...pagination, isRefreshing: false });
-                console.log(e);
-            });
-    };
-
-    const clampedScroll = Animated.diffClamp(
-        Animated.add(
-            scrollY.interpolate({
-                inputRange: [0, 1],
-                outputRange: [0, 1],
-                extrapolateLeft: 'clamp',
-            }),
-            offsetAnim,
-        ),
-        0,
-        CONTAINER_HEIGHT,
-    );
-
-    var _clampedScrollValue = 0;
-    var _offsetValue = 0;
-    var _scrollValue = 0;
-
-    useEffect(() => {
-        scrollY.addListener(({ value }) => {
-            const absoluteScrollY = value < 0 ? 0 : value;
-            const diff = absoluteScrollY - _scrollValue;
-            _scrollValue = absoluteScrollY;
-            _clampedScrollValue = Math.min(Math.max(_clampedScrollValue + diff, 0), CONTAINER_HEIGHT);
-        });
-
-        offsetAnim.addListener(({ value }) => {
-            _offsetValue = value;
-        });
-    });
-
-    var scrollEndTimer = null;
-    const onMomentumScrollBegin = () => {
-        clearTimeout(scrollEndTimer);
-    };
-    const onMomentumScrollEnd = () => {
-        const toValue =
-            _scrollValue > CONTAINER_HEIGHT && _clampedScrollValue > CONTAINER_HEIGHT / 2 ? _offsetValue + CONTAINER_HEIGHT : _offsetValue - CONTAINER_HEIGHT;
-
-        Animated.timing(offsetAnim, {
-            toValue,
-            duration: 500,
-            useNativeDriver: true,
-        }).start();
-    };
-    const onScrollEndDrag = () => {
-        scrollEndTimer = setTimeout(onMomentumScrollEnd, 250);
-    };
-
-    const headerTranslate = clampedScroll.interpolate({
-        inputRange: [0, CONTAINER_HEIGHT],
-        outputRange: [0, -CONTAINER_HEIGHT],
-        extrapolate: 'clamp',
-    });
-    const opacity = clampedScroll.interpolate({
-        inputRange: [0, CONTAINER_HEIGHT - 20, CONTAINER_HEIGHT],
-        outputRange: [1, 0.05, 0],
-        extrapolate: 'clamp',
-    });
-
-    useEffect(() => {
-        if (pagination.isRefreshing && location) {
-            refreshData();
-        } else if (pagination.isLoadMore && location) {
-            handleLoadMore();
-        }
-    }, [pagination]);
-
-    useEffect(() => {
-        getLocationStorage()
-            .then((res) => {
-                if (res) {
-                    setLocation(res);
-                    const data = {
-                        user_id: user?.id,
-                        in_campaign: '1',
-                        campaign_id: '1',
-                        latitude: res.latitude,
-                        longitude: res.longitude,
-                        index: pagination.index,
-                        count: count,
-                    };
-
-                    getListPostsService(data)
-                        .then((response) => {
-                            if (response.data.code === '1000') {
-                                if (response.data.data.post.length !== 0) {
-                                    setPost(response.data.data.post);
-                                    setPagination({ ...pagination, lastId: response.data.data.last_id, index: response.data.data.post.length });
-                                } else {
-                                    setPagination({ ...pagination, isRefreshing: false });
-                                }
-                            }
-                        })
-                        .catch((e) => {
-                            setPagination({ ...pagination, isRefreshing: false });
-                        });
-                } else {
-                    Alert.alert('Please turn on location');
-                }
-            })
-            .catch((e) => {
-                Alert.alert('Have error, please try again');
-            });
-    }, []);
-
+function TestScreen(props) {
     return (
         <Container>
-            <AnimatedHeader style={[{ transform: [{ translateY: headerTranslate }] }]}>
-                <HeaderApp style={{ opacity }} />
-            </AnimatedHeader>
-            {/* <LoadingComponent visible={true} /> */}
-
-            <Animated.FlatList
-                onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: scrollY } } }], { useNativeDriver: true })}
-                data={post}
-                refreshing={pagination.isRefreshing}
-                onRefresh={onRefresh}
-                ListHeaderComponent={
-                    <>
-                        <PostComposerComponent
-                            stylesInput={{ placeholderTextColor: Color.grey3, borderWidth: 1, borderColor: Color.grey3 }}
-                            isHeader={true}
-                            post={post}
-                            setPost={setPost}
-                            pagination={pagination}
-                            setPagination={setPagination}
-                        />
-                        <ItemSeparatorView />
-                        <StoryComponent />
-                        <ItemSeparatorView />
-                    </>
-                }
-                showsVerticalScrollIndicator={false}
-                refreshControl={refreshControl}
-                keyExtractor={(item, index) => item.title + index.toString()}
-                renderItem={({ item }) => <PostComponent item={item} user={user} post={post} setPost={setPost} />}
-                // onEndReached={onLoadMore}
-                ItemSeparatorComponent={ItemSeparatorView}
-                // onEndReachedThreshold={0.2}
-                // initialNumToRender={4}
-                contentContainerStyle={{ marginTop: CONTAINER_HEIGHT, paddingBottom: CONTAINER_HEIGHT }}
-                onMomentumScrollBegin={onMomentumScrollBegin}
-                onMomentumScrollEnd={onMomentumScrollEnd}
-                onScrollEndDrag={onScrollEndDrag}
-                scrollEventThrottle={1}
-                ListFooterComponent={pagination.isLoadMore && <ActivityIndicatorIcon size="large" color={Color.blueButtonColor} />}
-            />
+            <HeaderProfile></HeaderProfile>
+            <ScrollView style={{ flex: 1, backgroundColor: Color.white }} showsVerticalScrollIndicator={false}>
+                <ProfileContainer>
+                    <BackGround>
+                        <SkeletonComponent width={Dimensions.get('window').width} height={Dimensions.get('window').height * 0.3} />
+                        <AvatarContainer>
+                            <SkeletonComponent width={200} height={200} style={{ borderRadius: 100 }} />
+                        </AvatarContainer>
+                        <FullName>
+                            <SkeletonComponent width={Dimensions.get('window').width * 0.5} height={45} style={{ borderRadius: 8, marginTop: 10 }} />
+                        </FullName>
+                    </BackGround>
+                    <Bio>
+                        <SkeletonComponent width={Dimensions.get('window').width * 0.9} height={30} style={{ borderRadius: 8, marginTop: 10 }} />
+                        <SkeletonComponent width={Dimensions.get('window').width * 0.4} height={30} style={{ borderRadius: 8, marginTop: 10 }} />
+                        <SkeletonComponent width={Dimensions.get('window').width * 0.7} height={30} style={{ borderRadius: 8, marginTop: 10 }} />
+                    </Bio>
+                    <ButtonView>
+                        <SkeletonComponent width={Dimensions.get('window').width * 0.95} height={45} style={{ borderRadius: 8, marginTop: 10 }} />
+                        <SkeletonComponent width={Dimensions.get('window').width * 0.95} height={45} style={{ borderRadius: 8, marginTop: 10 }} />
+                    </ButtonView>
+                </ProfileContainer>
+                <ItemSeparatorView />
+                <ListFriend>
+                    <FriendContainer>
+                        <FriendImage>
+                            <SkeletonComponent
+                                width={(Dimensions.get('window').width - 30) / 3}
+                                height={Dimensions.get('window').width / 3}
+                                style={{ borderRadius: 8 }}
+                            />
+                        </FriendImage>
+                        <FriendName>
+                            <SkeletonComponent width={Dimensions.get('window').width * 0.25} height={15} style={{ borderRadius: 4 }} />
+                        </FriendName>
+                    </FriendContainer>
+                    <FriendContainer>
+                        <FriendImage>
+                            <SkeletonComponent
+                                width={(Dimensions.get('window').width - 30) / 3}
+                                height={Dimensions.get('window').width / 3}
+                                style={{ borderRadius: 8 }}
+                            />
+                        </FriendImage>
+                        <FriendName>
+                            <SkeletonComponent width={Dimensions.get('window').width * 0.25} height={15} style={{ borderRadius: 4 }} />
+                        </FriendName>
+                    </FriendContainer>
+                    <FriendContainer>
+                        <FriendImage>
+                            <SkeletonComponent
+                                width={(Dimensions.get('window').width - 30) / 3}
+                                height={Dimensions.get('window').width / 3}
+                                style={{ borderRadius: 8 }}
+                            />
+                        </FriendImage>
+                        <FriendName>
+                            <SkeletonComponent width={Dimensions.get('window').width * 0.25} height={15} style={{ borderRadius: 4 }} />
+                        </FriendName>
+                    </FriendContainer>
+                    <FriendContainer>
+                        <FriendImage>
+                            <SkeletonComponent
+                                width={(Dimensions.get('window').width - 30) / 3}
+                                height={Dimensions.get('window').width / 3}
+                                style={{ borderRadius: 8 }}
+                            />
+                        </FriendImage>
+                        <FriendName>
+                            <SkeletonComponent width={Dimensions.get('window').width * 0.25} height={15} style={{ borderRadius: 4 }} />
+                        </FriendName>
+                    </FriendContainer>
+                    <FriendContainer>
+                        <FriendImage>
+                            <SkeletonComponent
+                                width={(Dimensions.get('window').width - 30) / 3}
+                                height={Dimensions.get('window').width / 3}
+                                style={{ borderRadius: 8 }}
+                            />
+                        </FriendImage>
+                        <FriendName>
+                            <SkeletonComponent width={Dimensions.get('window').width * 0.25} height={15} style={{ borderRadius: 4 }} />
+                        </FriendName>
+                    </FriendContainer>
+                    <FriendContainer>
+                        <FriendImage>
+                            <SkeletonComponent
+                                width={(Dimensions.get('window').width - 30) / 3}
+                                height={Dimensions.get('window').width / 3}
+                                style={{ borderRadius: 8 }}
+                            />
+                        </FriendImage>
+                        <FriendName>
+                            <SkeletonComponent width={Dimensions.get('window').width * 0.25} height={15} style={{ borderRadius: 4 }} />
+                        </FriendName>
+                    </FriendContainer>
+                </ListFriend>
+                <ItemSeparatorView />
+                <FakePostComponent />
+                <ItemSeparatorView />
+                <FakePostComponent />
+                <ItemSeparatorView />
+            </ScrollView>
         </Container>
     );
 }

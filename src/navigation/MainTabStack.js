@@ -48,7 +48,7 @@ const MainTabStack = ({ user }) => {
             icon: 'television-play',
             iconFocused: 'youtube-tv',
             sizeIconFocused: 30,
-            sizeIcon: 30,
+            sizeIcon: 28,
             typeIcon: 'MaterialCommunityIcons',
             typeIconFocused: 'MaterialCommunityIcons',
         },
@@ -59,16 +59,6 @@ const MainTabStack = ({ user }) => {
             iconFocused: 'bell-fill',
             typeIcon: 'Octicons',
             typeIconFocused: 'Octicons',
-        },
-        {
-            name: routes.PERSIONAL_STACK,
-            component: PersionalStack,
-            icon: 'person-circle-outline',
-            iconFocused: 'person-circle',
-            sizeIcon: 28,
-            sizeIconFocused: 28,
-            typeIcon: 'Ionicons',
-            typeIconFocused: 'Ionicons',
         },
         {
             name: routes.SETTING_STACK,
@@ -97,7 +87,7 @@ const MainTabStack = ({ user }) => {
                     borderRadius: 10,
                 },
                 tabBarPressColor: Color.lightGray,
-                // lazy: true,
+                lazy: false,
             }}
         >
             {screenItemsLogin.map((item, index) => (

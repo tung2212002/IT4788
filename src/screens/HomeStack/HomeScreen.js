@@ -17,6 +17,11 @@ import { getLocationStorage } from '../../utils/locationStorage';
 import { useNavigation, useScrollToTop } from '@react-navigation/native';
 import HeaderComponent from '../../components/HeaderComponent';
 import { addListPostHomeEnd, addPost, selectHomePost, setListHomePost } from '../../redux/features/post/postSlice';
+import { selectNetwork } from '../../redux/features/network/networkSlice';
+import { addDataHeadAsyncStorage, addDataTailAsyncStorage, getAsyncStorage, setAsyncStorage } from '../../utils/asyncCacheStorage';
+import FakePostComponent from '../../components/Skeletion/FakePostComponent';
+import { CacheManager } from '../../components/CachedImage';
+import { View } from 'moti';
 
 const Container = styled.View`
     flex: 1;
@@ -40,10 +45,10 @@ const ItemSeparatorView = styled.View`
 `;
 
 const Footer = styled.View`
-    height: 50px;
     width: 100%;
     justify-content: center;
     align-items: center;
+    margin-bottom: 50px;
 `;
 
 const CONTAINER_HEIGHT = 60;
@@ -55,13 +60,24 @@ function HomeScreen({ route, navigation }) {
     // const [post, setPost] = useState(null);
     const post = useSelector(selectHomePost);
     const user = useSelector(selectUser);
+    const isConnected = useSelector(selectNetwork);
 
+    const fakePost = [
+        {
+            id: 1,
+        },
+        {
+            id: 2,
+        },
+    ];
     const [location, setLocation] = useState(null);
     const [pagination, setPagination] = useState({
         index: 0,
         lastId: 0,
         isRefreshing: false,
         isLoadMore: false,
+        firstLoad: true,
+        canLoadMore: true,
     });
 
     const [isSearch, setIsSearch] = useState(false);
@@ -71,11 +87,16 @@ function HomeScreen({ route, navigation }) {
     const ref = useRef(null);
 
     const onRefresh = () => {
-        setPagination({ ...pagination, isRefreshing: true, index: 0 });
+        console.log('onRefresh');
+        if (pagination.isRefreshing || pagination.isLoadMore) {
+            return;
+        }
+        console.log('onRefresh2');
+        setPagination({ ...pagination, isRefreshing: true, index: 0, canLoadMore: true });
     };
 
     const onLoadMore = () => {
-        if (!pagination.lastId || pagination.isRefreshing) {
+        if (!pagination.lastId || pagination.isRefreshing || pagination.isLoadMore || !pagination.canLoadMore) {
             return;
         }
         setPagination({ ...pagination, isLoadMore: true });
@@ -100,9 +121,13 @@ function HomeScreen({ route, navigation }) {
                             lastId: response.data.data.last_id,
                             index: response.data.data.post.length + pagination.index,
                             isLoadMore: false,
+                            canLoadMore: response.data.data.post.length === count,
                         });
                         // setPost((prev) => [...prev, ...response.data.data.post]);
                         dispatch(addListPostHomeEnd(response.data.data.post));
+                        addDataTailAsyncStorage('homePost', response.data.data.post);
+                    } else if (response.data.data.post?.length === 0) {
+                        setPagination({ ...pagination, isLoadMore: false, canLoadMore: false });
                     } else {
                         setPagination({ ...pagination, isLoadMore: false });
                     }
@@ -128,15 +153,25 @@ function HomeScreen({ route, navigation }) {
         getListPostsService(data)
             .then((response) => {
                 if (response.data.code === '1000') {
-                    if (response.data.data.post.length !== 0 && response.data.data.last_id !== pagination.lastId) {
+                    console.log('response.data.data.post', response.data.data.post);
+                    if (response.data.data.post.length !== 0) {
                         // setPost(response.data.data.post);
+                        console.log('setListHomePostabc');
+
                         dispatch(setListHomePost(response.data.data.post));
                         setPagination({
                             ...pagination,
                             lastId: response.data.data.last_id,
                             index: response.data.data.post.length,
                             isRefreshing: false,
+                            canLoadMore: response.data.data.post.length === count,
                         });
+                        setAsyncStorage('homePost', response.data.data.post);
+                    } else if (response.data.data.post.length === 0) {
+                        console.log('setListHomePost []');
+                        setPagination({ ...pagination, isRefreshing: false, canLoadMore: false });
+                        dispatch(setListHomePost([]));
+                        setAsyncStorage('homePost', []);
                     } else {
                         setPagination({ ...pagination, isRefreshing: false });
                     }
@@ -157,15 +192,9 @@ function HomeScreen({ route, navigation }) {
         getPostService(data)
             .then((res) => {
                 if (res.data.code === '1000') {
-                    // const updatePosts = post.map((item) => {
-                    //     if (item.id === id) {
-                    //         return res.data.data;
-                    //     }
-                    //     return item;
-                    // });
-                    // setPost(updatePosts);
                     let isVideo = res.data.data.video ? true : false;
                     dispatch(addPost({ post: res.data.data, isVideo }));
+                    addDataHeadAsyncStorage('homePost', [res.data.data]);
                 } else {
                     console.log(res);
                 }
@@ -235,50 +264,83 @@ function HomeScreen({ route, navigation }) {
     });
 
     useEffect(() => {
-        if (pagination.isRefreshing && location) {
+        if (pagination.isRefreshing && location && !pagination.isLoadMore) {
             refreshData();
-        } else if (pagination.isLoadMore && location) {
+        } else if (pagination.isLoadMore && location && !pagination.isRefreshing) {
             handleLoadMore();
         }
     }, [pagination]);
 
     useEffect(() => {
-        getLocationStorage()
-            .then((res) => {
-                if (res) {
-                    setLocation(res);
-                    const data = {
-                        in_campaign: '1',
-                        campaign_id: '1',
-                        latitude: res.latitude,
-                        longitude: res.longitude,
-                        index: pagination.index,
-                        count: count,
-                    };
+        if (isConnected && pagination.firstLoad) {
+            getLocationStorage()
+                .then((res) => {
+                    if (res) {
+                        setLocation(res);
+                        const data = {
+                            in_campaign: '1',
+                            campaign_id: '1',
+                            latitude: res.latitude,
+                            longitude: res.longitude,
+                            index: pagination.index,
+                            count: count,
+                        };
 
-                    getListPostsService(data)
-                        .then((response) => {
-                            if (response.data.code === '1000') {
-                                if (response.data.data.post.length !== 0) {
-                                    setPagination({ ...pagination, lastId: response.data.data.last_id, index: response.data.data.post.length });
-                                    // setPost(response.data.data.post);
-                                    dispatch(setListHomePost(response.data.data.post));
-                                } else {
-                                    setPagination({ ...pagination, isRefreshing: false });
+                        getListPostsService(data)
+                            .then((response) => {
+                                if (response.data.code === '1000') {
+                                    if (response.data.data.post.length !== 0) {
+                                        console.log('setListHomePost');
+
+                                        setPagination({
+                                            ...pagination,
+                                            lastId: response.data.data.last_id,
+                                            index: response.data.data.post.length,
+                                            firstLoad: false,
+                                            canLoadMore: response.data.data.post.length === count,
+                                        });
+                                        // setPost(response.data.data.post);
+                                        dispatch(setListHomePost(response.data.data.post));
+                                        setAsyncStorage('homePost', response.data.data.post);
+                                    } else if (response.data.data.post.length === 0) {
+                                        console.log('setListHomePost []');
+
+                                        setPagination({ ...pagination, firstLoad: false, canLoadMore: false });
+                                        dispatch(setListHomePost([]));
+                                        setAsyncStorage('homePost', []);
+                                    } else {
+                                        setPagination({ ...pagination });
+                                    }
                                 }
-                            }
-                        })
-                        .catch((e) => {
-                            setPagination({ ...pagination, isRefreshing: false });
-                        });
-                } else {
-                    Alert.alert('Please turn on location');
-                }
-            })
-            .catch((e) => {
-                Alert.alert('Have error, please try again');
-            });
-    }, []);
+                            })
+                            .catch((e) => {
+                                setPagination({ ...pagination, isRefreshing: false });
+                            });
+                    } else {
+                        Alert.alert('Hãy bật định vị để sử dụng ứng dụng');
+                    }
+                })
+                .catch((e) => {
+                    Alert.alert('Hãy bật định vị để sử dụng ứng dụng');
+                });
+        } else if (!isConnected && post.length === 0 && pagination.firstLoad) {
+            getAsyncStorage('homePost')
+                .then((res) => {
+                    Alert.alert(res.length.toString());
+                    if (res) {
+                        dispatch(setListHomePost(res));
+                        setPagination({ ...pagination, firstLoad: false });
+                    } else {
+                        dispatch(setListHomePost([]));
+                        setPagination({ ...pagination, firstLoad: false });
+                        Alert.alert('No cache data');
+                    }
+                })
+                .catch((e) => {
+                    console.log(e);
+                });
+        }
+    }, [isConnected]);
 
     useScrollToTop(ref);
 
@@ -287,54 +349,90 @@ function HomeScreen({ route, navigation }) {
             <AnimatedHeader style={isSearch ? null : [{ transform: [{ translateY: headerTranslate }] }]}>
                 <HeaderComponent style={{ opacity }} navigation={navigation} />
             </AnimatedHeader>
-
-            <Animated.FlatList
-                ref={ref}
-                onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: scrollY } } }], { useNativeDriver: true })}
-                data={post}
-                refreshing={pagination.isRefreshing}
-                onRefresh={onRefresh}
-                ListHeaderComponent={
-                    <>
-                        <PostComposerComponent
+            {!pagination.firstLoad ? (
+                <Animated.FlatList
+                    ref={ref}
+                    onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: scrollY } } }], { useNativeDriver: true })}
+                    data={post}
+                    refreshing={pagination.isRefreshing}
+                    onRefresh={onRefresh}
+                    ListHeaderComponent={
+                        <>
+                            <PostComposerComponent
+                                navigation={navigation}
+                                stylesInput={{ placeholderTextColor: Color.grey3, borderWidth: 1, borderColor: Color.grey3 }}
+                                isHeader={false}
+                                post={post}
+                                // setPost={setPost}
+                                pagination={pagination}
+                                setPagination={setPagination}
+                            />
+                            {/* <StoryComponent /> */}
+                            <ItemSeparatorView />
+                        </>
+                    }
+                    showsVerticalScrollIndicator={false}
+                    refreshControl={refreshControl}
+                    keyExtractor={(item, index) => item.id.toString()}
+                    renderItem={({ item }) => (
+                        <PostComponent
+                            item={item}
+                            user={user}
                             navigation={navigation}
-                            stylesInput={{ placeholderTextColor: Color.grey3, borderWidth: 1, borderColor: Color.grey3 }}
-                            isHeader={false}
                             post={post}
                             // setPost={setPost}
-                            pagination={pagination}
-                            setPagination={setPagination}
+                            handleRequestNewPost={handleRequestNewPost}
+                            cacheFolder="homePost"
+                            canNavigate={true}
                         />
-                        {/* <ItemSeparatorView />
-                        <StoryComponent /> */}
-                        <ItemSeparatorView />
-                    </>
-                }
-                showsVerticalScrollIndicator={false}
-                refreshControl={refreshControl}
-                keyExtractor={(item, index) => item.id.toString()}
-                renderItem={({ item }) => (
-                    <PostComponent
-                        item={item}
-                        user={user}
-                        navigation={navigation}
-                        post={post}
-                        // setPost={setPost}
-                        handleRequestNewPost={handleRequestNewPost}
-                    />
-                )}
-                onEndReached={onLoadMore}
-                ItemSeparatorComponent={ItemSeparatorView}
-                onEndReachedThreshold={0}
-                initialNumToRender={10}
-                contentContainerStyle={{ marginTop: CONTAINER_HEIGHT, paddingBottom: CONTAINER_HEIGHT }}
-                onMomentumScrollBegin={onMomentumScrollBegin}
-                onMomentumScrollEnd={onMomentumScrollEnd}
-                onScrollEndDrag={onScrollEndDrag}
-                scrollEventThrottle={1}
-                ListFooterComponent={<Footer>{pagination.isLoadMore && <ActivityIndicatorIcon size={30} color={Color.blueButtonColor} />}</Footer>}
-                ListFooterComponentStyle={{ marginVertical: 15 }}
-            />
+                    )}
+                    onEndReached={onLoadMore}
+                    ItemSeparatorComponent={ItemSeparatorView}
+                    onEndReachedThreshold={1}
+                    initialNumToRender={10}
+                    contentContainerStyle={{ marginTop: CONTAINER_HEIGHT }}
+                    onMomentumScrollBegin={onMomentumScrollBegin}
+                    onMomentumScrollEnd={onMomentumScrollEnd}
+                    onScrollEndDrag={onScrollEndDrag}
+                    scrollEventThrottle={1}
+                    // ListFooterComponent={<Footer>{pagination.isLoadMore && <ActivityIndicatorIcon size={30} color={Color.blueButtonColor} />}</Footer>}
+                    ListFooterComponent={
+                        <Footer>
+                            <ItemSeparatorView />
+                            {pagination.isLoadMore && <FakePostComponent />}
+                            <ItemSeparatorView />
+                            {pagination.isLoadMore && <FakePostComponent />}
+                        </Footer>
+                    }
+                    ListFooterComponentStyle={{ marginVertical: 0 }}
+                />
+            ) : (
+                <Animated.FlatList
+                    ref={ref}
+                    onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: scrollY } } }], { useNativeDriver: true })}
+                    data={fakePost}
+                    ListHeaderComponent={
+                        <>
+                            <PostComposerComponent
+                                navigation={navigation}
+                                stylesInput={{ placeholderTextColor: Color.grey3, borderWidth: 1, borderColor: Color.grey3 }}
+                                isHeader={false}
+                            />
+                            <ItemSeparatorView />
+                        </>
+                    }
+                    showsVerticalScrollIndicator={false}
+                    keyExtractor={(item, index) => item.id.toString()}
+                    renderItem={({ item }) => <FakePostComponent />}
+                    contentContainerStyle={{ marginTop: CONTAINER_HEIGHT, paddingBottom: CONTAINER_HEIGHT }}
+                    ItemSeparatorComponent={ItemSeparatorView}
+                    onMomentumScrollBegin={onMomentumScrollBegin}
+                    onMomentumScrollEnd={onMomentumScrollEnd}
+                    onScrollEndDrag={onScrollEndDrag}
+                    scrollEventThrottle={1}
+                    ListFooterComponentStyle={{ marginVertical: 15 }}
+                />
+            )}
         </Container>
     );
 }

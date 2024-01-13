@@ -123,8 +123,8 @@ function ChangeAvatarScreen({ navigation, setRenderPopUpComponent, renderPopUpCo
             })
             .catch((err) => {
                 dispatch(setLoading(false));
+                console.log('changeProfileAfterSignupService err', err);
                 Alert.alert('Lỗi', 'Đã có lỗi xảy ra, vui lòng thử lại sau!', [{ text: 'OK' }]);
-                console.log(err);
             });
     };
 

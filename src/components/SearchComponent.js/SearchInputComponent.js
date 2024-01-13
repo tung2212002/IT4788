@@ -28,11 +28,15 @@ import routes from '../../constants/route';
 import PopupComponent from '../PopupComponent';
 import ButtonIconComponent from '../ButtonIconComponent';
 import { navigate } from '../../navigation/RootNavigator';
+import { useDispatch } from 'react-redux';
+import { removeHistorySearch, updateHistorySearch } from '../../redux/features/history/searchSlice';
 
 const { Value, timing } = Animated;
 const { width, height } = Dimensions.get('window');
 
 const SearchInputComponent = ({ keyword, navigation, refreshHistory }) => {
+    const dispatch = useDispatch();
+
     const [isFocused, setIsFocused] = useState(false);
     const [keyWord, setKeyWord] = useState(keyword || '');
     const contentTranslateY = useRef(new Value(height)).current;
@@ -159,19 +163,22 @@ const SearchInputComponent = ({ keyword, navigation, refreshHistory }) => {
         delSavedSearchService(body)
             .then((response) => {
                 if (response.data.code === '1000') {
-                    refreshHistory();
+                    // refreshHistory();
+                    dispatch(updateHistorySearch());
                     if (all) {
                         setPageHistory({
                             ...pageHistory,
                             index: 0,
                         });
                         setHistorySearch([]);
+                        dispatch(setHistorySearch([]));
                     } else {
                         setPageHistory({
                             ...pageHistory,
                             index: pageHistory.index - 1,
                         });
                         setHistorySearch(historySearch.filter((item) => item.id !== id));
+                        dispatch(removeHistorySearch(id));
                     }
                 }
             })
@@ -183,8 +190,8 @@ const SearchInputComponent = ({ keyword, navigation, refreshHistory }) => {
         if (keyWord.trim() === '') {
             return;
         }
-        navigation.push(routes.SEARCH_RESULT_SCREEN, { keyword: keyWord, navigation: navigation, refreshHistory: refreshHistory });
-        refreshHistory();
+        navigation.push(routes.SEARCH_RESULT_SCREEN, { keyword: keyWord });
+        // refreshHistory();
     };
 
     useState(() => {

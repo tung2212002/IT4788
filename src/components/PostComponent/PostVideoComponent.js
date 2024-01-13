@@ -28,6 +28,8 @@ import { setBlockService } from '../../services/blockService';
 import VideoComponent from './VideoComponent';
 import PhotoGrid from '../PhotoGridComponent/PhotoGrid';
 import { deletePost } from '../../redux/features/post/postSlice';
+import { removeDataByIdAsyncStorage } from '../../utils/asyncCacheStorage';
+import { setNoti } from '../../redux/features/noti/notiSlice';
 
 const ShadowSurface = styled(Surface)`
     width: 100%;
@@ -135,8 +137,6 @@ const Comment = styled.Text`
 `;
 
 const FooterPost = styled.View`
-    border-top-width: 1px;
-    border-color: ${Color.lightGray};
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
@@ -229,6 +229,18 @@ const PostVideoComponent = ({ item, user, navigation, post, setPost }) => {
                 mergeUser({ ...userSelector, coins: res.data.data.coins });
                 // setPost(newListPost);
                 dispatch(deletePost(item.id));
+                dispatch(
+                    setNoti({
+                        show: true,
+                        title: 'Xóa bài viết thành công',
+                        iconName: 'check-circle',
+                        iconType: 'Feather',
+                        propsButton: { backgroundColor: Color.green, width: 95, marginRight: 10, marginLeft: 10, position: 'absolute', bottom: 50 },
+                        propsIcon: { color: Color.white, size: 16, backgroundColor: Color.green, padding: 1 },
+                        propsTitle: { color: Color.white, size: 16 },
+                    }),
+                );
+                removeDataByIdAsyncStorage('homePosts', item.id);
             } else if (res.data.code === '9992') {
                 Alert.alert(
                     'Thông báo',

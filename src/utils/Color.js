@@ -42,6 +42,10 @@ const Color = {
     grey6: '#eef3fc',
     dkGreyBg: '#232323',
     greyOutline: '#cbd2d9',
+    gray1: '#E1E9EE',
+
+    skeletion1: 'rgba(0,0,0,0.12)',
+    skeletion2: 'rgba(0,0,0,0.05)',
 
     yellow1: '#ffcc00',
 };

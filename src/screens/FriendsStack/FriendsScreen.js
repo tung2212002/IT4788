@@ -24,6 +24,8 @@ import {
     setRequestFriendMain,
     setSuggestFriendMain,
 } from '../../redux/features/friend/friendSlice';
+import { selectNetwork } from '../../redux/features/network/networkSlice';
+import { addDataTailAsyncStorage, getAsyncStorage, setAsyncStorage } from '../../utils/asyncCacheStorage';
 
 const Container = styled.View`
     flex: 1;
@@ -109,6 +111,7 @@ function FriendsScreen() {
 
     const listRequestFriend = useSelector(selectRequestFriendMain);
     const listSuggestFriend = useSelector(selectSuggestFriendMain);
+    const isConnected = useSelector(selectNetwork);
 
     // const [listRequestFriend, setListRequestFriend] = useState([]);
     // const [listSuggestFriend, setListSuggestFriend] = useState([]);
@@ -122,6 +125,7 @@ function FriendsScreen() {
         isRefreshing: false,
         isLoadMore: false,
         last_index: 0,
+        firstLoad: true,
     });
 
     const [page2, setPage2] = useState({
@@ -130,24 +134,25 @@ function FriendsScreen() {
         isRefreshing: false,
         isLoadMore: false,
         last_index: 0,
+        firstLoad: true,
     });
 
     const onRefresh = () => {
-        setPage({ ...page, isRefreshing: true, index: 0, last_index: 0 });
+        setPage({ ...page, isRefreshing: true, index: 0, last_index: 0, firstLoad: false });
     };
 
     const onLoadMore = () => {
         if (page.last_index === page.index && page.index !== 0) {
             return;
         }
-        setPage({ ...page, isLoadMore: true });
+        setPage({ ...page, isLoadMore: true, firstLoad: false });
     };
 
     const onLoadMore2 = () => {
         if (page2.last_index === page2.index && page2.index !== 0) {
             return;
         }
-        setPage2({ ...page, isLoadMore: true });
+        setPage2({ ...page, isLoadMore: true, firstLoad: false });
     };
 
     const refreshControl = <RefreshControl refreshing={page.isRefreshing} onRefresh={onRefresh} />;
@@ -161,9 +166,14 @@ function FriendsScreen() {
             .then((res) => {
                 if (res.data.code === '1000') {
                     // setListRequestFriend([...listRequestFriend, ...res.data.data.requests]);
+                    if (page.firstLoad) {
+                        setAsyncStorage('listRequestFriend', res.data.data.requests);
+                    } else {
+                        addDataTailAsyncStorage('listRequestFriend', res.data.data.requests);
+                    }
                     dispatch(addListRequestFriendMain(res.data.data.requests));
                     setTotal(res.data.data.total);
-                    setPage({ ...page, index: page.index + res.data.data.requests.length, isLoadMore: false, last_index: page.index });
+                    setPage({ ...page, index: page.index + res.data.data.requests.length, isLoadMore: false, last_index: page.index, firstLoad: false });
                     if (res.data.data.requests.length >= page.count) {
                         setIsLoadMore(true);
                     } else {
@@ -175,8 +185,7 @@ function FriendsScreen() {
             })
             .catch((err) => {
                 setPage({ ...page, isLoadMore: false });
-                console.log(err);
-                Alert.alert('Lỗi', 'Vui lòng thử lại sau !');
+                console.log('getRequestedFriendsService', err);
             });
     };
 
@@ -189,16 +198,17 @@ function FriendsScreen() {
             .then((res) => {
                 if (res.data.code === '1000') {
                     // setListRequestFriend(res.data.data.requests);
+                    setAsyncStorage('listRequestFriend', res.data.data.requests);
                     dispatch(setRequestFriendMain(res.data.data.requests));
-                    setPage({ ...page, index: res.data.data.requests.length, isRefreshing: false });
+                    setPage({ ...page, index: res.data.data.requests.length, isRefreshing: false, firstLoad: false });
+                    setTotal(res.data.data.total);
                 } else {
                     setPage({ ...page, isRefreshing: false });
                 }
             })
             .catch((err) => {
                 setPage({ ...page, isRefreshing: false });
-                Alert.alert('Lỗi', 'Vui lòng thử lại sau !');
-                console.log(err);
+                console.log('getRequestedFriendsService', err);
             });
     };
 
@@ -211,16 +221,20 @@ function FriendsScreen() {
             .then((res) => {
                 if (res.data.code === '1000') {
                     // setListSuggestFriend([...listSuggestFriend, ...res.data.data]);
+                    if (page2.firstLoad) {
+                        setAsyncStorage('listSuggestFriend', res.data.data);
+                    } else {
+                        addDataTailAsyncStorage('listSuggestFriend', res.data.data);
+                    }
                     dispatch(addListSuggestFriendMain(res.data.data));
-                    setPage({ ...page2, index: page2.index + res.data.data.length, isLoadMore: false, last_index: page2.index });
+                    setPage({ ...page2, index: page2.index + res.data.data.length, isLoadMore: false, last_index: page2.index, firstLoad: false });
                 } else {
                     setPage({ ...page2, isLoadMore: false });
                 }
             })
             .catch((err) => {
                 setPage({ ...page2, isLoadMore: false });
-                console.log(err);
-                Alert.alert('Lỗi', 'Vui lòng thử lại sau !');
+                console.log('getRequestedFriendsService', err); // 'getRequestedFriendsService
             });
     };
 
@@ -233,30 +247,43 @@ function FriendsScreen() {
             .then((res) => {
                 if (res.data.code === '1000') {
                     // setListSuggestFriend(res.data.data);
+                    setAsyncStorage('listSuggestFriend', res.data.data);
                     dispatch(setSuggestFriendMain(res.data.data));
-                    setPage({ ...page2, index: res.data.data.length, isRefreshing: false, last_index: 0 });
+                    setPage({ ...page2, index: res.data.data.length, isRefreshing: false, last_index: 0, firstLoad: false });
                 } else {
                     setPage({ ...page2, isRefreshing: false });
                 }
             })
             .catch((err) => {
                 setPage({ ...page2, isRefreshing: false });
-                Alert.alert('Lỗi', 'Vui lòng thử lại sau !');
-                console.log(err);
+                console.log('getRequestedFriendsService', err);
             });
     };
 
     useEffect(() => {
-        // console.log('load friend');
-        handleRefresh();
-        handleRefresh2();
-    }, []);
+        if (isConnected && page.firstLoad) {
+            handleGetRequestFriend();
+            handleGetRequestFriend2();
+        } else if (!isConnected && page.firstLoad && listSuggestFriend.length === 0 && listRequestFriend.length === 0) {
+            getAsyncStorage('listRequestFriend').then((res) => {
+                if (res) {
+                    dispatch(setRequestFriendMain(res));
+                    setTotal(res.length);
+                }
+            });
+            getAsyncStorage('listSuggestFriend').then((res) => {
+                if (res) {
+                    dispatch(setSuggestFriendMain(res));
+                }
+            });
+        }
+    }, [isConnected]);
 
     useEffect(() => {
         // console.log('load friend2');
-        if (page.isLoadMore) {
+        if (page.isLoadMore && isConnected && !page.firstLoad) {
             handleGetRequestFriend();
-        } else if (page.isRefreshing && page.index === 0) {
+        } else if (page.isRefreshing && page.index === 0 && isConnected && !page.firstLoad) {
             handleRefresh();
             handleRefresh2();
         }
@@ -264,17 +291,12 @@ function FriendsScreen() {
 
     useEffect(() => {
         // console.log('load friend3');
-        if (page2.isLoadMore) {
+        if (page2.isLoadMore && isConnected && !page2.firstLoad) {
             handleGetRequestFriend2();
-        } else if (page2.isRefreshing && page2.index === 0) {
+        } else if (page2.isRefreshing && page2.index === 0 && isConnected && !page2.firstLoad) {
             handleRefresh2();
         }
     }, [page2]);
-
-    useEffect(() => {
-        // console.log('load friend4');
-        setTotal(listRequestFriend.length);
-    }, [listRequestFriend]);
 
     useScrollToTop(ref);
 
@@ -326,6 +348,7 @@ function FriendsScreen() {
                                         // setPage={setPage}
                                         setTotal={setTotal}
                                         key={item.id + item.created + index}
+                                        cacheFolder={'avatar'}
                                     />
                                 );
                             })}
@@ -357,6 +380,7 @@ function FriendsScreen() {
                                         listSuggestFriend={listSuggestFriend}
                                         // setListSuggestFriend={setListSuggestFriend}
                                         key={item.created + index}
+                                        cacheFolder={'avatar'}
                                     />
                                 );
                             })}

@@ -16,10 +16,13 @@ import { useEffect } from 'react';
 import CreatePostScreen from '../screens/CreatePostScreen';
 import { getPostService } from '../services/postService';
 import { getTokenStorage } from '../utils/userStorage';
-import { BASE_URL } from '@env';
+// import { BASE_URL } from '@env';
+import { BASE_URL } from '../utils/requestAxios';
 import { navigate } from '../navigation/RootNavigator';
 import routes from '../constants/route';
 import { addPost } from '../redux/features/post/postSlice';
+import { getAsyncStorage, removeAsyncStorage } from '../utils/asyncCacheStorage';
+import { CacheManager } from './CachedImage';
 
 const Container = styled.View`
     background-color: ${Color.white};
@@ -130,7 +133,23 @@ const PostComposerComponent = ({ navigation, stylesInput, isHeader = false, post
 
     const [perc, setPerc] = useState(0);
 
+    const handleGetdata = async () => {
+        console.log('handleGetdata');
+        const listDelAsyncStorage = ['homePost', 'avatar'];
+        listDelAsyncStorage.forEach((item) => {
+            CacheManager.getCacheInfo(item);
+        });
+    };
+
+    const handleClearCache = async () => {
+        const listDelAsyncStorage = ['homePost', 'avatar'];
+        listDelAsyncStorage.forEach(async (item) => {
+            await removeAsyncStorage(item);
+        });
+    };
+
     const handleCreatePost = async (data) => {
+        Alert.alert('Thông báo', 'Đang chuẩn bị đăng bài viết', BASE_URL);
         const formData = new FormData();
         formData.append('described', data.described);
         formData.append('status', data.status);
@@ -143,6 +162,7 @@ const PostComposerComponent = ({ navigation, stylesInput, isHeader = false, post
             formData.append('video', data.video, data.video.type);
         }
         setShowCreatePost(false);
+        Alert.alert('Thông báo', 'Đang chuẩn bị đăng bài viết.....');
 
         const token = await getTokenStorage();
         const options = {
@@ -158,16 +178,22 @@ const PostComposerComponent = ({ navigation, stylesInput, isHeader = false, post
             maxRedirects: 0,
         };
         const url = '/add_post';
+        Alert.alert('Thông báo', 'Đang chuẩn bị đăng bài viết...........', BASE_URL + url);
         axios
             .post(url, formData, options)
             .then((res) => {
+                Alert.alert('Thông báo', 'Đã có res: ' + res.data.code);
+                Alert.alert('Thông báo', 'Đã có res message: ' + res.data.message);
                 if (res.data.code === '1000') {
+                    Alert.alert('Thông báo', 'Đã có res data: ' + res.data.data.id);
                     handleRequestNewPost(res.data.data.id);
                 } else {
+                    Alert.alert('Thông báo', 'Đã có res lỗi: ' + res.data.code);
                     console.log(res);
                 }
             })
             .catch((e) => {
+                Alert.alert('Thông báo', 'Đã có lỗi: ' + e.message);
                 if (e.response) {
                     console.log(e.response.data);
                     console.log(e.response.status);
@@ -177,6 +203,7 @@ const PostComposerComponent = ({ navigation, stylesInput, isHeader = false, post
                 } else {
                     console.log('e', e.message);
                 }
+                Alert.alert('Thông báo', 'Đã có lỗi: ' + e.config);
                 console.log(e.config);
             });
     };
@@ -209,9 +236,7 @@ const PostComposerComponent = ({ navigation, stylesInput, isHeader = false, post
     const listItemsBottom = [
         {
             title: 'Trạng thái',
-            onPress: () => {
-                AlertComponent.alert('OK');
-            },
+            onPress: handleClearCache,
             SVGIcon: SVGEdit,
             styleIcon: { width: 22, height: 22 },
         },
@@ -223,7 +248,7 @@ const PostComposerComponent = ({ navigation, stylesInput, isHeader = false, post
         },
         {
             title: 'Check in',
-            onPress: () => {},
+            onPress: handleGetdata,
             SVGIcon: SVGCheckIn,
             styleIcon: { width: 26, height: 26 },
         },

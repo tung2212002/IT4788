@@ -11,7 +11,6 @@ const StackHome = createStackNavigator();
 
 const HomeStack = () => {
     const user = useSelector(selectUser);
-    const username = user?.username;
 
     const screenItemsLogin = [
         {

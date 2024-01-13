@@ -18,6 +18,7 @@ import PopupComponent from './PopupComponent';
 import { Pressable } from 'react-native';
 import { useDispatch } from 'react-redux';
 import { deleteRequestFriendMain } from '../redux/features/friend/friendSlice';
+import CachedImage from './CachedImage';
 
 const Container = styled.View`
     flex-direction: row;
@@ -105,7 +106,7 @@ const Modal = styled(PopupComponent)`
     paddiing-bottom: 20px;
 `;
 
-function RequestFriendComponent({ data, listRequestFriend, setTotal }) {
+function RequestFriendComponent({ data, listRequestFriend, setTotal, cacheFolder = '' }) {
     const dispatch = useDispatch();
 
     const [isAccept, setIsAccept] = useState(-1);
@@ -215,7 +216,19 @@ function RequestFriendComponent({ data, listRequestFriend, setTotal }) {
     return (
         <Container>
             <ContainerAvatar onPress={() => navigate(routes.PROFILE_SCREEN, { user_id: data.id })}>
-                <Avatar source={data.avatar === '' ? images.defaultAvatar : { uri: data.avatar }} />
+                {cacheFolder === '' ? (
+                    <Avatar source={data.avatar === '' ? images.defaultAvatar : { uri: data.avatar }} />
+                ) : data.avatar === '' ? (
+                    <Avatar source={images.defaultAvatar} />
+                ) : (
+                    <CachedImage
+                        source={{ uri: data.avatar }}
+                        imageStyle={{ width: 100, height: 100, borderRadius: 50 }}
+                        resizeMode="cover"
+                        cacheFolder={cacheFolder}
+                        cacheKey={data.avatar.split('/').pop()}
+                    />
+                )}
             </ContainerAvatar>
             <Info>
                 <ContainerText>

@@ -2,6 +2,7 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 
 import { mergeUserStorage, removeUserStorage } from '../../../utils/userStorage';
 import { logoutService } from '../../../services/userService';
+import { removeAsyncStorage } from '../../../utils/asyncCacheStorage';
 
 const initialState = {
     user: null,
@@ -21,9 +22,17 @@ export const logout = createAsyncThunk('auth/logout', async (requestLogout = tru
     try {
         logoutService()
             .then((res) => {
+                const listDelAsyncStorage = ['homePost'];
+                listDelAsyncStorage.forEach((item) => {
+                    removeAsyncStorage(item);
+                });
                 removeUserStorage();
             })
             .catch((e) => {
+                const listDelAsyncStorage = ['homePost'];
+                listDelAsyncStorage.forEach((item) => {
+                    removeAsyncStorage(item);
+                });
                 removeUserStorage();
             });
     } catch (error) {

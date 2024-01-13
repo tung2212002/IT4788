@@ -10,6 +10,7 @@ import ButtonIconComponent from '../ButtonIconComponent';
 import VectorIcon from '../../utils/VectorIcon';
 import convertTimeAgo from '../../utils/convertTimeAgo';
 import FeelComponent from '../PostComponent/FeelComponent';
+import CachedImage from '../CachedImage';
 
 const { width } = Dimensions.get('window');
 
@@ -37,10 +38,11 @@ const NumberOfImage = styled.Text`
 const HeaderModal = styled.View`
     position: absolute;
     width: 100%;
-    height: 45px;
+    height: 60px;
     z-index: 1;
     background-color: ${Color.backGroundLoading};
     justify-content: center;
+    padding-vertical: 15px;
 `;
 
 const CloseButton = styled.TouchableOpacity`
@@ -105,7 +107,7 @@ const FooterPost = styled.View`
 const ButtonIcon = styled(ButtonIconComponent)``;
 
 const PhotoGrid = (props) => {
-    const { imageProps, setAllImage, allImage, canDelete, renderModalFooter, renderMFooter, handleDeleteImage, setItemPost } = props;
+    const { imageProps, setAllImage, allImage, canDelete, renderModalFooter, renderMFooter, handleDeleteImage, setItemPost, cacheFolder } = props;
     const source = _.take(props.source, 5);
     const firstViewImages = [];
     const secondViewImages = [];
@@ -256,17 +258,35 @@ const PhotoGrid = (props) => {
                                         <Text style={{ color: Color.white, fontSize: 20 }}>Xóa</Text>
                                     </Pressable>
                                 )}
-                                <StyledImage
-                                    style={{
-                                        height: Dimensions.get('window').height,
-                                        width: Dimensions.get('window').width,
-                                        resizeMode: 'contain',
-                                        backgroundColor: Color.backGroundTransparent5,
-                                    }}
-                                    source={{
-                                        uri: item?.url,
-                                    }}
-                                />
+                                {cacheFolder !== '' ? (
+                                    <CachedImage
+                                        style={{
+                                            height: Dimensions.get('window').height,
+                                            width: Dimensions.get('window').width,
+                                            resizeMode: 'contain',
+                                            backgroundColor: Color.backGroundTransparent5,
+                                            zIndex: 1010,
+                                        }}
+                                        source={{
+                                            uri: typeof item === 'string' ? item : item?.url,
+                                        }}
+                                        cacheKey={item?.url.split('/').pop()}
+                                        cacheFolder={cacheFolder}
+                                        image={true}
+                                    />
+                                ) : (
+                                    <Image
+                                        style={{
+                                            height: Dimensions.get('window').height,
+                                            width: Dimensions.get('window').width,
+                                            resizeMode: 'contain',
+                                            backgroundColor: Color.backGroundTransparent5,
+                                        }}
+                                        source={{
+                                            uri: item?.url,
+                                        }}
+                                    />
+                                )}
                             </Pressable>
                         ))}
                 </StyledScrollView>
@@ -327,7 +347,19 @@ const PhotoGrid = (props) => {
                             source={typeof image === 'string' ? { uri: image } : image}
                             {...imageProps}
                         /> */}
-                        <Image style={[styles.image, { width: firstImageWidth, height: firstImageHeight }, props.imageStyle]} source={{ uri: image?.url }} />
+                        {cacheFolder !== '' ? (
+                            <CachedImage
+                                imageStyle={[styles.image, { width: firstImageWidth, height: firstImageHeight }, props.imageStyle]}
+                                source={{ uri: image?.url }}
+                                cacheKey={image?.url.split('/').pop()}
+                                cacheFolder={cacheFolder}
+                            />
+                        ) : (
+                            <ImageBackground
+                                style={[styles.image, { width: firstImageWidth, height: firstImageHeight }, props.imageStyle]}
+                                source={{ uri: image?.url }}
+                            />
+                        )}
 
                         {canDelete && (
                             <Pressable
@@ -375,16 +407,61 @@ const PhotoGrid = (props) => {
                             }}
                         >
                             {key < 4 && props.source.length > 5 && index === key + 3 ? (
-                                <ImageBackground
-                                    style={[styles.image, { width: secondImageWidth, height: secondImageHeight }, props.imageStyle]}
-                                    source={{ uri: typeof image === 'string' ? image : image?.url }}
-                                >
-                                    <View style={styles.lastWrapper}>
-                                        <Text style={[styles.textCount, props.textStyles]}>+{props.source.length - 5}</Text>
-                                    </View>
-                                </ImageBackground>
+                                cacheFolder !== '' ? (
+                                    <CachedImage
+                                        imageStyle={[styles.image, { width: secondImageWidth, height: secondImageHeight }, props.imageStyle]}
+                                        source={{ uri: typeof image === 'string' ? image : image?.url }}
+                                        cacheKey={image?.url.split('/').pop()}
+                                        cacheFolder={cacheFolder}
+                                    >
+                                        <View style={styles.lastWrapper}>
+                                            <Text style={[styles.textCount, props.textStyles]}>+{props.source.length - 5}</Text>
+                                        </View>
+                                    </CachedImage>
+                                ) : (
+                                    <ImageBackground
+                                        style={[styles.image, { width: secondImageWidth, height: secondImageHeight }, props.imageStyle]}
+                                        source={{ uri: typeof image === 'string' ? image : image?.url }}
+                                    >
+                                        <View style={styles.lastWrapper}>
+                                            <Text style={[styles.textCount, props.textStyles]}>+{props.source.length - 5}</Text>
+                                        </View>
+                                    </ImageBackground>
+                                )
                             ) : (
-                                key < 3 && (
+                                key < 3 &&
+                                (cacheFolder !== '' ? (
+                                    <CachedImage
+                                        style={[styles.image, { width: secondImageWidth, height: secondImageHeight }, props.imageStyle]}
+                                        source={{ uri: typeof image === 'string' ? image : image?.url }}
+                                        cacheKey={image?.url.split('/').pop()}
+                                        cacheFolder={cacheFolder}
+                                    >
+                                        {canDelete && (
+                                            <Pressable
+                                                imageStyle={{
+                                                    position: 'absolute',
+                                                    top: 8,
+                                                    right: 8,
+                                                    width: 40,
+                                                    height: 40,
+                                                    borderRadius: 10,
+                                                    backgroundColor: Color.backGroundTransparent5,
+                                                    justifyContent: 'center',
+                                                    alignItems: 'center',
+                                                }}
+                                                onPress={() => {
+                                                    if (image?.url) {
+                                                        handleDeleteImage ? handleDeleteImage(image.url ? image.url : image.uri) : null;
+                                                        setAllImage(allImage.filter((item) => (item.uri ? item.uri : item?.url) !== image.url));
+                                                    }
+                                                }}
+                                            >
+                                                <Text style={{ color: '#fff', fontSize: 20 }}>x</Text>
+                                            </Pressable>
+                                        )}
+                                    </CachedImage>
+                                ) : (
                                     <ImageBackground
                                         style={[styles.image, { width: secondImageWidth, height: secondImageHeight }, props.imageStyle]}
                                         source={{ uri: typeof image === 'string' ? image : image?.url }}
@@ -413,7 +490,7 @@ const PhotoGrid = (props) => {
                                             </Pressable>
                                         )}
                                     </ImageBackground>
-                                )
+                                ))
                             )}
                         </TouchableOpacity>
                     ))}

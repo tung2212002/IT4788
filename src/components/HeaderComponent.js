@@ -27,11 +27,17 @@ import SearchHistoryComponent from './SearchComponent.js/SearchHistoryComponent'
 import { delSavedSearchService, getSavedSearchService, searchService } from '../services/searchService';
 import { navigate } from '../navigation/RootNavigator';
 import routes from '../constants/route';
+import { useDispatch, useSelector } from 'react-redux';
+import { addEndHistorySearch, removeHistorySearch, selectHistorySearch, selectUpdate, setHistorySearch } from '../redux/features/history/searchSlice';
 
 const { Value, timing } = Animated;
 const { width, height } = Dimensions.get('window');
 
 const HeaderComponent = ({ navigation, opacity, title, listItem }) => {
+    const dispatch = useDispatch();
+    const historySearch = useSelector(selectHistorySearch);
+    const update = useSelector(selectUpdate);
+
     const [isFocused, setIsFocused] = useState(false);
     const [keyWord, setKeyWord] = useState('');
     const inputBoxTranslateX = useRef(new Value(width)).current;
@@ -40,7 +46,7 @@ const HeaderComponent = ({ navigation, opacity, title, listItem }) => {
     const contentOpacity = useRef(new Value(0)).current;
     const inputRef = useRef(null);
     const [isLoading, setIsLoading] = useState(false);
-    const [historySearch, setHistorySearch] = useState([]);
+    // const [historySearch, setHistorySearch] = useState([]);
     const [isLoadHistory, setIsLoadHistory] = useState(false);
     const [pageHistory, setPageHistory] = useState({
         index: 0,
@@ -83,14 +89,15 @@ const HeaderComponent = ({ navigation, opacity, title, listItem }) => {
 
     const handleGetHistorySearch = () => {
         const body = {
-            index: pageHistory.index,
+            index: 0,
             count: pageHistory.count,
         };
 
         getSavedSearchService(body)
             .then((response) => {
                 if (response.data.code === '1000' && response.data.data.length === 10) {
-                    setHistorySearch(response.data.data);
+                    // setHistorySearch(response.data.data);
+                    dispatch(setHistorySearch(response.data.data));
                     setPageHistory({
                         ...pageHistory,
                         index: pageHistory.index + response.data.data.length,
@@ -99,7 +106,8 @@ const HeaderComponent = ({ navigation, opacity, title, listItem }) => {
                     });
                     setIsLoadHistory(false);
                 } else if (response.data.code === '1000' && response.data.data.length < 10) {
-                    setHistorySearch(response.data.data);
+                    // setHistorySearch(response.data.data);
+                    dispatch(setHistorySearch(response.data.data));
                     setPageHistory({
                         ...pageHistory,
                         index: pageHistory.index + response.data.data.length,
@@ -131,7 +139,8 @@ const HeaderComponent = ({ navigation, opacity, title, listItem }) => {
         getSavedSearchService(body)
             .then((response) => {
                 if (response.data.code === '1000' && response.data.data.length === 10) {
-                    setHistorySearch([...historySearch, ...response.data.data]);
+                    // setHistorySearch([...historySearch, ...response.data.data]);
+                    dispatch(addEndHistorySearch(response.data.data));
                     setPageHistory({
                         ...pageHistory,
                         index: pageHistory.index + response.data.data.length,
@@ -142,7 +151,8 @@ const HeaderComponent = ({ navigation, opacity, title, listItem }) => {
                         ...pageHistory,
                         hasNext: false,
                     });
-                    setHistorySearch([...historySearch, ...response.data.data]);
+                    // setHistorySearch([...historySearch, ...response.data.data]);
+                    dispatch(addEndHistorySearch(response.data.data));
                 } else {
                     setPageHistory({
                         ...pageHistory,
@@ -169,13 +179,15 @@ const HeaderComponent = ({ navigation, opacity, title, listItem }) => {
                             ...pageHistory,
                             index: 0,
                         });
-                        setHistorySearch([]);
+                        // setHistorySearch([]);
+                        dispatch(setHistorySearch([]));
                     } else {
                         setPageHistory({
                             ...pageHistory,
                             index: pageHistory.index - 1,
                         });
-                        setHistorySearch(historySearch.filter((item) => item.id !== id));
+                        // setHistorySearch(historySearch.filter((item) => item.id !== id));
+                        dispatch(removeHistorySearch(id));
                     }
                 }
             })
@@ -188,13 +200,13 @@ const HeaderComponent = ({ navigation, opacity, title, listItem }) => {
         if (keyWord.trim() === '') {
             return;
         }
-        navigation.push(routes.SEARCH_RESULT_SCREEN, { keyword: keyWord, navigation: navigation, refreshHistory: onRefresh });
-        onRefresh();
+        navigation.push(routes.SEARCH_RESULT_SCREEN, { keyword: keyWord });
+        // onRefresh();
     };
 
     useEffect(() => {
         handleGetHistorySearch();
-    }, []);
+    }, [update]);
 
     useEffect(() => {
         if (pageHistory.isRefresh && !isLoadHistory) {
@@ -286,14 +298,13 @@ const HeaderComponent = ({ navigation, opacity, title, listItem }) => {
                                     <Text style={styles.keyword_text_search}>Xem tất cả</Text>
                                 </TouchableOpacity>
 
-                                {historySearch.length > 0 ? (
+                                {historySearch && historySearch.length > 0 ? (
                                     historySearch.map((item, index) => (
                                         <SearchHistoryComponent
                                             key={item.id}
                                             item={item}
                                             navigation={navigation}
                                             handleDeleteHistorySearch={handleDeleteHistorySearch}
-                                            refreshHistory={onRefresh}
                                         />
                                     ))
                                 ) : (
